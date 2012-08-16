@@ -1,0 +1,20 @@
+#!/bin/bash
+#
+# Name: ddstat
+# Auth: Gavin Lloyd
+# Date: 21 Jan 2011
+# Desc: Prints I/O stats for all running instances of dd
+#
+
+source functions.sh
+
+PIDS=$(pidof /bin/dd)
+[ $? -ne 0 ] && die "no instances found"
+
+sudo -v
+[ $? -ne 0 ] && exit
+
+for PID in $PIDS; do
+  msg "sending USR1 to pid $PID"
+  sudo kill -USR1 $PID
+done

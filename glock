@@ -1,0 +1,16 @@
+#!/bin/bash
+#
+# Name: glock
+# Auth: Gavin Lloyd
+# Date: 13 Jan 2011 (last modified 03 Jun 2012)
+# Desc: Locks console with physlock if not already locked
+#
+
+PHYSLOCK=/usr/sbin/physlock
+
+[ ! -z $1 ] && USER=$1 || USER=$(whoami)
+[ -z ${USER} -o ${USER} == 'root' ] && USER=gavin
+
+if !(/bin/pidof ${PHYSLOCK} &> /dev/null); then
+  ${PHYSLOCK} -d -s -u ${USER}
+fi

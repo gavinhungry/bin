@@ -1,0 +1,33 @@
+#!/bin/bash
+
+source functions.sh
+
+pingmirror() {
+  MIRROR=$(cat /etc/pacman.d/mirrorlist | grep ^Server | \
+           head -n 1 | cut -d' ' -f3 | cut -d'/' -f3)
+
+  if ! ping -q -c 1 ${MIRROR} -w 2 &> /dev/null; then
+    die "no reply from ${MIRROR}"
+  fi
+}
+
+
+case $1 in
+  # search AUR in browser for packages
+  -A)
+    $BROWSER "https://aur.archlinux.org/packages.php?K=${2}"
+  ;;
+  # these options require root
+  -R* | -D* | -U* | -Sc* | -Sd*)
+    /usr/bin/sudo /usr/bin/pacman-color "$@"
+  ;;
+  # this options require an active internet connection
+  -S | -S[yusqi]* | -G)
+    pingmirror
+    /usr/bin/packer "$@"
+  ;;
+  # everything else
+  *)
+    /usr/bin/pacman-color "$@"
+  ;;
+esac

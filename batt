@@ -1,0 +1,13 @@
+#!/bin/bash
+
+ACPI=$(/usr/bin/acpi -b | sed s/^[^,]*\\s//g | sed s/,/\ -/g)
+STAT=$(echo ${ACPI} | cut -d'-' -f1,3)
+BATT=$(echo ${ACPI} | cut -d'%' -f1 | cut -d'-' -f2 | tr -d [:space:])
+
+if [ "$BATT" -le 10 ]; then
+  LEVEL='critical'
+else
+  LEVEL='normal'
+fi
+
+/usr/bin/notify-send --urgency=${LEVEL} "ACPI Battery Status (${BATT}%)" "${STAT}" &>> /tmp/batt_stat

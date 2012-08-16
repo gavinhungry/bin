@@ -1,0 +1,10 @@
+#!/bin/bash
+
+BA_BIN=/usr/bin/blueman-applet
+
+${BA_BIN} &> /dev/null &
+BA_PID=$!
+sleep 2
+
+# try again if it failed to launch
+ps -p ${BA_PID} &> /dev/null || ${BA_BIN} &> /dev/null &

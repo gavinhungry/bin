@@ -1,0 +1,9 @@
+#!/bin/bash
+
+if [ ! $(pidof X) ]; then
+  XAUTH=${HOME}/.Xauthority
+  rm -f ${XAUTH}
+  touch ${XAUTH}
+fi
+
+/usr/bin/startx "$@" 2>&1 | grep -Ev '^Kernel command line|fbcon' >&2

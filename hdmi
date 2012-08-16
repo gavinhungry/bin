@@ -1,0 +1,37 @@
+#!/bin/bash
+#
+# Name: hdmi
+# Auth: Gavin Lloyd
+# Date: 20 Nov 2010
+# Desc: Toggle HDMI video output
+#
+
+source functions.sh
+
+if [ $# -ne 1 ] || [ $1 != "on" -a $1 != "off" ]; then
+  die "{on|off}"
+fi
+
+if [ $1 == "on" ]; then
+  if (xrandr --output HDMI1 --mode 1920x1080 --below LVDS1 &> /dev/null); then
+    msg "HDMI enabled at 1080p"
+    exit 0
+  else
+    msg "could not enable HDMI at 1080p"
+  fi
+
+  if (xrandr --output HDMI1 --mode 1280x720 --below LVDS1 &> /dev/null); then
+    msg "HDMI enabled at 720p"
+    exit 0
+  else
+    msg "could not enable HDMI at 720p"
+    die "could not enable HDMI"
+  fi
+else
+  if (xrandr --auto &> /dev/null); then
+    msg "HDMI disabled"
+    exit 0
+  else
+    die "could not disable HDMI"
+  fi
+fi

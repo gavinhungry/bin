@@ -1,0 +1,5 @@
+#!/bin/bash
+
+IP=$(curl icanhazip.com 2> /dev/null)
+echo ${IP} | tr -d [:space:] | xclip -selection c && xclip -selection c -o
+echo

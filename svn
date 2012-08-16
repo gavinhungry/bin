@@ -1,0 +1,7 @@
+#!/bin/bash
+
+if [ $1 == 'clean' ]; then
+  /usr/bin/svn st | grep ^\! | awk '{print $2}' | xargs /usr/bin/svn delete --force 2> /dev/null
+else
+  /usr/bin/svn "$@"
+fi

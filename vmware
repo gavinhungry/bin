@@ -1,0 +1,19 @@
+#!/bin/bash
+
+VMWARE_BIN=/usr/bin/vmware
+PREFS_FILE=${HOME}/.vmware/preferences
+SET_FALSE="pref.view.homepage pref.view.navBar pref.view.statusBar pref.view.tabs"
+
+# fallback to just loading Workstation
+if [ ! -e ${PREFS_FILE} ]; then
+  ${VMWARE_BIN} "$@" &
+  exit
+fi
+
+for PREF in ${SET_FALSE}; do
+  sed -i "s/^${PREF}.\?=.*$//g" ${PREFS_FILE}  # remove old pref
+  echo "${PREF} = \"FALSE\""  >> ${PREFS_FILE} # apply pref
+done
+
+sed -i '/^$/d' ${PREFS_FILE} # remove empty lines
+${VMWARE_BIN} -n "$@" &

@@ -1,0 +1,26 @@
+#!/bin/bash
+#
+# Name: open
+# Auth: Gavin Lloyd
+# Date: 21 Jan 2011
+# Desc: semi-intelligent wrapper for exo-open
+#
+
+source functions.sh
+
+if [ $# -eq 0 ]; then
+  die "no file(s) specified"
+fi
+
+for FILE in "$@"; do
+
+  if [ ! -e "$FILE" ]; then
+    msg "'$FILE' does not exist"
+    continue
+  elif [ ! -r "$FILE" ]; then
+		msg "no permission to read '$FILE'"
+    continue
+  fi
+
+  exo-open "$FILE" &> /dev/null
+done
