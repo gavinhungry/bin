@@ -18,7 +18,7 @@ for FILE in "$@"; do
     msg "'$FILE' does not exist"
     continue
   elif [ ! -r "$FILE" ]; then
-		msg "no permission to read '$FILE'"
+    msg "no permission to read '$FILE'"
     continue
   fi
 
