@@ -1,0 +1,21 @@
+#!/bin/bash
+#
+# Name: modparam
+# Auth: Gavin Lloyd <gavinhungry@gmail.com>
+# Date: 01 Jun 2011 (last modified: 12 Aug 2012)
+# Desc: List loaded module parameters
+#
+
+source functions.sh
+[ $# -ne 1 ] && usage "MODULENAME"
+
+MODULE=$1
+PARAM_DIR=/sys/module/${MODULE}/parameters
+[ ! -d ${PARAM_DIR} ] && warn "no parameters for '${MODULE}'"
+
+for PARAM in ${PARAM_DIR}/*; do
+  [ -r ${PARAM} ] && VALUE=$(cat ${PARAM}) || VALUE=$(sudo cat ${PARAM})
+  OUT="${OUT}$(basename ${PARAM})=${VALUE}\n"
+done
+
+echo -en ${OUT}

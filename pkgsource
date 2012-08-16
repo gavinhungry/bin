@@ -1,0 +1,91 @@
+#!/bin/bash
+#
+# Name: pkgsource
+# Auth: Gavin Lloyd
+# Date: 09 Feb 2011 (last modified: 25 Jul 2012)
+# Desc: Copies PKGBUILD from SVN to devel folder
+#
+
+source functions.sh
+[ $# -eq 0 ] && die "no package(s) specified"
+
+TMPDIR=/tmp/pkgsource-$(whoami)-${$}
+ABSDEVEL=$HOME/devel/arch/abs
+AURDEVEL=$HOME/devel/arch/aur
+
+SVN="svn://svn.archlinux.org"
+AUR="https://aur.archlinux.org/packages"
+
+
+function getFromAUR {
+  PACKAGE="$1"
+  AURPKG=${TMPDIR}/${PACKAGE}.tar.gz
+
+  /usr/bin/wget -q "${AUR}/${PACKAGE}/${PACKAGE}.tar.gz" -O ${AURPKG}
+
+  if [ -s ${AURPKG} ]; then
+    msg "${PACKAGE} found in AUR"
+    /bin/tar xfvz ${AURPKG} -C ${AURDEVEL}
+    cd ${AURDEVEL}/${PACKAGE}
+    makepkg -o && msg "sources for ${PACKAGE} are ready in ${AURDEVEL}/${PACKAGE}"
+  else
+    err "${PACKAGE} not found in AUR"
+  fi
+}
+
+
+function getPKGBUILD {
+  [[ ${1} = -* ]] && err "incorrect parameter ${1}"
+  PACKAGE="$1"
+
+  # get repository given a package name
+  REPO=$(/usr/bin/pacman -Si "${PACKAGE}" 2> /dev/null | egrep ^Repository | sed -e s/^.*\:\\s*//g)
+  if [ -z ${REPO} ]; then
+    err "${PACKAGE} not found in any known repository"
+    getFromAUR ${PACKAGE}
+    continue
+  fi
+
+  if [ ${REPO} = "community" -o $REPO = "multilib" ]; then
+    SVNPKG="${SVN}/community"
+  else
+    SVNPKG="${SVN}/packages"
+  fi
+
+  msg "checking out ${PACKAGE} from subversion"
+  /usr/bin/svn co --depth=empty ${SVNPKG} ${TMPDIR}
+  cd ${TMPDIR}
+  
+  /usr/bin/svn up ${PACKAGE}
+  PKGDIR=${TMPDIR}/${PACKAGE}/repos/${REPO}-${HOSTTYPE}
+  if [ ! -f ${PKGDIR}/PKGBUILD ]; then
+    PKGDIR=${TMPDIR}/${PACKAGE}/repos/${REPO}-any
+  fi
+  [ ! -f ${PKGDIR}/PKGBUILD ] && warn "subversion checkout failed"
+
+  VERREPO=$(/usr/bin/pacman -Si ${PACKAGE} | egrep ^Version | sed s/^.*\:\\s*//g)
+  VERSVN=$(cat ${PKGDIR}/PKGBUILD | egrep ^pkgver | cut -d'=' -f2)-$(cat ${PKGDIR}/PKGBUILD | egrep ^pkgrel | cut -d'=' -f2)
+  # [ ${VERREPO} != ${VERSVN} ] && warn "version mismatch. ${REPO} repo reports ${VERREPO}, subversion reports ${VERSVN}"
+
+  # make sure package doesn't already exist in ABSDEVEL
+  [ -d ${ABSDEVEL}/${PACKAGE} ] && warn "path ${ABSDEVEL}/${PACKAGE} already exists"
+
+  cp -r ${PKGDIR} ${ABSDEVEL}/${PACKAGE}
+  cd ${ABSDEVEL}/${PACKAGE}
+  makepkg -o && msg "sources for ${REPO}/${PACKAGE} are ready in ${ABSDEVEL}/${PACKAGE}"
+}
+
+
+# make sure ABSDEVEL exists
+if [ ! -d ${ABSDEVEL} ]; then
+  msg "path ${ABSDEVEL} doesn't exist"
+  mkdir -p ${ABSDEVEL}
+fi
+
+mkdir -p ${TMPDIR}
+
+for PACKAGE in "$@"; do
+  getPKGBUILD ${PACKAGE}
+done
+
+[ -d ${TMPDIR} ] && rm -fr ${TMPDIR}

@@ -1,0 +1,8 @@
+#!/bin/bash
+
+source functions.sh
+
+[ $# -lt 2 ] && die "missing argument(s)"
+
+let LIMIT=$1*1024
+/usr/bin/netbrake --bps ${LIMIT} ${@:2}

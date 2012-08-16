@@ -1,0 +1,9 @@
+#!/bin/bash
+
+TRACKPOINT=$(xinput list | grep "IBM TrackPoint" | sed -e 's/^.*id=\([0-9]*\).*$/\1/')
+
+xinput set-int-prop ${TRACKPOINT} 'Evdev Wheel Emulation' 8 1
+xinput set-int-prop ${TRACKPOINT} 'Evdev Wheel Emulation Button' 8 2
+xinput set-int-prop ${TRACKPOINT} 'Evdev Wheel Emulation Axes' 8 6 7 4 5
+
+#xmodmap -e 'pointer = 1 0' 2> /dev/null

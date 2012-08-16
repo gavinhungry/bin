@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# always show the buddy list at launch
+sed -ie "s/\(pref name='list_visible' type='bool' value\)='0'/\1='1'/" ${HOME}/.purple/prefs.xml
+/usr/bin/pidgin -f

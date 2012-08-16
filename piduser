@@ -1,0 +1,19 @@
+#!/bin/bash
+#
+# Name: piduser
+# Auth: Gavin Lloyd <gavinhungry@gmail.com>
+# Date: 11 Apr 2012
+# Desc: gets the username belonging to a PID
+#
+
+[ $# -eq 0 ] && exit 1
+
+PROCESS_ID=${1}
+[ ! -e /proc/${PROCESS_ID}/status ] && exit 1
+
+USER_ID=$(cat /proc/${PROCESS_ID}/status | grep ^Uid: |\
+          sed -e 's/^.*:\t\([0-9]\+\).*$/\1/')
+USER_NAME=$(awk -v val=${USER_ID} -F ":" '$3==val{print $1}' /etc/passwd)
+[ -z ${USER_NAME} ] && exit 1
+
+echo $USER_NAME
