@@ -18,11 +18,12 @@ case $1 in
     $BROWSER "https://aur.archlinux.org/packages.php?K=${2}"
   ;;
   # these options require root
-  -R* | -D* | -U* | -Sc* | -Sd*)
+  -R* | -D* | -U* | -Sc*)
+    echo YO
     /usr/bin/sudo /usr/bin/pacman-color "$@"
   ;;
   # this options require an active internet connection
-  -S | -S[yusqi]* | -G)
+  -S | -S[dyusqi]* | -G)
     pingmirror
     /usr/bin/packer "$@"
   ;;
