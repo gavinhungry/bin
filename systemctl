@@ -1,6 +1,7 @@
 #!/bin/bash
 
 case $1 in
+  # this is an incomplete list
   (restart|stop|start)
     /usr/bin/sudo /usr/bin/systemctl "$@" ;;
   (*)
