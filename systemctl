@@ -2,7 +2,7 @@
 
 case $1 in
   # this is an incomplete list
-  (restart|stop|start)
+  (restart|stop|start|enable|disable|--system)
     /usr/bin/sudo /usr/bin/systemctl "$@" ;;
   (*)
     /usr/bin/systemctl "$@" ;;
