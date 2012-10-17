@@ -6,4 +6,4 @@ if [ ! $(pidof X) ]; then
   touch ${XAUTH}
 fi
 
-/usr/bin/startx "$@" 2>&1 | grep -Ev '^Kernel command line|fbcon' >&2
+/usr/bin/startx "$@" 2>&1 | grep -Ev '^Kernel command line|fbcon|Initializing built-in|Loading extension' >&2

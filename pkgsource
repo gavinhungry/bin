@@ -2,7 +2,7 @@
 #
 # Name: pkgsource
 # Auth: Gavin Lloyd
-# Date: 09 Feb 2011 (last modified: 25 Jul 2012)
+# Date: 09 Feb 2011 (last modified: 17 Oct 2012)
 # Desc: Copies PKGBUILD from SVN to devel folder
 #
 
@@ -27,7 +27,8 @@ function getFromAUR {
     msg "${PACKAGE} found in AUR"
     /bin/tar xfvz ${AURPKG} -C ${AURDEVEL}
     cd ${AURDEVEL}/${PACKAGE}
-    makepkg -o && msg "sources for ${PACKAGE} are ready in ${AURDEVEL}/${PACKAGE}"
+    [ $PKGONLY ==  0 ] && makepkg -o && msg "sources for ${PACKAGE} are ready in ${AURDEVEL}/${PACKAGE}"
+    [ $PKGONLY ==  1 ] && msg "${PACKAGE} package ready in ${AURDEVEL}/${PACKAGE}"
   else
     err "${PACKAGE} not found in AUR"
   fi
@@ -35,7 +36,7 @@ function getFromAUR {
 
 
 function getPKGBUILD {
-  [[ ${1} = -* ]] && err "incorrect parameter ${1}"
+  [[ ${1} = -* ]] && warn "incorrect parameter ${1}"
   PACKAGE="$1"
 
   # get repository given a package name
@@ -72,7 +73,9 @@ function getPKGBUILD {
 
   cp -r ${PKGDIR} ${ABSDEVEL}/${PACKAGE}
   cd ${ABSDEVEL}/${PACKAGE}
-  makepkg -o && msg "sources for ${REPO}/${PACKAGE} are ready in ${ABSDEVEL}/${PACKAGE}"
+  
+  [ $PKGONLY == 0 ] && makepkg -o && msg "sources for ${REPO}/${PACKAGE} are ready in ${ABSDEVEL}/${PACKAGE}"
+  [ $PKGONLY == 1 ] && msg "${REPO}/${PACKAGE} package ready in ${ABSDEVEL}/${PACKAGE}"
 }
 
 
@@ -83,6 +86,7 @@ if [ ! -d ${ABSDEVEL} ]; then
 fi
 
 mkdir -p ${TMPDIR}
+[ ${1-0} == '-p' ] && PKGONLY=1 && shift || PKGONLY=0
 
 for PACKAGE in "$@"; do
   getPKGBUILD ${PACKAGE}
