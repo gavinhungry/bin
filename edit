@@ -1,0 +1,30 @@
+#!/bin/bash
+#
+# Name: edit
+# Auth: Gavin Lloyd <gavinhungry@gmail.com>
+# Date: 18 Sep 2012 (last modified: 02 Oct 2012)
+# Desc: Opens a file for editing
+#
+
+source functions.sh
+
+if [ $# -eq 0 ]; then
+  die "no file(s) specified"
+fi
+
+for FILE in "$@"; do
+
+  if [ ! -e "$FILE" ]; then
+    msg "'$FILE' does not exist"
+    continue
+  elif [ ! -r "$FILE" ]; then
+    msg "no permission to read '$FILE'"
+    continue
+  fi
+
+  if [[ $TERM == xterm* ]] || [ $TERM = "screen" ]; then
+    ${EDITOR_X11:-gedit} "$FILE" &> /dev/null &
+  else
+    ${EDITOR:-emacs} "$FILE"
+  fi
+done

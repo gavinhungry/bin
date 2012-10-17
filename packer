@@ -19,7 +19,6 @@ case $1 in
   ;;
   # these options require root
   -R* | -D* | -U* | -Sc*)
-    echo YO
     /usr/bin/sudo /usr/bin/pacman-color "$@"
   ;;
   # this options require an active internet connection
