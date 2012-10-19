@@ -18,7 +18,7 @@ case $1 in
     $BROWSER "https://aur.archlinux.org/packages.php?K=${2}"
   ;;
   # these options require root
-  -R* | -D* | -U* | -Sc*)
+  -R* | -D* | -U* | -Sc* | -Sf*)
     /usr/bin/sudo /usr/bin/pacman-color "$@"
   ;;
   # this options require an active internet connection
