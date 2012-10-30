@@ -2,7 +2,7 @@
 #
 # Name: pkgsource
 # Auth: Gavin Lloyd
-# Date: 09 Feb 2011 (last modified: 17 Oct 2012)
+# Date: 09 Feb 2011 (last modified: 30 Oct 2012)
 # Desc: Copies PKGBUILD from SVN to devel folder
 #
 
@@ -14,17 +14,17 @@ ABSDEVEL=$HOME/devel/arch/abs
 AURDEVEL=$HOME/devel/arch/aur
 
 SVN="svn://svn.archlinux.org"
-AUR="https://aur.archlinux.org/packages"
-
+AUR="https://aur.archlinux.org"
+RPC="https://aur.archlinux.org/rpc.php?type"
 
 function getFromAUR {
   PACKAGE="$1"
   AURPKG=${TMPDIR}/${PACKAGE}.tar.gz
 
-  /usr/bin/wget -q "${AUR}/${PACKAGE}/${PACKAGE}.tar.gz" -O ${AURPKG}
-
-  if [ -s ${AURPKG} ]; then
+  TAR=$(curl -LfGs --data-urlencode "arg=$PACKAGE" "$RPC=info" | jshon -Q -e results -e URLPath -u)
+  if [ ! -z ${TAR} ]; then
     msg "${PACKAGE} found in AUR"
+    /usr/bin/wget -q "${AUR}${TAR}" -O ${AURPKG}
     /bin/tar xfvz ${AURPKG} -C ${AURDEVEL}
     cd ${AURDEVEL}/${PACKAGE}
     [ $PKGONLY ==  0 ] && makepkg -o && msg "sources for ${PACKAGE} are ready in ${AURDEVEL}/${PACKAGE}"
