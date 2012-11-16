@@ -1,8 +1,8 @@
 #!/bin/bash
 #
 # Name: functions.sh
-# Auth: Gavin Lloyd
-# Date: 01 Dec 2010 (last modified: 18 Aug 2011)
+# Auth: Gavin Lloyd <gavinhungry@gmail.com>
+# Date: 01 Dec 2010 (last modified: 11 Nov 2012)
 # Desc: Small functions for shell scripts
 #
 
@@ -17,15 +17,18 @@ usage() {
 }
 
 msg() {
-  echo -e "\033[1m$(basename $0)\033[0m: $@"
+  COLOR=37
+  [ "$1" = "-w" ] && shift && COLOR=33
+  [ "$1" = "-e" ] && shift && COLOR=31
+  echo -e "\e[1;${COLOR}m$(basename $0)\e[0m: $@"
 }
 
 err() {
-  msg "$@" >&2
+  msg -e "$@" >&2
 }
 
 warn() {
-  msg "$@" >&2
+  msg -w "$@" >&2
   continue &> /dev/null
 }
 
@@ -33,3 +36,4 @@ die() {
   err "$@"
   exit 1
 }
+
