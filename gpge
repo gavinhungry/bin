@@ -1,0 +1,34 @@
+#!/bin/bash
+#
+# Name: gpge
+# Auth: Gavin Lloyd <gavinhungry@gmail.com>
+# Date: 11 Nov 2012
+# Desc: GPG encryption script
+#
+
+source functions.sh
+[ $# -eq 0 ] && usage "FILE [...]"
+
+GPG=/usr/bin/gpg
+KEY=B44FED5A
+
+while [ $# -gt 0 ]; do
+  INPUT=$1
+  OUTPUT=${INPUT}.gpg
+
+  # check for valid input/output
+  [ ! -e "$INPUT" ] && shift && warn "file '$INPUT' does not exist"
+  [ -e "$OUTPUT" ]  && shift && warn "file '$OUTPUT' already exists"
+  
+  # encrypt file, remove output file on failure
+  $GPG --batch --output "$OUTPUT" -r $KEY --encrypt "$INPUT" &> /dev/null
+  if [ $? -ne 0 ]; then
+    rm "$OUTPUT"
+    err "failed to encrypt '$INPUT'"
+  else
+    msg "'$INPUT' successfully encrypted and written to '$OUTPUT'"
+  fi
+
+  # process next file
+  shift
+done
