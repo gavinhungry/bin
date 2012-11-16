@@ -1,3 +1,8 @@
-A collection of random Bash shell scripts I've created to make my life easier
+bin
+===
+A collection of small utility Bash shell scripts I've created.
 
+
+Usage
+-----
     export PATH=$HOME/bin:$PATH
