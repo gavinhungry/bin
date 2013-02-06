@@ -7,11 +7,18 @@
 #
 
 source functions.sh
-[ $# -eq 0 ] && usage "FILE [...]"
+[ $# -eq 0 ] && usage "FILE [OPTIONS] [FILE ...]"
 
 GPG=/usr/bin/gpg
 KEY=B44FED5A
 
+# process options
+unset OPTIONS
+for arg in "$@"; do
+  [[ "$arg" == -* ]] && OPTIONS+="$arg " && shift || break
+done
+
+# process files
 while [ $# -gt 0 ]; do
   INPUT=$1
   OUTPUT=${INPUT}.gpg
@@ -21,7 +28,7 @@ while [ $# -gt 0 ]; do
   [ -e "$OUTPUT" ]  && shift && warn "file '$OUTPUT' already exists"
   
   # encrypt file, remove output file on failure
-  $GPG --batch -o "$OUTPUT" -r $KEY -ea "$INPUT" &> /dev/null
+  $GPG --batch -o "$OUTPUT" -r $KEY -ea $OPTIONS "$INPUT" &> /dev/null
   if [ $? -ne 0 ]; then
     rm "$OUTPUT"
     err "failed to encrypt '$INPUT'"
