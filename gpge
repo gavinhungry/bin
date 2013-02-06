@@ -2,7 +2,7 @@
 #
 # Name: gpge
 # Auth: Gavin Lloyd <gavinhungry@gmail.com>
-# Date: 11 Nov 2012
+# Date: 11 Nov 2012 (last modified: 05 Feb 2013)
 # Desc: GPG encryption script
 #
 
@@ -21,7 +21,7 @@ while [ $# -gt 0 ]; do
   [ -e "$OUTPUT" ]  && shift && warn "file '$OUTPUT' already exists"
   
   # encrypt file, remove output file on failure
-  $GPG --batch --output "$OUTPUT" -r $KEY --encrypt "$INPUT" &> /dev/null
+  $GPG --batch -o "$OUTPUT" -r $KEY -ea "$INPUT" &> /dev/null
   if [ $? -ne 0 ]; then
     rm "$OUTPUT"
     err "failed to encrypt '$INPUT'"
