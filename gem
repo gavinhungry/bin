@@ -1,0 +1,8 @@
+#!/bin/bash
+
+GEM=/usr/bin/gem
+
+case $1 in
+  (install|uninstall|cleanup|update) sudo $GEM "$@" ;;
+  (*) $GEM "$@" ;;
+esac
