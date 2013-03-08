@@ -2,7 +2,7 @@
 #
 # Name: pkgsource
 # Auth: Gavin Lloyd
-# Date: 09 Feb 2011 (last modified: 30 Oct 2012)
+# Date: 09 Feb 2011 (last modified: 07 Mar 2013)
 # Desc: Copies PKGBUILD from SVN to devel folder
 #
 
@@ -41,6 +41,8 @@ function getPKGBUILD {
 
   # get repository given a package name
   REPO=$(/usr/bin/pacman -Si "${PACKAGE}" 2> /dev/null | egrep ^Repository | sed -e s/^.*\:\\s*//g)
+  pref TESTING && REPO='testing'
+
   if [ -z ${REPO} ]; then
     err "${PACKAGE} not found in any known repository"
     getFromAUR ${PACKAGE}
@@ -74,8 +76,8 @@ function getPKGBUILD {
   cp -r ${PKGDIR} ${ABSDEVEL}/${PACKAGE}
   cd ${ABSDEVEL}/${PACKAGE}
   
-  [ $PKGONLY == 0 ] && makepkg -o && msg "sources for ${REPO}/${PACKAGE} are ready in ${ABSDEVEL}/${PACKAGE}"
-  [ $PKGONLY == 1 ] && msg "${REPO}/${PACKAGE} package ready in ${ABSDEVEL}/${PACKAGE}"
+  pref PKGONLY || makepkg -o
+  msg "${REPO}/${PACKAGE} package ready in ${ABSDEVEL}/${PACKAGE}"
 }
 
 
@@ -86,9 +88,17 @@ if [ ! -d ${ABSDEVEL} ]; then
 fi
 
 mkdir -p ${TMPDIR}
-[ ${1-0} == '-p' ] && PKGONLY=1 && shift || PKGONLY=0
 
-for PACKAGE in "$@"; do
+for ARG in "$@"; do
+  case $ARG in
+    '-p'|'--pkgbuild') PKGONLY=1 ;;
+    '-t'|'--testing') TESTING=1 ;;
+    -*) warn "invalid argument $ARG" ;;
+    *) PACKAGES+=" ${ARG}"
+  esac
+done
+
+for PACKAGE in "${PACKAGES}"; do
   getPKGBUILD ${PACKAGE}
 done
 

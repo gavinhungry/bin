@@ -2,7 +2,7 @@
 #
 # Name: functions.sh
 # Auth: Gavin Lloyd <gavinhungry@gmail.com>
-# Date: 01 Dec 2010 (last modified: 11 Nov 2012)
+# Date: 01 Dec 2010 (last modified: 07 Mar 2013)
 # Desc: Small functions for shell scripts
 #
 
@@ -14,6 +14,10 @@ fi
 usage() {
   echo -e "\033[1musage\033[0m: $(basename $0) $@"
   exit 1
+}
+
+pref() {
+  [ ${!1:-0} -eq 1 ] && return
 }
 
 msg() {
