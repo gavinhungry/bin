@@ -2,7 +2,7 @@
 #
 # Name: pkgsource
 # Auth: Gavin Lloyd
-# Date: 09 Feb 2011 (last modified: 07 Mar 2013)
+# Date: 09 Feb 2011 (last modified: 11 Mar 2013)
 # Desc: Copies PKGBUILD from SVN to devel folder
 #
 
@@ -27,8 +27,9 @@ function getFromAUR {
     /usr/bin/wget -q "${AUR}${TAR}" -O ${AURPKG}
     /bin/tar xfvz ${AURPKG} -C ${AURDEVEL}
     cd ${AURDEVEL}/${PACKAGE}
-    [ $PKGONLY ==  0 ] && makepkg -o && msg "sources for ${PACKAGE} are ready in ${AURDEVEL}/${PACKAGE}"
-    [ $PKGONLY ==  1 ] && msg "${PACKAGE} package ready in ${AURDEVEL}/${PACKAGE}"
+
+    pref PKGONLY || makepkg -o
+    msg "${PACKAGE} package ready in ${AURDEVEL}/${PACKAGE}"
   else
     err "${PACKAGE} not found in AUR"
   fi
