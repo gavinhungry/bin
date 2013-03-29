@@ -10,7 +10,7 @@ source functions.sh
 [ $# -eq 0 ] && usage "FILE [OPTIONS] [FILE ...]"
 
 GPG=/usr/bin/gpg
-KEY=6A91E761F38F35A9
+KEY=67B5350325AE9A86
 
 # process options
 unset OPTIONS
