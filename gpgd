@@ -16,7 +16,7 @@ while [ $# -gt 0 ]; do
   INPUT=$1
   OUTPUT=${INPUT%.gpg}
   [ "$INPUT" = "$OUTPUT" ] && OUTPUT="$1.decrypted"
-  
+
   # check for valid input/output
   [ ! -e "$INPUT" ] && shift && warn "file '$INPUT' does not exist"
   [ -e "$OUTPUT" ]  && shift && warn "file '$OUTPUT' already exists"

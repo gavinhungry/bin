@@ -59,7 +59,7 @@ function getPKGBUILD {
   msg "checking out ${PACKAGE} from subversion"
   /usr/bin/svn co --depth=empty ${SVNPKG} ${TMPDIR}
   cd ${TMPDIR}
-  
+
   /usr/bin/svn up ${PACKAGE}
   PKGDIR=${TMPDIR}/${PACKAGE}/repos/${REPO}-${HOSTTYPE}
   if [ ! -f ${PKGDIR}/PKGBUILD ]; then
@@ -76,7 +76,7 @@ function getPKGBUILD {
 
   cp -r ${PKGDIR} ${ABSDEVEL}/${PACKAGE}
   cd ${ABSDEVEL}/${PACKAGE}
-  
+
   pref PKGONLY || makepkg -o
   msg "${REPO}/${PACKAGE} package ready in ${ABSDEVEL}/${PACKAGE}"
 }
