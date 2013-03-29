@@ -26,7 +26,7 @@ while [ $# -gt 0 ]; do
   # check for valid input/output
   [ ! -e "$INPUT" ] && shift && warn "file '$INPUT' does not exist"
   [ -e "$OUTPUT" ]  && shift && warn "file '$OUTPUT' already exists"
-  
+
   # encrypt file, remove output file on failure
   $GPG --batch -o "$OUTPUT" -r $KEY -ea $OPTIONS "$INPUT" &> /dev/null
   if [ $? -ne 0 ]; then
