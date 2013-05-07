@@ -2,7 +2,7 @@
 #
 # Name: pkgsource
 # Auth: Gavin Lloyd
-# Date: 09 Feb 2011 (last modified: 11 Mar 2013)
+# Date: 09 Feb 2011 (last modified: 07 May 2013)
 # Desc: Copies PKGBUILD from SVN to devel folder
 #
 
@@ -99,7 +99,7 @@ for ARG in "$@"; do
   esac
 done
 
-for PACKAGE in "${PACKAGES}"; do
+for PACKAGE in ${PACKAGES}; do
   getPKGBUILD ${PACKAGE}
 done
 
