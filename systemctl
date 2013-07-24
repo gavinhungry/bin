@@ -1,9 +1,13 @@
 #!/bin/bash
 
-case $1 in
-  # this is an incomplete list
-  (restart|stop|start|enable|disable|--system)
-    /usr/bin/sudo /usr/bin/systemctl "$@" ;;
-  (*)
+# find first command argument
+for ARG in "$@"; do
+  [[ $ARG != -* ]] && CARG=$ARG && break
+done
+
+case $CARG in
+  list-*|is-*|show-*|show|status|'')
     /usr/bin/systemctl "$@" ;;
+  *)
+    /usr/bin/sudo /usr/bin/systemctl "$@" ;;
 esac
