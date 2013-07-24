@@ -1,8 +1,10 @@
 #!/bin/bash
 
-VMWARE_BIN=/usr/bin/vmware
+VMWARE_BIN=/opt/vmware/bin/vmware
 PREFS_FILE=${HOME}/.vmware/preferences
 SET_FALSE="pref.view.homepage pref.view.navBar pref.view.statusBar pref.view.tabs"
+
+# export LD_LIBRARY_PATH=/usr/lib/vmware/lib/libcurl.so.4
 
 # fallback to just loading Workstation
 if [ ! -e ${PREFS_FILE} ]; then
