@@ -2,11 +2,11 @@
 #
 # Name: glock
 # Auth: Gavin Lloyd
-# Date: 13 Jan 2011 (last modified 03 Jun 2012)
+# Date: 13 Jan 2011 (last modified 22 Jul 2013)
 # Desc: Locks console with physlock if not already locked
 #
 
-PHYSLOCK=/usr/sbin/physlock
+PHYSLOCK=/usr/bin/physlock
 
 [ ! -z $1 ] && USER=$1 || USER=$(whoami)
 [ -z ${USER} -o ${USER} == 'root' ] && USER=gavin
