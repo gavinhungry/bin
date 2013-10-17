@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # needed for SIPE
-# export NSS_SSL_CBC_RANDOM_IV=0
+export NSS_SSL_CBC_RANDOM_IV=0
 
 # always show the buddy list at launch
 sed -ie "s/\(pref name='list_visible' type='bool' value\)='0'/\1='1'/" ${HOME}/.purple/prefs.xml
