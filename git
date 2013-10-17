@@ -1,0 +1,35 @@
+#!/bin/bash
+
+source functions.sh
+GIT=/usr/bin/git
+
+function must_be_git_repo {
+  $GIT rev-parse --is-inside-work-tree &> /dev/null
+  [ $? != 0 ] && die 'not a git repository'
+}
+
+function git_user {
+  if [ $# -eq 2 ]; then
+    must_be_git_repo
+    $($GIT config user.name "$1")
+    $($GIT config user.email "$2")
+  fi
+
+  NAME=$($GIT config user.name)
+  MAIL=$($GIT config user.email)
+  echo "$NAME <$MAIL>"
+}
+
+case $1 in
+
+  # git user: change user config or display current user
+  'user')
+    case $2 in
+      'gmail') git_user 'Gavin Lloyd' 'gavinhungry@gmail.com' ;;
+      'intel') git_user 'Gavin Lloyd' 'gavin.lloyd@intel.com' ;;
+      *) git_user ;;
+    esac
+  ;;
+
+  *) $GIT "$@" ;;
+esac
