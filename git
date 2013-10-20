@@ -11,8 +11,8 @@ function must_be_git_repo {
 function git_user {
   if [ $# -eq 2 ]; then
     must_be_git_repo
-    $($GIT config user.name "$1")
-    $($GIT config user.email "$2")
+    $GIT config user.name "$1"
+    $GIT config user.email "$2"
   fi
 
   NAME=$($GIT config user.name)
