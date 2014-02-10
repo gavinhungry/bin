@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VMWARE_BIN=/opt/vmware/bin/vmware
+VMWARE_BIN=/usr/bin/vmware
 PREFS_FILE=${HOME}/.vmware/preferences
 SET_FALSE="pref.view.homepage pref.view.navBar pref.view.statusBar pref.view.tabs"
 
