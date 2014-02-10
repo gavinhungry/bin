@@ -2,7 +2,7 @@
 #
 # Name: gpge
 # Auth: Gavin Lloyd <gavinhungry@gmail.com>
-# Date: 11 Nov 2012 (last modified: 19 Feb 2013)
+# Date: 11 Nov 2012 (last modified: 02 Dec 2013)
 # Desc: GPG encryption script
 #
 
@@ -10,7 +10,7 @@ source functions.sh
 [ $# -eq 0 ] && usage "FILE [OPTIONS] [FILE ...]"
 
 GPG=/usr/bin/gpg
-KEY=67B5350325AE9A86
+KEY=D71E118A91D4205A
 
 # process options
 unset OPTIONS
