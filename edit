@@ -2,7 +2,7 @@
 #
 # Name: edit
 # Auth: Gavin Lloyd <gavinhungry@gmail.com>
-# Date: 18 Sep 2012 (last modified: 02 Oct 2012)
+# Date: 18 Sep 2012 (last modified: 14 Mar 2014)
 # Desc: Opens a file for editing
 #
 
@@ -23,7 +23,7 @@ for FILE in "$@"; do
   fi
 
   if [[ $TERM == xterm* ]] || [ $TERM = "screen" ]; then
-    ${EDITOR_X11:-gedit} "$FILE" &> /dev/null &
+    ${EDITOR_X11:-subl} "$FILE" &> /dev/null &
   else
     ${EDITOR:-emacs} "$FILE"
   fi
