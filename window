@@ -1,0 +1,11 @@
+#!/bin/bash
+
+source functions.sh
+[ $# -eq 1 ] || usage "PID"
+
+if PID=$(pidof $1); then
+  WIN=$(wmctrl -lp | sed 's/\s\{1,\}/ /g' | cut -d' ' -f3 | sort -u | grep "^${PID}$")
+  [ ! -z ${WIN} ] && exit 0 || exit 1
+else
+  exit 1
+fi
