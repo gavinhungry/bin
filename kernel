@@ -1,7 +1,8 @@
 #!/usr/bin/env node
-#
-# Print latest Linux kernel version, according to kernel.org
-#
+
+/**
+ * Print latest Linux kernel version, according to kernel.org
+ */
 
 (function() {
   'use strict';
