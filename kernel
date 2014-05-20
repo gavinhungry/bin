@@ -1,0 +1,21 @@
+#!/usr/bin/env node
+#
+# Print latest Linux kernel version, according to kernel.org
+#
+
+(function() {
+  'use strict';
+
+  var curl = require('node-curl');
+  var cheerio = require('cheerio');
+
+  curl('https://kernel.org', function(err) {
+    if (err) { return console.error(err); }
+
+    var $ = cheerio.load(this.body);
+    var $latest = $('#latest_link > a');
+    var latest = $latest.text().trim();
+
+    console.log(latest);
+  });
+})();
