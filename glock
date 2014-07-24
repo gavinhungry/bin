@@ -12,5 +12,5 @@ PHYSLOCK=/usr/bin/physlock
 [ -z ${USER} -o ${USER} == 'root' ] && USER=gavin
 
 if !(/bin/pidof ${PHYSLOCK} &> /dev/null); then
-  ${PHYSLOCK} -d -s -u ${USER}
+  ${PHYSLOCK} -s -u ${USER}
 fi
