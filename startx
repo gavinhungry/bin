@@ -9,4 +9,4 @@ fi
 rm -fr ${HOME}/.cache/sessions
 
 cd ${HOME}
-/usr/bin/startx "$@" 2>&1 | grep -Ev '^Kernel command line|fbcon|Initializing built-in|Loading extension' >&2
+/usr/bin/startx "$@" | grep -Ev '^Kernel command line|fbcon|Initializing built-in|Loading extension' >&2
