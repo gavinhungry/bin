@@ -1,0 +1,12 @@
+#!/bin/bash
+
+sudo -v || exit
+
+packer -Syyua --noconfirm
+packer -Rsc $(packer -Qdtq) --noconfirm
+packer -Sc --noconfirm
+
+npm -g update
+
+gem update
+gem cleanup
