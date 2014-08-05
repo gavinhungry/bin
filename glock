@@ -7,14 +7,14 @@
 #
 
 DOCK=/usr/bin/dock
-DISPLAY=/usr/bin/display
-PHYSLOCK=/usr/bin/physlock
+DISP=/usr/bin/display
+LOCK=/usr/bin/physlock
 
-[ ! -z $1 ] && USER=$1 || USER=$(whoami)
-[ -z ${USER} -o ${USER} == 'root' ] && USER=gavin
+[ ! -z $1 ] && USERNAME=$1 || USERNAME=$(whoami)
+[ -z "$USERNAME" -o "$USERNAME" == 'root' ] && USERNAME=gavin
 
-if !(/bin/pidof ${PHYSLOCK} &> /dev/null); then
-  ${DISPLAY} single
-  ${PHYSLOCK} -s -u ${USER}
-  ${DOCK} check && ${DISPLAY} dock
+if !(/bin/pidof $LOCK &> /dev/null); then
+  [ -x $DISP ] && $DISP single
+  $LOCK -s -u $USERNAME
+  [ -x $DOCK ] && $DOCK
 fi
