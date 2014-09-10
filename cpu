@@ -1,0 +1,10 @@
+#!/bin/bash
+
+IFS=$(echo -en "\n\b")
+CPUS=$(cat /proc/cpuinfo | grep ^"model name" | tr -s " " | cut -d" " -f3-)
+MODELS=$(echo -e "${CPUS}" | sort -u)
+
+for MODEL in $MODELS; do
+  COUNT=$(echo "${CPUS}" | grep "^${MODEL}$" | wc -l)
+  echo "$COUNT x $MODEL"
+done
