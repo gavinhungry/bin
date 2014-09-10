@@ -6,5 +6,6 @@ MODELS=$(echo -e "${CPUS}" | sort -u)
 
 for MODEL in $MODELS; do
   COUNT=$(echo "${CPUS}" | grep "^${MODEL}$" | wc -l)
-  echo "$COUNT x $MODEL"
+  CLEANMODEL=$(echo "${MODEL}" | sed -r 's/\((R|TM)\)//g' | sed -r 's/\sCPU\s/ /g')
+  echo "$COUNT x $CLEANMODEL"
 done
