@@ -1,6 +1,6 @@
 bin
 ===
-A collection of small utility Bash shell scripts I've created.
+A collection of short utility scripts (mostly Bash shell scripts).
 
 
 Usage
