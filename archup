@@ -1,12 +1,23 @@
 #!/bin/bash
 
+source functions.sh
+sigint
+
+# Get root privileges
 sudo -v || exit
 
-packer -Syyua --noconfirm
+banner "Updating pacman databases"
+packer -Syy
+packer -Qu nodejs && packer -S nodejs --force
+
+banner "Updating packages"
+packer -Syua --noconfirm
 packer -Rsc $(packer -Qdtq) --noconfirm
 packer -Sc --noconfirm
 
+banner "Updating NPM modules"
 npm -g update
 
+banner "Updating Ruby gems"
 gem update
 gem cleanup
