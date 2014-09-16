@@ -57,3 +57,10 @@ die() {
   exit 1
 }
 
+sigint() {
+  _sigint() {
+    die killed
+  }
+
+  trap _sigint SIGINT
+}
