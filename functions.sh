@@ -2,7 +2,7 @@
 #
 # Name: functions.sh
 # Auth: Gavin Lloyd <gavinhungry@gmail.com>
-# Date: 01 Dec 2010 (last modified: 07 Mar 2013)
+# Date: 01 Dec 2010 (last modified: 16 Sep 2014)
 # Desc: Small functions for shell scripts
 #
 
@@ -20,11 +20,23 @@ pref() {
   [ ${!1:-0} -eq 1 ] && return
 }
 
+print() {
+  local ATTR=$1; shift
+  local FG=$1; shift
+  local BG=$1; shift
+  local BANNER=$1; shift
+
+  echo -e "\e[${ATTR};${FG};${BG}m${BANNER}\e[0m$@"
+}
+
 msg() {
-  COLOR=37
-  [ "$1" = "-w" ] && shift && COLOR=33
-  [ "$1" = "-e" ] && shift && COLOR=31
-  echo -e "\e[1;${COLOR}m$(basename $0)\e[0m: $@"
+  local FG=34
+  local BG=70
+
+  [ "$1" = "-w" ] && shift && FG=33
+  [ "$1" = "-e" ] && shift && FG=31
+
+  print 1 $FG $BG "$(basename $0)" ": $@"
 }
 
 err() {
@@ -34,6 +46,10 @@ err() {
 warn() {
   msg -w "$@" >&2
   continue &> /dev/null
+}
+
+banner() {
+  print 1 37 44 "$@"
 }
 
 die() {
