@@ -1,0 +1,40 @@
+#!/usr/bin/env node
+
+(function() {
+  'use strict';
+
+  var curl = require('node-curl');
+  var cheerio = require('cheerio');
+
+  // two letters followed by at least one number
+  var spinid_re = /^[a-z]{2}\d+$/i;
+
+  var uniq = function(str, i, list) {
+    return list.lastIndexOf(str) === i;
+  };
+
+  curl('http://www.wheeloffortunesolutions.com/spinid.html', function(err) {
+    if (err) { return console.error(err); }
+
+    var $ = cheerio.load(this.body);
+
+    var strings = $('.OutsetA').map(function() {
+      return $(this).text();
+    }).toArray();
+
+    var dates = strings.filter(function(str) {
+      return !Number.isNaN((new Date(str)).getTime());
+    }).filter(uniq).map(function(date) {
+      return new Date(date).toDateString();
+    });
+
+    var spinids = strings.filter(function(str) {
+      return spinid_re.test(str);
+    }).filter(uniq);
+
+    spinids.forEach(function(spinid, i) {
+      var date = dates[i] || dates[dates.length - 1];
+      console.log(date + ': ' + spinid);
+    });
+  });
+})();
