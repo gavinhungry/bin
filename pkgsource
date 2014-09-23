@@ -2,7 +2,7 @@
 #
 # Name: pkgsource
 # Auth: Gavin Lloyd
-# Date: 09 Feb 2011 (last modified: 07 May 2013)
+# Date: 09 Feb 2011 (last modified: 23 Sep 2014)
 # Desc: Copies PKGBUILD from SVN to devel folder
 #
 
@@ -94,6 +94,7 @@ for ARG in "$@"; do
   case $ARG in
     '-p'|'--pkgbuild') PKGONLY=1 ;;
     '-t'|'--testing') TESTING=1 ;;
+    '-k'|'--keep') KEEP=1 ;;
     -*) warn "invalid argument $ARG" ;;
     *) PACKAGES+=" ${ARG}"
   esac
@@ -103,4 +104,4 @@ for PACKAGE in ${PACKAGES}; do
   getPKGBUILD ${PACKAGE}
 done
 
-[ -d ${TMPDIR} ] && rm -fr ${TMPDIR}
+[ -d ${TMPDIR} ] && ! pref KEEP && rm -fr ${TMPDIR}
