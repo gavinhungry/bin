@@ -2,11 +2,10 @@
 #
 # Name: modparam
 # Auth: Gavin Lloyd <gavinhungry@gmail.com>
-# Date: 01 Jun 2011 (last modified: 12 Aug 2012)
 # Desc: List loaded module parameters
 #
 
-source functions.sh
+source $(dirname "${BASH_SOURCE}")/abash/abash.sh
 [ $# -ne 1 ] && usage "MODULENAME"
 
 MODULE=$1

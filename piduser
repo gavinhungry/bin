@@ -2,7 +2,6 @@
 #
 # Name: piduser
 # Auth: Gavin Lloyd <gavinhungry@gmail.com>
-# Date: 11 Apr 2012
 # Desc: gets the username belonging to a PID
 #
 

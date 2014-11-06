@@ -2,11 +2,10 @@
 #
 # Name: open
 # Auth: Gavin Lloyd
-# Date: 21 Jan 2011
 # Desc: semi-intelligent wrapper for exo-open
 #
 
-source functions.sh
+source $(dirname "${BASH_SOURCE}")/abash/abash.sh
 
 if [ $# -eq 0 ]; then
   die "no file(s) specified"

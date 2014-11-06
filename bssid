@@ -2,11 +2,10 @@
 #
 # Name: bssid
 # Auth: Gavin Lloyd
-# Date: 13 Jul 2012 (last modified: 16 Jul 2012)
 # Desc: Locks wireless BSSID to current AP in Network Manager
 #
 
-source functions.sh
+source $(dirname "${BASH_SOURCE}")/abash/abash.sh
 
 NM_DIR=/etc/NetworkManager/system-connections
 
