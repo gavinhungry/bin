@@ -2,11 +2,10 @@
 #
 # Name: gpgd
 # Auth: Gavin Lloyd <gavinhungry@gmail.com>
-# Date: 11 Nov 2012
 # Desc: GPG decryption script
 #
 
-source functions.sh
+source $(dirname "${BASH_SOURCE}")/abash/abash.sh
 [ $# -eq 0 ] && usage "FILE [...]"
 
 GPG=/usr/bin/gpg

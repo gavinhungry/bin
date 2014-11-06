@@ -2,11 +2,10 @@
 #
 # Name: pkgsource
 # Auth: Gavin Lloyd
-# Date: 09 Feb 2011 (last modified: 23 Sep 2014)
 # Desc: Copies PKGBUILD from SVN to devel folder
 #
 
-source functions.sh
+source $(dirname "${BASH_SOURCE}")/abash/abash.sh
 [ $# -eq 0 ] && die "no package(s) specified"
 
 TMPDIR=/tmp/pkgsource-$(whoami)-${$}

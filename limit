@@ -1,7 +1,6 @@
 #!/bin/bash
 
-source functions.sh
-
+source $(dirname "${BASH_SOURCE}")/abash/abash.sh
 [ $# -lt 2 ] && die "missing argument(s)"
 
 let LIMIT=$1*1024

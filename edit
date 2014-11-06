@@ -2,11 +2,10 @@
 #
 # Name: edit
 # Auth: Gavin Lloyd <gavinhungry@gmail.com>
-# Date: 18 Sep 2012 (last modified: 14 Mar 2014)
 # Desc: Opens a file for editing
 #
 
-source functions.sh
+source $(dirname "${BASH_SOURCE}")/abash/abash.sh
 
 if [ $# -eq 0 ]; then
   die "no file(s) specified"

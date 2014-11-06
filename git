@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source functions.sh
+source $(dirname "${BASH_SOURCE}")/abash/abash.sh
 GIT=/usr/bin/git
 
 function must_be_git_repo {

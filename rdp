@@ -2,12 +2,10 @@
 #
 # Name: rdp
 # Auth: Gavin Lloyd
-# Date: 25 Jun 2011
 # Desc: Profile wrapper for Remote Desktop (rdesktop)
 #
 
-source functions.sh
-
+source $(dirname "${BASH_SOURCE}")/abash/abash.sh
 [ $# -eq 1 ] || usage "PROFILE"
 
 PROFILE=$1
