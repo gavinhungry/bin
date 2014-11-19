@@ -5,4 +5,6 @@ A collection of short utility scripts (mostly Bash shell scripts).
 
 Usage
 -----
-    export PATH=$HOME/bin:$PATH
+```bash
+export PATH=$HOME/bin:$PATH
+```
