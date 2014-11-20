@@ -1,0 +1,5 @@
+#!/bin/bash
+
+MEM_KB=$(cat /proc/meminfo | grep ^MemTotal | awk '{print $2}')
+MEM_GB=$(echo "scale=1; ${MEM_KB}/1024/1024" | bc)
+echo "$MEM_GB GB"
