@@ -9,7 +9,9 @@ source $(dirname "${BASH_SOURCE}")/abash/abash.sh
 [ $# -eq 0 ] && usage "FILE [OPTIONS] [FILE ...]"
 
 GPG=/usr/bin/gpg
-KEY=EDF44C04
+
+KEY=$GPG_FINGERPRINT
+[ -z $KEY ] && die "GPG_FINGERPRINT is not defined"
 
 # process options
 unset OPTIONS
