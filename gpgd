@@ -23,7 +23,7 @@ while [ $# -gt 0 ]; do
   # decrypt file, remove output file on failure
   $GPG --batch --output "$OUTPUT" --decrypt "$INPUT" &> /dev/null
   if [ $? -ne 0 ]; then
-    rm "$OUTPUT"
+    rm -f "$OUTPUT"
     err "failed to decrypt '$INPUT'"
   else
     msg "'$INPUT' successfully decrypted and written to '$OUTPUT'"
