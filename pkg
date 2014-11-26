@@ -1,0 +1,9 @@
+#!/bin/bash
+
+source $(dirname "${BASH_SOURCE}")/abash/abash.sh
+
+PROG=$(which $1 2> /dev/null)
+FILE=${PROG:-$1}
+
+QQO=$(packer -Qqo $FILE 2> /dev/null)
+[ ! -z $QQO ] && packer -Qi $QQO
