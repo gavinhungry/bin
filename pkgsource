@@ -27,7 +27,7 @@ function getFromAUR {
     /bin/tar xfvz ${AURPKG} -C ${AURDEVEL}
     cd ${AURDEVEL}/${PACKAGE}
 
-    pref PKGONLY || makepkg -o
+    pref PKGONLY || makepkg -ors --noconfirm
     msg "${PACKAGE} package ready in ${AURDEVEL}/${PACKAGE}"
   else
     err "${PACKAGE} not found in AUR"
@@ -76,7 +76,7 @@ function getPKGBUILD {
   cp -r ${PKGDIR} ${ABSDEVEL}/${PACKAGE}
   cd ${ABSDEVEL}/${PACKAGE}
 
-  pref PKGONLY || makepkg -o
+  pref PKGONLY || makepkg -ors --noconfirm
   msg "${REPO}/${PACKAGE} package ready in ${ABSDEVEL}/${PACKAGE}"
 }
 
