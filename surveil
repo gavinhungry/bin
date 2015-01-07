@@ -1,0 +1,23 @@
+#!/bin/bash
+#
+# Name: surveil
+# Auth: Gavin Lloyd <gavinhungry@gmail.com>
+# Desc: Surveil file(s) and execute command when modified
+#
+# Example: surveil file.less "lessc file.less file.css"
+#
+
+source $(dirname "${BASH_SOURCE}")/abash/abash.sh
+[ $# -ge 1 ] || usage "FILE(s) \"COMMAND]\""
+
+FILES=${@:1:$(($#-1))}
+COMMAND=${@: -1}
+
+for FILE in $FILES; do
+  [ -r $FILE ] || die "Cannot read surveillance target: $FILE"
+done
+
+while true; do
+  inotifywait -qe modify $FILES &> /dev/null
+  eval $COMMAND
+done
