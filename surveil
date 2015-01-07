@@ -8,7 +8,7 @@
 #
 
 source $(dirname "${BASH_SOURCE}")/abash/abash.sh
-[ $# -ge 1 ] || usage "FILE(s) \"COMMAND\""
+[ $# -ge 1 ] || usage "FILES \"COMMAND\""
 
 FILES=${@:1:$(($#-1))}
 COMMAND=${@: -1}
