@@ -18,6 +18,6 @@ for FILE in $FILES; do
 done
 
 while true; do
-  inotifywait -qe modify $FILES &> /dev/null
+  inotifywait -qqe modify $FILES
   eval $COMMAND
 done
