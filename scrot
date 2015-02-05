@@ -7,4 +7,4 @@ CURRENT=$(date +'%s')
 let SINCEMN=${CURRENT}-${MIDNIGHT}
 [ ${SINCEMN} -lt 0 ] && SINCEMN=0
 
-/usr/bin/scrot "scrot_%F_${SINCEMN}.png"
+/usr/bin/scrot "$@" "scrot_%F_${SINCEMN}.png"
