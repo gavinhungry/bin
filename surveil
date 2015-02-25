@@ -18,6 +18,5 @@ for FILE in $FILES; do
 done
 
 while true; do
-  inotifywait -qqe modify $FILES
-  eval $COMMAND
+  inotifywait -qqe modify $FILES && eval $COMMAND || sleep 1
 done
