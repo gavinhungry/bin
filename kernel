@@ -7,13 +7,13 @@
 (function() {
   'use strict';
 
-  var curl = require('node-curl');
+  var request = require('request');
   var cheerio = require('cheerio');
 
-  curl('https://kernel.org', function(err) {
+  request('https://kernel.org', function(err, res, body) {
     if (err) { return console.error(err); }
 
-    var $ = cheerio.load(this.body);
+    var $ = cheerio.load(body);
     var $latest = $('#latest_link > a');
     var latest = $latest.text().trim();
 

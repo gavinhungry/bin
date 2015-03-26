@@ -3,8 +3,10 @@
 (function() {
   'use strict';
 
-  var curl = require('node-curl');
+  var request = require('request');
   var cheerio = require('cheerio');
+
+  var URI = 'http://www.wheeloffortunesolutions.com/spinid.html';
 
   // two letters followed by at least one number
   var spinid_re = /^[a-z]{2}\d+$/i;
@@ -13,10 +15,10 @@
     return list.lastIndexOf(str) === i;
   };
 
-  curl('http://www.wheeloffortunesolutions.com/spinid.html', function(err) {
+  request(URI, function(err, res, body) {
     if (err) { return console.error(err); }
 
-    var $ = cheerio.load(this.body);
+    var $ = cheerio.load(body);
 
     var strings = $('.OutsetA').map(function() {
       return $(this).text();
