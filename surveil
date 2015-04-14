@@ -17,6 +17,8 @@ for FILE in $FILES; do
   [ -r $FILE ] || die "Cannot read surveillance target: $FILE"
 done
 
+eval $COMMAND
+
 while true; do
   inotifywait -qqe modify $FILES && eval $COMMAND || sleep 1
 done
