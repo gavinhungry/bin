@@ -3,12 +3,17 @@
 source $(dirname "${BASH_SOURCE}")/abash/abash.sh
 sigint
 
+FORCE_FIRST="npm"
+
 # Get root privileges
 sudo -v || exit
 
 banner "Updating pacman databases"
 packer -Syy
-packer -Qu nodejs && packer -S nodejs --force --noconfirm
+
+for PKG in $FORCE_FIRST; do
+  packer -Qu $PKG && packer -S $PKG --force --noconfirm
+done
 
 banner "Updating packages"
 packer -Syua --noconfirm
