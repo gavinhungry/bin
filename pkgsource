@@ -12,9 +12,10 @@ TMPDIR=/tmp/pkgsource-$(whoami)-${$}
 ABSDEVEL=$HOME/devel/arch/abs
 AURDEVEL=$HOME/devel/arch/aur
 
+AUR_DOMAIN=aur4.archlinux.org
 SVN="svn://svn.archlinux.org"
-AUR="https://aur.archlinux.org"
-RPC="https://aur.archlinux.org/rpc.php?type"
+AUR="https://${AUR_DOMAIN}"
+RPC="https://${AUR_DOMAIN}/rpc.php?type"
 
 function getFromAUR {
   PACKAGE="$1"
