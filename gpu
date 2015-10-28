@@ -1,0 +1,4 @@
+#!/bin/bash
+
+lspci | grep VGA | cut -d':' -f3 | xargs
+
