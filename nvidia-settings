@@ -1,4 +1,0 @@
-#!/bin/bash
-
-VIRTUAL_DISPLAY=$(grep -m 1 ^VirtualDisplay /etc/bumblebee/bumblebee.conf | cut -d= -f2)
-optirun /usr/bin/nvidia-settings -c ${VIRTUAL_DISPLAY} "$@"
