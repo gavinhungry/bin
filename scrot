@@ -1,10 +1,3 @@
 #!/bin/bash
 
-MIDNIGHT=$(date -d"$(date +'%a %b %d')" +'%s')
-CURRENT=$(date +'%s')
-
-# use "seconds since midnight" in naming scheme
-let SINCEMN=${CURRENT}-${MIDNIGHT}
-[ ${SINCEMN} -lt 0 ] && SINCEMN=0
-
-/usr/bin/scrot "$@" "scrot_%F_${SINCEMN}.png"
+/usr/bin/scrot "$@" "scrot_%F_%H-%M-%S.png"
