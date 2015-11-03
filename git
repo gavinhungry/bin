@@ -24,11 +24,9 @@ case $1 in
 
   # git user: change user config or display current user
   'user')
-    case $2 in
-      'gmail') git_user 'Gavin Lloyd' 'gavinhungry@gmail.com' ;;
-      # 'intel') git_user 'Gavin Lloyd' 'gavin.lloyd@intel.com' ;;
-      *) git_user ;;
-    esac
+    NAME=$(gecos)
+    EMAIL=$(cat ~/.gitusers 2> /dev/null | grep "\@$2\.")
+    [ ! -z "$EMAIL" ] && git_user "$NAME" "$EMAIL" || git_user
   ;;
 
   *) $GIT "$@" ;;
