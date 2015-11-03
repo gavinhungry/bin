@@ -25,7 +25,7 @@ case $1 in
   # git user: change user config or display current user
   'user')
     NAME=$(gecos)
-    EMAIL=$(cat ~/.gitusers 2> /dev/null | grep "\@$2\.")
+    EMAIL=$(grep "\@$2\." ~/.gitusers -m 1 2> /dev/null)
     [ ! -z "$EMAIL" ] && git_user "$NAME" "$EMAIL" || git_user
   ;;
 
