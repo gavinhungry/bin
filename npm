@@ -1,8 +1,12 @@
 #!/bin/bash
 
+source $(dirname "${BASH_SOURCE}")/abash/abash.sh
+
 NPM=/usr/bin/npm
 
-case $1 in
-  (-g) sudo $NPM "$@" ;;
-  (*) $NPM "$@" ;;
-esac
+if arge g; then
+  sudo $NPM "$@"
+else
+  $NPM "$@"
+fi
+
