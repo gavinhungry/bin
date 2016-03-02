@@ -17,7 +17,7 @@ done
 
 banner "Updating packages"
 packer -Syua --noconfirm
-packer -Rsc $(packer -Qdtq) --noconfirm
+packer -Qdtq &> /dev/null && packer -Rsc $(packer -Qdtq) --noconfirm
 packer -Sc --noconfirm
 
 banner "Updating NPM modules"
