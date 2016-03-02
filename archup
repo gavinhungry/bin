@@ -3,26 +3,31 @@
 source $(dirname "${BASH_SOURCE}")/abash/abash.sh
 sigint
 
-FORCE_FIRST="npm"
-
 # Get root privileges
 sudo -v || exit
 
-banner "Updating pacman databases"
-packer -Syy
+time (
+  banner "Updating pacman databases"
+  packer -Syy
 
-for PKG in $FORCE_FIRST; do
-  packer -Qu $PKG && packer -S $PKG --force --noconfirm
-done
+  # for PKG in $FORCE_FIRST; do
+  #   packer -Qu $PKG && packer -S $PKG --force --noconfirm
+  # done
 
-banner "Updating packages"
-packer -Syua --noconfirm
-packer -Qdtq &> /dev/null && packer -Rsc $(packer -Qdtq) --noconfirm
-packer -Sc --noconfirm
+  banner "Updating packages"
+  packer -Syua --noconfirm
+  packer -Qdtq &> /dev/null && packer -Rsc $(packer -Qdtq) --noconfirm
+  packer -Sc --noconfirm
 
-banner "Updating NPM modules"
-npm -g update
+  banner "Updating Node modules"
+  npm -g update
 
-banner "Updating Ruby gems"
-gem update
-gem cleanup
+  banner "Updating Ruby gems"
+  gem update
+  gem cleanup
+
+  banner "Updating Python packages"
+  for PIP in pip pip2; do
+    $PIP freeze --local | grep -v '^\-e' | cut -d = -f 1  | sudo xargs $PIP install -Uq
+  done
+)
