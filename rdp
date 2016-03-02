@@ -1,0 +1,17 @@
+#!/bin/bash
+
+PROFILE_DIR=${HOME}/.rdp
+PROFILE=${PROFILE_DIR}/${1:-default}.rdp
+
+if [ -f ${PROFILE} ]; then
+  OPTIONS=""
+  RDP_HOSTNAME=$(grep "^full address:s:" ${PROFILE} | cut -d':' -f3)
+  RDP_FORCE_TLS=$(grep "^forcetls:i:" ${PROFILE} | cut -d':' -f3)
+
+  [ "${RDP_FORCE_TLS}" == "1" ] && OPTIONS+="/sec:tls"
+
+  shift
+  xfreerdp ${PROFILE} /title:${RDP_HOSTNAME} ${OPTIONS} "$@"
+else
+  xfreerdp "$@"
+fi
