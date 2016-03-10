@@ -1,14 +1,14 @@
 #!/bin/bash
 
+source $(dirname "${BASH_SOURCE}")/abash/abash.sh
+
 PROFILE_DIR=${HOME}/.rdp
-PROFILE=${PROFILE_DIR}/${1:-default}.rdp
+PROFILE=${PROFILE_DIR}/$(arg profile default).rdp
 
-if [ -f ${PROFILE} ]; then
-  RDP_HOSTNAME=$(grep "^full address:s:" ${PROFILE} | cut -d':' -f3)
-  RDP_OPTIONS=$(grep "^xfreerdp:s:" ${PROFILE} | cut -d':' -f3-)
+[ ! -f ${PROFILE} ] && die "profile not found"
 
-  shift
-  xfreerdp ${PROFILE} /title:${RDP_HOSTNAME} ${RDP_OPTIONS} "$@"
-else
-  xfreerdp "$@"
-fi
+RDP_HOSTNAME=$(grep "^full address:s:" ${PROFILE} | cut -d':' -f3)
+RDP_OPTIONS=$(grep "^xfreerdp:s:" ${PROFILE} | cut -d':' -f3-)
+
+shift
+xfreerdp ${PROFILE} /title:${RDP_HOSTNAME} ${RDP_OPTIONS} $(arg args)
