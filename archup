@@ -2,32 +2,41 @@
 
 source $(dirname "${BASH_SOURCE}")/abash/abash.sh
 sigint
+set -e
 
 # Get root privileges
-sudo -v || exit
+sudo -v || exit 1
+
+command_exists() {
+  command -v $1 > /dev/null
+}
 
 time (
   banner "Updating pacman databases"
   packer -Syy
 
-  # for PKG in $FORCE_FIRST; do
-  #   packer -Qu $PKG && packer -S $PKG --force --noconfirm
-  # done
-
   banner "Updating packages"
   packer -Syua --noconfirm
   packer -Qdtq &> /dev/null && packer -Rsc $(packer -Qdtq) --noconfirm
+
+  banner "Cleaning pacman cache"
   packer -Sc --noconfirm
 
-  banner "Updating Node modules"
-  npm -g update
+  if command_exists npm; then
+    banner "Updating Node modules"
+    npm -g update
+  fi
 
-  banner "Updating Ruby gems"
-  gem update
-  gem cleanup
+  if command_exists gem; then
+    banner "Updating Ruby gems"
+    gem update
+    gem cleanup
+  fi
 
-  banner "Updating Python packages"
-  for PIP in pip pip2; do
-    $PIP freeze --local | grep -v '^\-e' | cut -d = -f 1  | sudo xargs $PIP install -Uq
-  done
+  if command_exists pip || command_exists pip2; then
+    banner "Updating Python packages"
+    for PIP in pip pip2; do
+      command_exists $PIP && $PIP freeze --local | grep -v '^\-e' | cut -d = -f 1  | sudo xargs $PIP install -Uq
+    done
+  fi
 )
