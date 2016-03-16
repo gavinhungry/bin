@@ -11,32 +11,30 @@ command_exists() {
   command -v $1 > /dev/null
 }
 
-time (
-  bannerline "Updating pacman databases"
-  packer -Syy
+bannerline "Updating pacman databases"
+packer -Syy
 
-  bannerline "Updating packages"
-  packer -Syua --noconfirm
-  packer -Qdtq &> /dev/null && packer -Rsc $(packer -Qdtq) --noconfirm
+bannerline "Updating packages"
+packer -Syua --noconfirm
+packer -Qdtq &> /dev/null && packer -Rsc $(packer -Qdtq) --noconfirm
 
-  bannerline "Cleaning pacman cache"
-  packer -Sc --noconfirm
+bannerline "Cleaning pacman cache"
+packer -Sc --noconfirm
 
-  if command_exists npm; then
-    bannerline "Updating Node modules"
-    npm -g update
-  fi
+if command_exists npm; then
+  bannerline "Updating Node modules"
+  npm -g update
+fi
 
-  if command_exists gem; then
-    bannerline "Updating Ruby gems"
-    gem update
-    gem cleanup
-  fi
+if command_exists gem; then
+  bannerline "Updating Ruby gems"
+  gem update
+  gem cleanup
+fi
 
-  if command_exists pip || command_exists pip2; then
-    bannerline "Updating Python packages"
-    for PIP in pip pip2; do
-      command_exists $PIP && $PIP freeze --local | grep -v '^\-e' | cut -d = -f 1  | sudo xargs $PIP install -Uq
-    done
-  fi
-)
+if command_exists pip || command_exists pip2; then
+  bannerline "Updating Python packages"
+  for PIP in pip pip2; do
+    command_exists $PIP && $PIP freeze --local | grep -v '^\-e' | cut -d = -f 1  | sudo xargs $PIP install -Uq
+  done
+fi
