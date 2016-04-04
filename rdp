@@ -3,12 +3,21 @@
 source $(dirname "${BASH_SOURCE}")/abash/abash.sh
 
 PROFILE_DIR=${HOME}/.rdp
-PROFILE=${PROFILE_DIR}/$(arg profile default).rdp
+PROFILE=$(readlink -f ${PROFILE_DIR}/$(arg profile default).rdp)
 
 [ ! -f ${PROFILE} ] && die "profile not found"
 
 RDP_HOSTNAME=$(grep "^full address:s:" ${PROFILE} | cut -d':' -f3)
+RDP_NETBIOS=$(grep "^use netbios:i:" ${PROFILE} | cut -d':' -f3-)
 RDP_OPTIONS=$(grep "^xfreerdp:s:" ${PROFILE} | cut -d':' -f3-)
+
+# FIXME: need to accept certificate
+if [ ${RDP_NETBIOS:-0} -eq 1 ]; then
+  NMB_PROFILE=${PROFILE}.nmb
+  rm -f ${NMB_PROFILE}
+  sed "s/^\(full\ address:s:\).*/\1$(nmbip ${RDP_HOSTNAME})/" ${PROFILE} > ${NMB_PROFILE}
+  PROFILE=${NMB_PROFILE}
+fi
 
 shift
 xfreerdp ${PROFILE} /title:${RDP_HOSTNAME} ${RDP_OPTIONS} $(arg args)
