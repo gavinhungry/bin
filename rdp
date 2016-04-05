@@ -13,9 +13,10 @@ RDP_OPTIONS=$(grep "^xfreerdp:s:" ${PROFILE} | cut -d':' -f3-)
 
 # FIXME: need to accept certificate
 if [ ${RDP_NETBIOS:-0} -eq 1 ]; then
-  NMB_PROFILE=${PROFILE}.nmb
+  NMB_PROFILE=${PROFILE%.*}.nmb.rdp
   rm -f ${NMB_PROFILE}
   sed "s/^\(full\ address:s:\).*/\1$(nmbip ${RDP_HOSTNAME})/" ${PROFILE} > ${NMB_PROFILE}
+  sed "s/^\(use\ netbios:i:\).*/\10/" -i ${NMB_PROFILE}
   PROFILE=${NMB_PROFILE}
 fi
 
