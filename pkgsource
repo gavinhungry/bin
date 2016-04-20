@@ -12,16 +12,18 @@ TMPDIR=/tmp/pkgsource-$(whoami)-${$}
 ABSDEVEL=$HOME/devel/arch/abs
 AURDEVEL=$HOME/devel/arch/aur
 
-AUR_DOMAIN=aur4.archlinux.org
+AUR_DOMAIN=aur.archlinux.org
+AUR_VERSION=5
+
 SVN="svn://svn.archlinux.org"
 AUR="https://${AUR_DOMAIN}"
-RPC="https://${AUR_DOMAIN}/rpc.php?type"
+RPC="https://${AUR_DOMAIN}/rpc.php?v=${AUR_VERSION}&type"
 
 function getFromAUR {
   PACKAGE="$1"
   AURPKG=${TMPDIR}/${PACKAGE}.tar.gz
 
-  TAR=$(curl -LfGs --data-urlencode "arg=$PACKAGE" "$RPC=info" | jshon -Q -e results -e URLPath -u)
+  TAR=$(curl -LfGs --data-urlencode "arg=$PACKAGE" "$RPC=info" | jshon -Q -e results -a -e URLPath -u)
   if [ ! -z ${TAR} ]; then
     msg "${PACKAGE} found in AUR"
     /usr/bin/wget -q "${AUR}${TAR}" -O ${AURPKG}
