@@ -1,8 +1,0 @@
-{
-  "private": true,
-
-  "dependencies": {
-    "cheerio": "*",
-    "node-curl": "*"
-  }
-}
