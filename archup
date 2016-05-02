@@ -32,9 +32,3 @@ if command_exists gem; then
   gem cleanup
 fi
 
-if command_exists pip || command_exists pip2; then
-  bannerline "Updating Python packages"
-  for PIP in pip pip2; do
-    command_exists $PIP && $PIP freeze --local | grep -v '^\-e' | cut -d = -f 1  | sudo xargs $PIP install -Uq
-  done
-fi
