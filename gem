@@ -1,6 +1,7 @@
 #!/bin/bash
 
 GEM=/usr/bin/gem
+[ -x "$GEM" ] || exit 1
 
 case $1 in
   (install|uninstall|cleanup|update) sudo $GEM "$@" ;;
