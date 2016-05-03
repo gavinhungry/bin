@@ -10,7 +10,7 @@ source $(dirname "${BASH_SOURCE}")/abash/abash.sh
 
 MODULE=$1
 PARAM_DIR=/sys/module/${MODULE}/parameters
-[ ! -d ${PARAM_DIR} ] && warn "no parameters for '${MODULE}'"
+[ -d ${PARAM_DIR} ] || die "no parameters for '${MODULE}'"
 
 for PARAM in ${PARAM_DIR}/*; do
   [ -r ${PARAM} ] && VALUE=$(cat ${PARAM}) || VALUE=$(sudo cat ${PARAM})
