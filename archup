@@ -7,10 +7,6 @@ set -e
 # Get root privileges
 sudo -v || exit 1
 
-command_exists() {
-  command -v $1 > /dev/null
-}
-
 bannerline "Updating pacman databases"
 packer -Syy
 
@@ -21,12 +17,12 @@ packer -Qdtq &> /dev/null && packer -Rsc $(packer -Qdtq) --noconfirm
 bannerline "Cleaning pacman cache"
 packer -Sc --noconfirm
 
-if command_exists npm; then
+if [ -x /usr/bin/npm ]; then
   bannerline "Updating Node modules"
   npm -g update
 fi
 
-if command_exists gem; then
+if [ -x /usr/bin/gem ]; then
   bannerline "Updating Ruby gems"
   gem update
   gem cleanup
