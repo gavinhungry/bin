@@ -14,14 +14,15 @@ KEY=$GPG_FINGERPRINT
 [ -z $KEY ] && die "GPG_FINGERPRINT is not defined"
 
 # process options
-unset OPTIONS
-for arg in "$@"; do
-  [[ "$arg" == -* ]] && OPTIONS+="$arg " && shift || break
+for ARG in "$@"; do
+  case $ARG in
+    -*) OPTIONS+=" ${ARG}" ;;
+    *) FILES+=" ${ARG}"
+  esac
 done
 
 # process files
-while [ $# -gt 0 ]; do
-  INPUT=$1
+for INPUT in $FILES; do
   OUTPUT=${INPUT}.gpg
 
   # check for valid input/output
