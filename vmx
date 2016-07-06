@@ -20,7 +20,7 @@ VMX=$1
 VMXNAME=$(grep ^displayName $VMX | sed 's/.*=\s*"\(.*\)"/\1/g')
 
 DISP=$(next_display)
-TITLE="VMware - ${VMXNAME:-(unnamed)} (${DISP})"
+TITLE="${VMXNAME:-(unnamed)} - VMware (${DISP})"
 
 Xephyr -no-host-grab -title "${TITLE}" -resizeable -screen ${XEPHYR_RES:-1280x800} ${DISP} &
 XEPHYR_PID=$!
