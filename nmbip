@@ -5,7 +5,7 @@ source $(dirname "${BASH_SOURCE}")/abash/abash.sh
 
 set -o pipefail
 
-NETBIOS_NAME=$(echo $1 | cut -d'.' -f1)
+NETBIOS_NAME=${1%%.*}
 NMB_SERVER=${2:-$NMB_SERVER}
 
 [ -n "$NMB_SERVER" ] || die "NMB_SERVER not provided"
