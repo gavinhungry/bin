@@ -1,4 +1,4 @@
-  1;4402;0c#!/bin/bash
+#!/bin/bash
 
 source $(dirname "${BASH_SOURCE}")/abash/abash.sh
 
