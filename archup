@@ -17,7 +17,7 @@ packer -Qdtq &> /dev/null && packer -Rsc $(packer -Qdtq) --noconfirm
 bannerline "Cleaning pacman cache"
 packer -Sc --noconfirm
 
-if [ -x /usr/bin/npm ]; then
+if [ -x /usr/local/bin/npm ]; then
   bannerline "Updating Node modules"
   npm -g update
 fi
