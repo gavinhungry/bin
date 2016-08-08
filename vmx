@@ -1,7 +1,6 @@
 #!/bin/bash
 
 source $(dirname "${BASH_SOURCE}")/abash/abash.sh
-[ -r ${HOME}/.vmx ] && source ${HOME}/.vmx
 
 next_display() {
   X_DISP_DIR=/tmp/.X11-unix
