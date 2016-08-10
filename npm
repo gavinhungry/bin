@@ -2,7 +2,7 @@
 
 source $(dirname "${BASH_SOURCE}")/abash/abash.sh
 
-NPM=/usr/local/bin/npm
+NPM=/usr/bin/npm
 [ -x "$NPM" ] || exit 1
 
 if arge g; then
