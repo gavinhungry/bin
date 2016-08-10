@@ -6,7 +6,7 @@ NPM=/usr/bin/npm
 [ -x "$NPM" ] || exit 1
 
 if arge g; then
-  if [ $# -eq 2 -a "$2" == "update" ]; then
+  if [ $# -eq 2 -a "$2" == "upgrade" ]; then
     for pkg in $(npm -g outdated --parseable --depth=0 | cut -d: -f4); do
       sudo $NPM -g install "$pkg"
     done
