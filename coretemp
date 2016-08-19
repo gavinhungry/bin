@@ -1,0 +1,5 @@
+#!/bin/bash
+
+MEDIAN=$(sensors | grep ^Core | awk '{print $3}' | sed -e 's/.*\([[:digit:]]\{2,\}\)\..*/\1/g' | datamash mean 1)
+TEMP=$(echo "scale=1; $MEDIAN/1" | bc)
+echo "${TEMP}°C"
