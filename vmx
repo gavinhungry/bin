@@ -16,7 +16,7 @@ next_display() {
 VMX=$1
 [ -e "${VMX}" ] || usage [VMX]
 
-VMXNAME=$(grep ^displayName $VMX | sed 's/.*=\s*"\(.*\)"/\1/g')
+VMXNAME=$(grep ^displayName "$VMX" | sed 's/.*=\s*"\(.*\)"/\1/g')
 
 DISP=$(next_display)
 TITLE="${VMXNAME:-(unnamed)} - VMware (${DISP})"
