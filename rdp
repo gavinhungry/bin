@@ -21,4 +21,9 @@ if [ ${RDP_NETBIOS:-0} -eq 1 ]; then
 fi
 
 shift
+
+if arge fullscreen; then
+  RDP_OPTIONS+=' /f /toggle-fullscreen'
+fi
+
 xfreerdp ${PROFILE} /title:"${RDP_HOSTNAME%%.*} - Remote Desktop" ${RDP_OPTIONS} $(arg args)
