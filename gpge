@@ -10,8 +10,8 @@ source $(dirname "${BASH_SOURCE}")/abash/abash.sh
 
 GPG=/usr/bin/gpg
 
-KEY=$GPG_FINGERPRINT
-[ -z $KEY ] && die "GPG_FINGERPRINT is not defined"
+KEY=$GPGKEY
+[ -z $KEY ] && die "GPGKEY is not defined"
 
 # process options
 for ARG in "$@"; do
