@@ -8,6 +8,8 @@
 source $(dirname "${BASH_SOURCE}")/abash/abash.sh
 [ $# -eq 0 ] && die "no package(s) specified"
 
+export GNUPGHOME=/etc/pacman.d/gnupg
+
 TMPDIR=/tmp/pkgsource-$(whoami)-${$}
 ABSDEVEL=$HOME/devel/arch/abs
 AURDEVEL=$HOME/devel/arch/aur
