@@ -39,7 +39,6 @@ function getFromAUR {
   fi
 }
 
-
 function getPKGBUILD {
   [[ ${1} = -* ]] && warn "incorrect parameter ${1}"
   PACKAGE="$1"
@@ -71,11 +70,6 @@ function getPKGBUILD {
   fi
   [ ! -f ${PKGDIR}/PKGBUILD ] && warn "subversion checkout failed"
 
-  VERREPO=$(/usr/bin/pacman -Si ${PACKAGE} | egrep ^Version | sed s/^.*\:\\s*//g)
-  VERSVN=$(cat ${PKGDIR}/PKGBUILD | egrep ^pkgver | cut -d'=' -f2)-$(cat ${PKGDIR}/PKGBUILD | egrep ^pkgrel | cut -d'=' -f2)
-  # [ ${VERREPO} != ${VERSVN} ] && warn "version mismatch. ${REPO} repo reports ${VERREPO}, subversion reports ${VERSVN}"
-
-  # make sure package doesn't already exist in ABSDEVEL
   [ -d ${ABSDEVEL}/${PACKAGE} ] && warn "path ${ABSDEVEL}/${PACKAGE} already exists"
 
   cp -r ${PKGDIR} ${ABSDEVEL}/${PACKAGE}
@@ -85,8 +79,6 @@ function getPKGBUILD {
   msg "${REPO}/${PACKAGE} package ready in ${ABSDEVEL}/${PACKAGE}"
 }
 
-
-# make sure ABSDEVEL exists
 if [ ! -d ${ABSDEVEL} ]; then
   msg "path ${ABSDEVEL} doesn't exist"
   mkdir -p ${ABSDEVEL}
