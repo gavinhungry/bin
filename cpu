@@ -1,11 +1,17 @@
 #!/bin/bash
 
-IFS=$(echo -en "\n\b")
-CPUS=$(cat /proc/cpuinfo | grep ^"model name" | tr -s " " | cut -d" " -f3-)
-MODELS=$(echo -e "${CPUS}" | sort -u)
+clean() {
+  tr -s " " | cut -d":" -f2- | xargs
+}
 
-for MODEL in $MODELS; do
-  COUNT=$(echo "${CPUS}" | grep "^${MODEL}$" | wc -l)
-  CLEANMODEL=$(echo "${MODEL}" | sed -r 's/\((R|TM)\)//g' | sed -r 's/\sCPU\s/ /g')
-  echo "$COUNT x $CLEANMODEL"
-done
+IFS=$(echo -en "\n\b")
+CPU=$(lscpu | grep ^'Model name:' | clean)
+SOCKETS=$(lscpu | grep ^'NUMA node(s):' | clean)
+THREADS=$(lscpu | grep ^'CPU(s):' | clean)
+
+CLEANCPU=$(echo "${CPU}" | sed -r 's/\((R|TM)\)//g' | sed -r 's/\sCPU\s/ /g')
+
+OUTPUT=""
+[ "$SOCKETS" -ne 1 ] && OUTPUT+="$SOCKETS x "
+OUTPUT+="$CLEANCPU [$THREADS]"
+echo $OUTPUT
