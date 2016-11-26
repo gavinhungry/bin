@@ -1,9 +1,4 @@
 #!/bin/bash
-#
-# Name: piduser
-# Auth: Gavin Lloyd <gavinhungry@gmail.com>
-# Desc: gets the username belonging to a PID
-#
 
 [ $# -eq 0 ] && exit 1
 
