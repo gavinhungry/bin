@@ -13,7 +13,7 @@ for ARG in "$@"; do
 
   SECS=$(ps -p $PID -o etimes= 2> /dev/null | sed s/^\\s*//g)
   if [ -n "$SECS" ]; then
-    arge human && echo $(date -ud @${SECS} +"%T") || echo $SECS
+    arge human && echo $(ddiff now $(dadd now +${SECS}s) -f '%dd, %Hh%Mm%Ss') || echo $SECS
     exit
   fi
 done
