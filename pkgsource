@@ -50,7 +50,7 @@ function getPKGBUILD {
   if [ -z ${REPO} ]; then
     err "${PACKAGE} not found in any known repository"
     getFromAUR ${PACKAGE}
-    continue
+    return
   fi
 
   if [ ${REPO} = "community" -o $REPO = "multilib" ]; then
