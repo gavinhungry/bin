@@ -18,13 +18,6 @@ bannerline "Cleaning pacman cache"
 packer -Sc --noconfirm
 
 if [ -x /usr/local/bin/npm ]; then
-  bannerline "Updating Node modules"
+  bannerline "Updating global Node modules"
   npm -g update
 fi
-
-if [ -x /usr/bin/gem ]; then
-  bannerline "Updating Ruby gems"
-  gem update
-  gem cleanup
-fi
-
