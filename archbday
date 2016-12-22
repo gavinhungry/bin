@@ -1,4 +1,0 @@
-#!/bin/bash
-
-UTC_BDAY=$(head -n1 /var/log/pacman.log | awk -F'[][]' '{ print $2; }')
-date --date "$(date -u --date="${UTC_BDAY}")"
