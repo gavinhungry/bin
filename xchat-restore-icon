@@ -6,4 +6,3 @@ if pidof xchat; then
   xchat --existing --command="set gui_tray 1"
   xchat --existing --command="gui apply"
 fi
-
