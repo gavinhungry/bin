@@ -1,4 +1,3 @@
 #!/bin/bash
 
-lspci | grep VGA | cut -d':' -f3 | xargs
-
+lspci | grep VGA | cut -d':' -f3 | sed 's/^\s*//g'
