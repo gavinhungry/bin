@@ -1,0 +1,19 @@
+#!/bin/bash
+
+source $(dirname "${BASH_SOURCE}")/abash/abash.sh
+[ $# -ge 1 ] || usage PROGRAM [ARGS]
+
+PROGRAM=$1; shift
+ARGS="$@"
+
+while ! pidof $PROGRAM; do
+  if [ $(($(date +%s) - ${START:-0})) -ge 5 ]; then
+    COUNT=0
+    START=$(date +%s)
+  fi
+
+  [ $COUNT -ge 5 ] && die "$PROGRAM exited 5 times in under 5 seconds"
+
+  let "COUNT++"
+  $PROGRAM $ARGS
+done
