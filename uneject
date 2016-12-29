@@ -1,0 +1,5 @@
+#!/bin/bash
+
+for DEV in ${@:-/dev/disk/by-id/*}; do
+  sudo eject -t $DEV &> /dev/null && echo $DEV;
+done
