@@ -7,6 +7,7 @@ PROFILE=$(readlink -f ${PROFILE_DIR}/$(arg profile default).rdp)
 
 [ ! -f ${PROFILE} ] && die "profile not found"
 
+RDP_TITLE=$(grep "^title:s:" ${PROFILE} | cut -d':' -f3)
 RDP_HOSTNAME=$(grep "^full address:s:" ${PROFILE} | cut -d':' -f3)
 RDP_NETBIOS=$(grep "^use netbios:i:" ${PROFILE} | cut -d':' -f3-)
 RDP_OPTIONS=$(grep "^xfreerdp:s:" ${PROFILE} | cut -d':' -f3-)
@@ -26,4 +27,4 @@ if arge fullscreen; then
   RDP_OPTIONS+=' /f /toggle-fullscreen'
 fi
 
-xfreerdp ${PROFILE} /title:"${RDP_HOSTNAME%%.*} - Remote Desktop" ${RDP_OPTIONS} $(arg args)
+xfreerdp ${PROFILE} /title:"${RDP_TITLE:-${RDP_HOSTNAME%%.*}} - Remote Desktop" ${RDP_OPTIONS} $(arg args)
