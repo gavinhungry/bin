@@ -19,5 +19,5 @@ packer -Sc --noconfirm
 
 if [ -x /usr/local/bin/npm ]; then
   bannerline "Updating global Node modules"
-  npm -g update
+  npm -g soft-update
 fi
