@@ -20,5 +20,5 @@ done
 eval $COMMAND
 
 while true; do
-  inotifywait -qqe modify $FILES && sync $FILES && eval $COMMAND || sleep 1
+  inotifywait -qqe modify,attrib $FILES && sync $FILES && eval $COMMAND || sleep 1
 done
