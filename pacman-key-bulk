@@ -3,7 +3,7 @@
 source $(dirname "${BASH_SOURCE}")/abash/abash.sh
 [ -f "$1" ] || usage "FILE"
 
-KEYS=$(grep -o '^[A-F0-9]\{40\}' "$1")
+KEYS=$(grep -o '^[0-9A-F]\{40\}' "$1")
 [ -n "$KEYS" ] || die "No keys found in file"
 
 echo "$KEYS"
