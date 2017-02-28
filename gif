@@ -1,0 +1,8 @@
+#!/bin/bash
+
+source $(dirname "${BASH_SOURCE}")/abash/abash.sh
+
+[ -n "$1" ] || usage "FILE [FRAMERATE]"
+[ -f "$1" ] || die "$1 does not exist"
+
+ffmpeg -i "$1" -r ${2:-15} -f image2pipe -vcodec ppm - | convert -loop 0 - "${1%.*}.gif"
