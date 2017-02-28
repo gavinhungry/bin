@@ -2,8 +2,8 @@
 
 source $(dirname "${BASH_SOURCE}")/abash/abash.sh
 
-NPM=/usr/local/bin/npm
-[ -x "$NPM" ] || exit 1
+NPM=${NPM:-/usr/local/bin/npm}
+[ -x "$NPM" ] || die "Cannot execute $NPM"
 
 if arge g; then
   if [ $# -eq 2 -a "$2" == "soft-update" ]; then
@@ -16,4 +16,3 @@ if arge g; then
 else
   $NPM "$@"
 fi
-
