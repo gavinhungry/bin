@@ -1,8 +1,15 @@
 #!/bin/bash
 
 source $(dirname "${BASH_SOURCE}")/abash/abash.sh
+set -e
 
 [ -n "$1" ] || usage "FILE [FRAMERATE]"
 [ -f "$1" ] || die "$1 does not exist"
 
-ffmpeg -i "$1" -r ${2:-15} -f image2pipe -vcodec ppm - | convert -loop 0 - "${1%.*}.gif"
+FPS=${2:-15}
+PALETTE=/tmp/palette-$1-$$.png
+
+ffmpeg -i "$1" -vf fps=$FPS,palettegen "$PALETTE"
+ffmpeg -i "$1" -i "$PALETTE" -filter_complex fps=$FPS,paletteuse "${1%.*}.gif"
+
+rm $PALETTE
