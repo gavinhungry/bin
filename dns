@@ -1,0 +1,18 @@
+#!/bin/bash
+
+source $(dirname "${BASH_SOURCE}")/abash/abash.sh
+[ $# -eq 0 ] && usage "[-4|-6] DOMAIN"
+
+set -o pipefail
+
+KEY=ahosts
+arge 4 && KEY=ahostsv4
+arge 6 && KEY=ahostsv6
+
+for (( I=0; I<${BASH_ARGC:-0}; I++ )); do
+  [[ ${BASH_ARGV[$I]} != -* ]] && DOMAIN=${BASH_ARGV[$I]}
+done
+
+[ -n "$DOMAIN" ] || die "No domain provided"
+
+getent "$KEY" "$DOMAIN" | awk '{ print $1; }' | uniq
