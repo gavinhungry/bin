@@ -9,8 +9,11 @@ KEY=ahosts
 arge 4 && KEY=ahostsv4
 arge 6 && KEY=ahostsv6
 
-for (( I=0; I<${BASH_ARGC:-0}; I++ )); do
-  [[ ${BASH_ARGV[$I]} != -* ]] && DOMAIN=${BASH_ARGV[$I]}
+for ARG in "$@"; do
+  if [[ $ARG != -* ]]; then
+    DOMAIN=$ARG
+    break
+  fi
 done
 
 [ -n "$DOMAIN" ] || die "No domain provided"
