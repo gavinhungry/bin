@@ -3,10 +3,10 @@
 source $(dirname "${BASH_SOURCE}")/abash/abash.sh
 
 NPM=${NPM:-/usr/local/bin/npm}
-[ -x "$NPM" ] || die "Cannot execute $NPM"
+[ -x "$NPM" ] || die "cannot execute $NPM"
 
-if arge g; then
-  if [ $# -eq 2 -a "$2" == "soft-update" ]; then
+if arge global; then
+  if [ $# -eq 2 -a "$2" == 'soft-update' ]; then
     for pkg in $(npm -g outdated --parseable --depth=0 | cut -d: -f4); do
       sudo $NPM -g install "$pkg"
     done

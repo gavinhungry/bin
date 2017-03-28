@@ -1,11 +1,12 @@
 #!/bin/bash
 
-[ $# -eq 0 ] && exit 1
+source $(dirname "${BASH_SOURCE}")/abash/abash.sh
+[ $# -eq 1 ] || usage 'PID'
 
-PROCESS_ID=${1}
-[ ! -e /proc/${PROCESS_ID}/status ] && exit 1
+PID=$(pidpid $1)
+[ ! -e /proc/${PID}/status ] && exit 1
 
-USER_ID=$(cat /proc/${PROCESS_ID}/status | grep ^Uid: |\
+USER_ID=$(cat /proc/${PID}/status | grep ^Uid: |\
           sed -e 's/^.*:\t\([0-9]\+\).*$/\1/')
 USER_NAME=$(awk -v val=${USER_ID} -F ":" '$3==val{print $1}' /etc/passwd)
 [ -z ${USER_NAME} ] && exit 1

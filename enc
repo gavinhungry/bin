@@ -2,7 +2,7 @@
 
 source $(dirname "${BASH_SOURCE}")/abash/abash.sh
 
-[ -n "$1" -a -n "$2" ] || usage "FILE CODEC"
+[ -n "$1" -a -n "$2" ] || usage 'FILE CODEC'
 [ -f "$1" ] || die "$1 does not exist"
 
 ffmpeg -i "$1" -c:v copy -c:a $2 -vbr 0 "${1%.*}-$2.mp4"

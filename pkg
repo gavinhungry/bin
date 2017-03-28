@@ -1,7 +1,5 @@
 #!/bin/bash
 
-source $(dirname "${BASH_SOURCE}")/abash/abash.sh
-
 PROG=$(which $1 2> /dev/null)
 FILE=${PROG:-$1}
 

@@ -1,11 +1,8 @@
 #!/bin/bash
 
-# find first command argument
-for ARG in "$@"; do
-  [[ $ARG != -* ]] && CARG=$ARG && break
-done
+source $(dirname "${BASH_SOURCE}")/abash/abash.sh
 
-case $CARG in
+case $(fnfarg) in
   list-*|is-*|show-*|show|status|'')
     /usr/bin/systemctl "$@" ;;
   *)

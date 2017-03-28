@@ -1,10 +1,10 @@
 #!/bin/bash
 
 source $(dirname "${BASH_SOURCE}")/abash/abash.sh
-sigint
-set -e
-
 sudo -v || exit 1
+
+set -e
+sigint
 
 bannerline "Updating pacman databases"
 packer -Syy

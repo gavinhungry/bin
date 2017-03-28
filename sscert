@@ -1,21 +1,21 @@
 #!/bin/bash
 
 source $(dirname "${BASH_SOURCE}")/abash/abash.sh
-[ $# -le 2 ] || usage "[NAME] [KEYSIZE]"
+[ $# -eq 2 ] || usage '[NAME] [KEYSIZE]'
 
 OPENSSL=/usr/bin/openssl
-TMPDIR=/tmp
 
-NAME=${1:-server}
-KEYSIZE=${2:-1024}
+NAME=$1
+KEYSIZE=$2
+TMP=$(tmpdir $NAME)
 
 [ -f ${NAME}.key ] && die "${NAME}.key already exists"
 [ -f ${NAME}.crt ] && die "${NAME}.crt already exists"
 
-${OPENSSL} genrsa -des3 -out ${TMPDIR}/${NAME}.key ${KEYSIZE}
-${OPENSSL} req -new -key ${TMPDIR}/${NAME}.key -out ${TMPDIR}/${NAME}.csr
-cp ${TMPDIR}/${NAME}.key ${TMPDIR}/${NAME}.key.orig
-${OPENSSL} rsa -in ${TMPDIR}/${NAME}.key.orig -out ${NAME}.key
-${OPENSSL} x509 -req -days 3650 -in ${TMPDIR}/${NAME}.csr -signkey ${NAME}.key -out ${NAME}.crt
+${OPENSSL} genrsa -des3 -out ${TMP}/${NAME}.key ${KEYSIZE}
+${OPENSSL} req -new -key ${TMP}/${NAME}.key -out ${TMP}/${NAME}.csr
+cp ${TMP}/${NAME}.key ${TMP}/${NAME}.key.orig
+${OPENSSL} rsa -in ${TMP}/${NAME}.key.orig -out ${NAME}.key
+${OPENSSL} x509 -req -days 3650 -in ${TMP}/${NAME}.csr -signkey ${NAME}.key -out ${NAME}.crt
 
-rm ${TMPDIR}/${NAME}.key{,.orig} ${TMPDIR}/${NAME}.csr
+tmpdirclean
