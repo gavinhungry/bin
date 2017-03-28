@@ -1,25 +1,30 @@
 #!/bin/bash
-#
-# Name: open
-# Auth: Gavin Lloyd
-# Desc: semi-intelligent wrapper for exo-open
-#
 
 source $(dirname "${BASH_SOURCE}")/abash/abash.sh
 
 if [ $# -eq 0 ]; then
-  die "no file(s) specified"
+  usage 'FILE [FILE] ...'
 fi
 
-for FILE in "$@"; do
+argv=()
+for ARG in "$@"; do
 
-  if [ ! -e "$FILE" ]; then
-    msg "'$FILE' does not exist"
-    continue
-  elif [ ! -r "$FILE" ]; then
-    msg "no permission to read '$FILE'"
+  if [[ $ARG =~ ^[0-9a-zA-Z]*:// ]]; then
+    argv+=($ARG)
     continue
   fi
 
-  exo-open "$FILE" &> /dev/null
+  if [ ! -e "$ARG" ]; then
+    warn "'$ARG' does not exist"
+    continue
+  fi
+
+  if [ ! -r "$ARG" ]; then
+    warn "no permission to read '$ARG'"
+    continue
+  fi
+
+  argv+=($ARG)
 done
+
+exo-open ${argv[*]}
