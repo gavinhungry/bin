@@ -1,23 +1,9 @@
 #!/bin/bash
-#
-# Name: pkgsource
-# Auth: Gavin Lloyd
-# Desc: Copies PKGBUILD from SVN to devel folder
-#
 
 source $(dirname "${BASH_SOURCE}")/abash/abash.sh
-[ $# -eq 0 ] && die "no package(s) specified"
+[ $# -ge 1 ] || usage 'PACKAGE [PACKAGE ...]'
 
-export GNUPGHOME=/etc/pacman.d/gnupg
-
-TMPDIRSROOT=/tmp/pkgsource-$(whoami)-$$
-
-tmpDir() {
-  local TMPDIR=${TMPDIRSROOT}/${1:-package}-${RANDOM}
-
-  mkdir -p $TMPDIR
-  echo $TMPDIR
-}
+GNUPGHOME=/etc/pacman.d/gnupg
 
 ABSDEVEL=$HOME/devel/arch/abs
 AURDEVEL=$HOME/devel/arch/aur
@@ -31,9 +17,9 @@ RPC="https://${AUR_DOMAIN}/rpc.php?v=${AUR_VERSION}&type"
 
 function getFromAUR {
   PACKAGE="$1"
-  local TMPDIR=$(tmpDir $PACKAGE)
+  local TMP=$(tmpdir $PACKAGE)
 
-  AURPKG=${TMPDIR}/${PACKAGE}.tar.gz
+  AURPKG=${TMP}/${PACKAGE}.tar.gz
 
   TAR=$(curl -LfGs --data-urlencode "arg=${PACKAGE}" "${RPC}=info" | jshon -Q -e results -a -e URLPath -u)
   if [ ! -z ${TAR} ]; then
@@ -51,14 +37,14 @@ function getFromAUR {
 
 function getPKGBUILD {
   PACKAGE="$1"
-  local TMPDIR=$(tmpDir $PACKAGE)
+  local TMP=$(tmpdir $PACKAGE)
 
   # get repository given a package name
   REPO=$(/usr/bin/pacman -Si "${PACKAGE}" 2> /dev/null | egrep ^Repository | sed -e s/^.*\:\\s*//g)
   arge testing && REPO='testing'
 
   if [ -z ${REPO} ]; then
-    err "${PACKAGE} not found in any known repository"
+    warn "${PACKAGE} not found in any known repository"
     getFromAUR ${PACKAGE}
     return
   fi
@@ -70,13 +56,13 @@ function getPKGBUILD {
   fi
 
   msg "checking out ${PACKAGE} from subversion"
-  /usr/bin/svn co --depth=empty ${SVNPKG} ${TMPDIR}
-  cd ${TMPDIR}
+  /usr/bin/svn co --depth=empty ${SVNPKG} ${TMP}
+  cd ${TMP}
 
   /usr/bin/svn up ${PACKAGE}
-  PKGDIR=${TMPDIR}/${PACKAGE}/repos/${REPO}-${HOSTTYPE}
+  PKGDIR=${TMP}/${PACKAGE}/repos/${REPO}-${HOSTTYPE}
   if [ ! -f ${PKGDIR}/PKGBUILD ]; then
-    PKGDIR=${TMPDIR}/${PACKAGE}/repos/${REPO}-any
+    PKGDIR=${TMP}/${PACKAGE}/repos/${REPO}-any
   fi
   [ ! -f ${PKGDIR}/PKGBUILD ] && warn "subversion checkout failed"
 
@@ -90,7 +76,7 @@ function getPKGBUILD {
 }
 
 if [ ! -d ${ABSDEVEL} ]; then
-  msg "path ${ABSDEVEL} doesn't exist"
+  warn "path ${ABSDEVEL} doesn't exist"
   mkdir -p ${ABSDEVEL}
 fi
 
@@ -98,4 +84,4 @@ for PACKAGE in $(nfargs); do
   getPKGBUILD ${PACKAGE}
 done
 
-[ -d ${TMPDIRSROOT} ] && ! arge keep && rm -fr ${TMPDIRSROOT}
+arge keep || tmpdirclean

@@ -1,29 +1,23 @@
 #!/bin/bash
-#
-# Name: edit
-# Auth: Gavin Lloyd <gavinhungry@gmail.com>
-# Desc: Opens a file for editing
-#
 
 source $(dirname "${BASH_SOURCE}")/abash/abash.sh
+[ $# -ge 1 ] || usage 'FILE [FILE ...]'
 
-if [ $# -eq 0 ]; then
-  die "no file(s) specified"
-fi
+for ARG in "$@"; do
 
-for FILE in "$@"; do
-
-  if [ ! -e "$FILE" ]; then
-    msg "'$FILE' does not exist"
-    continue
-  elif [ ! -r "$FILE" ]; then
-    msg "no permission to read '$FILE'"
+  if [ ! -e "$ARG" ]; then
+    warn "$ARG does not exist"
     continue
   fi
 
-  if [[ $TERM == xterm* ]] || [ $TERM = "screen" ]; then
-    ${EDITOR_X11:-subl} "$FILE" &> /dev/null &
+  if [ ! -r "$ARG" ]; then
+    warn "$ARG is not readable"
+    continue
+  fi
+
+  if [[ $TERM == xterm* ]] || [ $TERM = 'screen' ]; then
+    ${EDITOR_X11:-subl} "$ARG" &> /dev/null &
   else
-    ${EDITOR:-emacs} "$FILE"
+    ${EDITOR:-emacs} "$ARG"
   fi
 done

@@ -2,10 +2,12 @@
 
 source $(dirname "${BASH_SOURCE}")/abash/abash.sh
 
+PROFILE_NAME=$(fnfarg)
 PROFILE_DIR=${HOME}/.rdp
-PROFILE=$(readlink -f ${PROFILE_DIR}/$(arg profile default).rdp)
+PROFILE=$(readlink -f ${PROFILE_DIR}/${PROFILE_NAME:-default}.rdp)
 
-[ ! -f ${PROFILE} ] && die "profile not found"
+echo $PROFILE
+[ -f ${PROFILE} ] || die 'profile not found'
 
 RDP_TITLE=$(grep "^title:s:" ${PROFILE} | cut -d':' -f3)
 RDP_HOSTNAME=$(grep "^full address:s:" ${PROFILE} | cut -d':' -f3)

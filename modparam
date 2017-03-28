@@ -1,16 +1,11 @@
 #!/bin/bash
-#
-# Name: modparam
-# Auth: Gavin Lloyd <gavinhungry@gmail.com>
-# Desc: List loaded module parameters
-#
 
 source $(dirname "${BASH_SOURCE}")/abash/abash.sh
-[ $# -ne 1 ] && usage "MODULENAME"
+[ $# -eq 1 ] || usage 'MODULENAME'
 
 MODULE=$1
 PARAM_DIR=/sys/module/${MODULE}/parameters
-[ -d ${PARAM_DIR} ] || die "no parameters for '${MODULE}'"
+[ -d ${PARAM_DIR} ] || die 'module has no parameters'
 
 for PARAM in ${PARAM_DIR}/*; do
   [ -r ${PARAM} ] && VALUE=$(cat ${PARAM}) || VALUE=$(sudo cat ${PARAM})

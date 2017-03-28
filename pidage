@@ -1,15 +1,10 @@
 #!/bin/bash
 
 source $(dirname "${BASH_SOURCE}")/abash/abash.sh
-[ $# -eq 0 ] && usage "PID"
+[ $# -ge 1 ] || usage 'PID'
 
-int() {
-  [ "$1" -eq "$1" ] &> /dev/null
-}
-
-for ARG in "$@"; do
-  [[ "$ARG" == -* ]] && continue
-  int $ARG && PID=$ARG || PID=$(pidof -s $ARG 2> /dev/null)
+for ARG in $(nfargs); do
+  PID=$(pidpid $ARG)
 
   SECS=$(ps -p $PID -o etimes= 2> /dev/null | sed s/^\\s*//g)
   if [ -n "$SECS" ]; then

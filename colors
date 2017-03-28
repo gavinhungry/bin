@@ -1,4 +1,5 @@
 #!/bin/sh                                                                       
+
 echo
 echo -e $(tput sgr0)'\e[30mBLACK\t\t'$(tput bold)'\e[30mBRIGHT_BLACK'
 echo -e $(tput sgr0)'\e[31mRED\t\t'$(tput bold)'\e[31mBRIGHT_RED'

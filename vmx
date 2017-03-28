@@ -2,6 +2,9 @@
 
 source $(dirname "${BASH_SOURCE}")/abash/abash.sh
 
+VMX=$1
+[ -e "${VMX}" ] || usage '[VMX]'
+
 next_display() {
   X_DISP_DIR=/tmp/.X11-unix
   DISP_NO=0
@@ -12,9 +15,6 @@ next_display() {
 
   echo :${DISP_NO}
 }
-
-VMX=$1
-[ -e "${VMX}" ] || usage [VMX]
 
 VMXNAME=$(grep ^displayName "$VMX" | sed 's/.*=\s*"\(.*\)"/\1/g')
 

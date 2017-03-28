@@ -1,14 +1,14 @@
 #!/bin/bash
 
 source $(dirname "${BASH_SOURCE}")/abash/abash.sh
-[ -f "$1" ] || usage "FILE"
+[ -f "$1" ] || usage 'FILE'
 
 KEYS=$(grep -o '^[0-9A-F]\{40\}' "$1")
-[ -n "$KEYS" ] || die "No keys found in file"
+[ -n "$KEYS" ] || die 'no keys found in file'
 
 echo "$KEYS"
 echo
-confirm "Import the above keys into pacman keyring?"
+confirm 'Import the above keys into pacman keyring?'
 
 for KEY in $KEYS; do
   echo Importing $KEY
