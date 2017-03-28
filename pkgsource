@@ -10,7 +10,15 @@ source $(dirname "${BASH_SOURCE}")/abash/abash.sh
 
 export GNUPGHOME=/etc/pacman.d/gnupg
 
-TMPDIR=/tmp/pkgsource-$(whoami)-${$}
+TMPDIRSROOT=/tmp/pkgsource-$(whoami)-$$
+
+tmpDir() {
+  local TMPDIR=${TMPDIRSROOT}/${1:-package}-${RANDOM}
+
+  mkdir -p $TMPDIR
+  echo $TMPDIR
+}
+
 ABSDEVEL=$HOME/devel/arch/abs
 AURDEVEL=$HOME/devel/arch/aur
 
@@ -23,16 +31,18 @@ RPC="https://${AUR_DOMAIN}/rpc.php?v=${AUR_VERSION}&type"
 
 function getFromAUR {
   PACKAGE="$1"
+  local TMPDIR=$(tmpDir $PACKAGE)
+
   AURPKG=${TMPDIR}/${PACKAGE}.tar.gz
 
-  TAR=$(curl -LfGs --data-urlencode "arg=$PACKAGE" "$RPC=info" | jshon -Q -e results -a -e URLPath -u)
+  TAR=$(curl -LfGs --data-urlencode "arg=${PACKAGE}" "${RPC}=info" | jshon -Q -e results -a -e URLPath -u)
   if [ ! -z ${TAR} ]; then
     msg "${PACKAGE} found in AUR"
     /usr/bin/wget -q "${AUR}${TAR}" -O ${AURPKG}
     /bin/tar xfvz ${AURPKG} -C ${AURDEVEL}
     cd ${AURDEVEL}/${PACKAGE}
 
-    pref PKGONLY || makepkg -ors --noconfirm
+    arge pkgbuild || makepkg -ors --noconfirm
     msg "${PACKAGE} package ready in ${AURDEVEL}/${PACKAGE}"
   else
     err "${PACKAGE} not found in AUR"
@@ -40,12 +50,12 @@ function getFromAUR {
 }
 
 function getPKGBUILD {
-  [[ ${1} = -* ]] && warn "incorrect parameter ${1}"
   PACKAGE="$1"
+  local TMPDIR=$(tmpDir $PACKAGE)
 
   # get repository given a package name
   REPO=$(/usr/bin/pacman -Si "${PACKAGE}" 2> /dev/null | egrep ^Repository | sed -e s/^.*\:\\s*//g)
-  pref TESTING && REPO='testing'
+  arge testing && REPO='testing'
 
   if [ -z ${REPO} ]; then
     err "${PACKAGE} not found in any known repository"
@@ -75,7 +85,7 @@ function getPKGBUILD {
   cp -r ${PKGDIR} ${ABSDEVEL}/${PACKAGE}
   cd ${ABSDEVEL}/${PACKAGE}
 
-  pref PKGONLY || makepkg -ors --noconfirm
+  arge pkgbuild || makepkg -ors --noconfirm
   msg "${REPO}/${PACKAGE} package ready in ${ABSDEVEL}/${PACKAGE}"
 }
 
@@ -84,20 +94,8 @@ if [ ! -d ${ABSDEVEL} ]; then
   mkdir -p ${ABSDEVEL}
 fi
 
-mkdir -p ${TMPDIR}
-
-for ARG in "$@"; do
-  case $ARG in
-    '-p'|'--pkgbuild') PKGONLY=1 ;;
-    '-t'|'--testing') TESTING=1 ;;
-    '-k'|'--keep') KEEP=1 ;;
-    -*) warn "invalid argument $ARG" ;;
-    *) PACKAGES+=" ${ARG}"
-  esac
-done
-
-for PACKAGE in ${PACKAGES}; do
+for PACKAGE in $(nfargs); do
   getPKGBUILD ${PACKAGE}
 done
 
-[ -d ${TMPDIR} ] && ! pref KEEP && rm -fr ${TMPDIR}
+[ -d ${TMPDIRSROOT} ] && ! arge keep && rm -fr ${TMPDIRSROOT}
