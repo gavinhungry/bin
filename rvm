@@ -1,9 +1,0 @@
-#!/bin/bash
-
-if [ -f ${HOME}/.rvm/scripts/rvm ]; then
-  if [ "$(type -t rvm)" != "function" ]; then
-    source ${HOME}/.rvm/scripts/rvm
-  fi
-
-  rvm "$@"
-fi

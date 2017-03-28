@@ -1,8 +1,0 @@
-#!/bin/bash
-
-DB_PATH=$HOME/.pki/nssdb
-
-mkdir -p $DB_PATH
-# certutil -d $DB_PATH -N
-
-cert $1 | certutil -d sql:$DB_PATH -A -t "C,," -n $1
