@@ -3,10 +3,10 @@
 source $(dirname "${BASH_SOURCE}")/abash/abash.sh
 
 PROFILE_NAME=$(fnfarg)
+PROFILE_NAME=${PROFILE_NAME%.rdp}
 PROFILE_DIR=${HOME}/.rdp
 PROFILE=$(readlink -f ${PROFILE_DIR}/${PROFILE_NAME:-default}.rdp)
 
-echo $PROFILE
 [ -f ${PROFILE} ] || die 'profile not found'
 
 RDP_TITLE=$(grep "^title:s:" ${PROFILE} | cut -d':' -f3)
