@@ -6,5 +6,5 @@ case $(fnfarg) in
   list-*|is-*|show-*|show|status|'')
     /usr/bin/systemctl "$@" ;;
   *)
-    /usr/bin/sudo /usr/bin/systemctl "$@" ;;
+    /usr/bin/sudo -E /usr/bin/systemctl "$@" ;;
 esac
