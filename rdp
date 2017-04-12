@@ -13,6 +13,7 @@ RDP_TITLE=$(grep "^title:s:" ${PROFILE} | cut -d':' -f3)
 RDP_HOSTNAME=$(grep "^full address:s:" ${PROFILE} | cut -d':' -f3)
 RDP_NETBIOS=$(grep "^use netbios:i:" ${PROFILE} | cut -d':' -f3-)
 RDP_OPTIONS=$(grep "^xfreerdp:s:" ${PROFILE} | cut -d':' -f3-)
+PROXY_COMMAND=$(grep "^proxycommand:s:" ${PROFILE} | cut -d':' -f3-)
 
 # FIXME: need to accept certificate
 if [ ${RDP_NETBIOS:-0} -eq 1 ]; then
@@ -29,4 +30,11 @@ if arge fullscreen; then
   RDP_OPTIONS+=' /f /toggle-fullscreen'
 fi
 
+if [ -n "$PROXY_COMMAND" ]; then
+  $PROXY_COMMAND &
+  PROXY_COMMAND_PID=$!
+  sleep 2
+fi
+
 xfreerdp ${PROFILE} /title:"${RDP_TITLE:-${RDP_HOSTNAME%%.*}} - Remote Desktop" ${RDP_OPTIONS} $(arg args)
+[ -n "$PROXY_COMMAND_PID" ] && kill $PROXY_COMMAND_PID
