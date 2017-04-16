@@ -24,4 +24,5 @@ for ARG in "$@"; do
   ARGV+=($ARG)
 done
 
+[ ${#ARGV[@]} -ge 1 ] || exit 1
 exo-open ${ARGV[*]}
