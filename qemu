@@ -1,0 +1,25 @@
+#!/bin/bash
+
+source $(dirname "${BASH_SOURCE}")/abash/abash.sh
+
+PROFILE_NAME=$(fnfarg)
+PROFILE_DIR=$(readlink -f ${HOME}/.vm/${PROFILE_NAME:-default})
+PROFILE=${PROFILE_DIR}/qemu.conf
+
+[ -r "${PROFILE}" ] || die 'profile not found'
+source "${PROFILE}"
+
+WM_NAME="${TITLE} - QEMU"
+WM_ICON="${PROFILE_DIR}/icon.png"
+[ -r "${WM_ICON}" ] || WM_ICON="${HOME}/.icons/qemu.png"
+
+(sleep 1; \
+  xseticon -name "QEMU (${TITLE}-0)" "$WM_ICON"; \
+  wmctrl -r "QEMU (${TITLE}-0)" -T "${WM_NAME}") &
+
+qemu-system-x86_64 \
+  -sdl \
+  -name "${TITLE:-qemu}" \
+  -smp ${SMP:-1},cores=${CORES:-1} \
+  -m ${MEMORY:-1G} \
+  ${ARGS}
