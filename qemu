@@ -9,13 +9,9 @@ PROFILE=${PROFILE_DIR}/qemu.conf
 [ -r "${PROFILE}" ] || die 'profile not found'
 source "${PROFILE}"
 
-WM_NAME="${TITLE} - QEMU"
 WM_ICON="${PROFILE_DIR}/icon.png"
 [ -r "${WM_ICON}" ] || WM_ICON="${HOME}/.icons/qemu.png"
-
-(sleep 1; \
-  xseticon -name "QEMU (${TITLE}-0)" "$WM_ICON"; \
-  wmctrl -r "QEMU (${TITLE}-0)" -T "${WM_NAME}") &
+(sleep 1; xseticon -name "QEMU (${TITLE}-0)" "$WM_ICON") &
 
 qemu-system-x86_64 \
   -sdl \
