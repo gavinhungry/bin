@@ -1,0 +1,13 @@
+#!/bin/bash
+
+source $(dirname "${BASH_SOURCE}")/abash/abash.sh
+
+ROOT=$(pwd)
+
+for DIR in */; do
+  PKG=${DIR%/}
+  bannerline $PKG
+
+  cd $PKG && makepkg --noconfirm "${@:--efs}"
+  cd $ROOT
+done
