@@ -1,5 +1,14 @@
 #!/bin/bash
 
+SERVICES=()
+
 for SERVICE in $(systemctl list-units --type=service --state=running | awk '{print $1}' | grep \.service$); do
-  systemctl status $SERVICE 2>&1 | grep -q "$SERVICE changed on disk" && echo $SERVICE;
+  systemctl status $SERVICE 2>&1 | grep -q "$SERVICE changed on disk" && SERVICES+=($SERVICE)
+done
+
+systemctl daemon-reload
+
+for SERVICE in ${SERVICES[@]}; do
+  echo $SERVICE
+  systemctl restart $SERVICE
 done
