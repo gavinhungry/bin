@@ -1,0 +1,17 @@
+#!/bin/bash
+
+source $(dirname "${BASH_SOURCE}")/abash/abash.sh
+if [ $# -lt 3 ] || ! arge duration; then
+  usage 'FILE --duration DURATION [--start START] [--width WIDTH] [--gif FPS]'
+fi
+
+[ -f "$1" ] || die "$1 does not exist"
+
+VIDEO_CODEC='-vcodec copy'
+arge width && VIDEO_CODEC="-vf scale=$(arg width):-1"
+
+ffmpeg -i "${1}" -ss $(arg start 00:00:00) -t $(arg duration) ${VIDEO_CODEC} -acodec copy "vid-${1}"
+
+if arge gif; then
+  gif "vid-${1}" $(arg gif) && rm "vid-${1}"
+fi
