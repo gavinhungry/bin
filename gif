@@ -13,4 +13,4 @@ PALETTE=$TMP/palette-$1-$$.png
 ffmpeg -i "$1" -vf fps=$FPS,palettegen "$PALETTE"
 ffmpeg -i "$1" -i "$PALETTE" -filter_complex fps=$FPS,paletteuse "${1%.*}.gif"
 
-tmpcleanup
+tmpdirclean
