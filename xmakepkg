@@ -1,0 +1,3 @@
+#!/bin/bash
+
+PKGEXT='.pkg.tar.xz' makepkg "$@"
