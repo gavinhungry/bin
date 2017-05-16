@@ -6,6 +6,8 @@ for SERVICE in $(systemctl list-units --type=service --state=running | awk '{pri
   systemctl status $SERVICE 2>&1 | grep -q "$SERVICE changed on disk" && SERVICES+=($SERVICE)
 done
 
+[ ${#SERVICES[@]} -gt 0 ] || exit 0
+
 systemctl daemon-reload
 
 for SERVICE in ${SERVICES[@]}; do
