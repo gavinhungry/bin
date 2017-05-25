@@ -2,7 +2,7 @@
 
 source $(dirname "${BASH_SOURCE}")/abash/abash.sh
 
-PROFILE_NAME=$(fnfarg)
+PROFILE_NAME=$(fnfarg); shift
 PROFILE_DIR=$(readlink -f ${HOME}/.vm/${PROFILE_NAME:-default})
 PROFILE=${PROFILE_DIR}/qemu.conf
 
@@ -11,10 +11,11 @@ source "${PROFILE}"
 
 WM_ICON="${PROFILE_DIR}/icon.png"
 [ -r "${WM_ICON}" ] || WM_ICON="${HOME}/.icons/qemu.png"
-(sleep 1; xseticon -name "QEMU (${TITLE})" "$WM_ICON") &
+#(sleep 1; xseticon -name "${TITLE} - QEMU" "$WM_ICON") &
 
 qemu-system-x86_64 \
   -name "${TITLE:-qemu}" \
   -smp ${SMP:-1},cores=${CORES:-1} \
   -m ${MEMORY:-1G} \
-  ${ARGS}
+  ${ARGS} \
+  "$@"
