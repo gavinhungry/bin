@@ -1,4 +1,4 @@
 #!/bin/bash
 
 xfconf-query -c thunar -p / -r -R
-/usr/bin/thunar "$@"
+exec /usr/bin/thunar "$@"

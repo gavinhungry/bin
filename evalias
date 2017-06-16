@@ -2,4 +2,4 @@
 
 shopt -s expand_aliases
 PS1=$SHELL source ~/.bashrc
-eval "$@"
+eval exec "$@"

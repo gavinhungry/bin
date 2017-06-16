@@ -3,4 +3,4 @@
 source $(dirname "${BASH_SOURCE}")/abash/abash.sh
 [ $# -ge 2 ] || usage 'OUTPUT PDF [PDF ...]'
 
-echo /usr/bin/gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=$1 ${@:2}
+/usr/bin/gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=$1 ${@:2}
