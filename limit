@@ -4,4 +4,4 @@ source $(dirname "${BASH_SOURCE}")/abash/abash.sh
 [ $# -ge 2 ] || usage 'KBPS PROGRAM [ARGS]'
 
 let LIMIT=$1*1024
-echo /usr/bin/netbrake --bps ${LIMIT} ${@:2}
+exec /usr/bin/netbrake --bps ${LIMIT} ${@:2}
