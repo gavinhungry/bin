@@ -11,4 +11,4 @@ for ARG in "$@"; do
   ARGV+=($ARG)
 done
 
-/usr/bin/exo-open ${ARGV[*]}
+/usr/bin/exo-open "${ARGV[*]}"
