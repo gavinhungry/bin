@@ -25,4 +25,4 @@ for ARG in "$@"; do
 done
 
 [ ${#ARGV[@]} -ge 1 ] || exit 1
-exo-open ${ARGV[*]}
+exo-open "${ARGV[*]}"
