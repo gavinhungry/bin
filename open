@@ -3,26 +3,11 @@
 source $(dirname "${BASH_SOURCE}")/abash/abash.sh
 [ $# -ge 1 ] || usage 'FILE [FILE ...]'
 
-ARGV=()
 for ARG in "$@"; do
-
-  if [[ $ARG =~ ^[0-9a-zA-Z]*:// ]]; then
-    ARGV+=($ARG)
+  if [[ $ARG =~ ^[0-9a-zA-Z]*:// ]] || [ -r "$ARG" ]; then
+    xdg-open "$ARG"
     continue
   fi
 
-  if [ ! -e "$ARG" ]; then
-    warn "$ARG does not exist"
-    continue
-  fi
-
-  if [ ! -r "$ARG" ]; then
-    warn "$ARG is not readable"
-    continue
-  fi
-
-  ARGV+=($ARG)
+  warn "$ARG is not readable"
 done
-
-[ ${#ARGV[@]} -ge 1 ] || exit 1
-exo-open "${ARGV[*]}"
