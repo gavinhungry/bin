@@ -1,14 +1,10 @@
 #!/bin/bash
 
-ARGV=()
 for ARG in "$@"; do
-
   if [[ $ARG == irc://* ]]; then
-    ARGV+=("ircs:${ARG#irc:}")
+    /usr/bin/xdg-open "ircs:${ARG#irc:}"
     continue
   fi
 
-  ARGV+=($ARG)
+  /usr/bin/xdg-open "$ARG"
 done
-
-/usr/bin/exo-open "${ARGV[*]}"
