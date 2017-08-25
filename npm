@@ -7,7 +7,7 @@ NPM=${NPM:-/usr/local/bin/npm}
 
 if arge global; then
   if [ $# -eq 2 -a "$2" == 'soft-update' ]; then
-    for pkg in $(npm -g outdated --parseable --depth=0 | cut -d: -f4); do
+    for pkg in $(npm -g outdated --parseable --depth=0 | cut -d: -f2); do
       sudo $NPM -g install "$pkg"
     done
   else
