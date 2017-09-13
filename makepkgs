@@ -8,6 +8,6 @@ for DIR in */; do
   PKG=${DIR%/}
   bannerline $PKG
 
-  cd $PKG && makepkg --noconfirm "${@:--efs}"
+  cd $PKG && makepkg --noconfirm "$@"
   cd $ROOT
 done
