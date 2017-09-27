@@ -12,6 +12,6 @@ THREADS=$(lscpu | grep ^'CPU(s):' | clean)
 CLEANCPU=$(echo "${CPU}" | sed -r 's/\((R|TM)\)//g' | sed -r 's/\sCPU\s/ /g')
 
 OUTPUT=""
-[ "$SOCKETS" -ne 1 ] && OUTPUT+="$SOCKETS x "
+[ "${SOCKETS:-1}" -ne 1 ] && OUTPUT+="$SOCKETS x "
 OUTPUT+="$CLEANCPU [$THREADS]"
 echo $OUTPUT
