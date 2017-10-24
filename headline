@@ -1,8 +1,0 @@
-#!/bin/bash
-
-source $(dirname "${BASH_SOURCE}")/abash/abash.sh
-[ $# -ge 1 ] || usage 'SOURCE'
-[ -n "$NEWSAPI_API_KEY" ] || die 'NEWSAPI_API_KEY is not set'
-
-SOURCE=$1
-curl -s "https://newsapi.org/v1/articles?source=${SOURCE}&sortBy=top&apiKey=${NEWSAPI_API_KEY}" | jshon -Q -e articles -e 0 -e title -u
