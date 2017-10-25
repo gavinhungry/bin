@@ -36,5 +36,5 @@ if [ -n "$PROXY_COMMAND" ]; then
   sleep 2
 fi
 
-xfreerdp ${PROFILE} /title:"${RDP_TITLE:-${RDP_HOSTNAME%%.*}} - Remote Desktop" ${RDP_OPTIONS} $(arg args)
+xfreerdp ${PROFILE} /title:"${RDP_TITLE:-$RDP_HOSTNAME} - Remote Desktop" ${RDP_OPTIONS} $(arg args)
 [ -n "$PROXY_COMMAND_PID" ] && kill $PROXY_COMMAND_PID
