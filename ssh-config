@@ -1,0 +1,23 @@
+#!/bin/bash
+
+source $(dirname "${BASH_SOURCE}")/abash/abash.sh
+[ $# -ge 1 ] || usage 'HOST [OPTION]'
+
+OPTIONS=(HostName Port User IdentityFile ProxyCommand)
+OUTPUT=
+
+get_value() {
+  ssh -G $1 | grep -i "^${2}\s" | awk '{ $1=""; print $0 }' | xargs
+}
+
+if [ -n "$2" ]; then
+  get_value $1 $2
+  exit $?
+fi
+
+for OPTION in ${OPTIONS[@]}; do
+  VALUE=$(get_value $1 $OPTION)
+  [ -n "$VALUE" ] && OUTPUT+="$OPTION|${VALUE}\n"
+done
+
+echo -e $OUTPUT | column -s '|' -tR1
