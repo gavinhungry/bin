@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source $(dirname "${BASH_SOURCE}")/abash/abash.sh
+source $(dirname "${BASH_SOURCE[0]}")/abash/abash.sh
 [ $# -eq 1 ] || usage 'MODULENAME'
 
 MODULE=$1
