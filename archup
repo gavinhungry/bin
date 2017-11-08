@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source $(dirname "${BASH_SOURCE[0]}")/abash/abash.sh
+source "$(dirname "${BASH_SOURCE[0]}")/abash/abash.sh"
 sudo -v || exit 1
 
 set -e
@@ -11,12 +11,12 @@ packer -Syy
 
 bannerline "Updating packages"
 packer -Syua --noconfirm
-packer -Qdtq &> /dev/null && packer -Rsc $(packer -Qdtq) --noconfirm
+packer -Qdtq &> /dev/null && packer -Rsc "$(packer -Qdtq)" --noconfirm
 
 bannerline "Cleaning pacman cache"
-PACCACHE_ARGS="-rk0"
-[ "$NO_PACMAN_CACHE" == 1 ] || PACCACHE_ARGS+=" -u"
-sudo /usr/bin/paccache $PACCACHE_ARGS 2> /dev/null
+PACCACHE_ARGS=(-rk0)
+[ "$NO_PACMAN_CACHE" == 1 ] || PACCACHE_ARGS+=(-u)
+sudo /usr/bin/paccache "${PACCACHE_ARGS[@]}" 2> /dev/null
 
 if [ -x /usr/local/bin/npm ]; then
   bannerline "Updating global Node modules"
