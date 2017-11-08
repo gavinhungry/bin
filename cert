@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source $(dirname "${BASH_SOURCE}")/abash/abash.sh
+source $(dirname "${BASH_SOURCE[0]}")/abash/abash.sh
 [ $# -ge 1 ] || usage 'HOST [PORT]'
 
 echo | openssl s_client -connect $1:${2:-443} 2> /dev/null | sed -ne '/--BEGIN CERTIFICATE--/,/--END CERTIFICATE--/p'
