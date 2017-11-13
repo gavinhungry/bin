@@ -11,7 +11,7 @@ packer -Syy
 
 bannerline "Updating packages"
 packer -Syua --noconfirm
-packer -Qdtq &> /dev/null && packer -Rsc "$(packer -Qdtq)" --noconfirm
+packer -Qdtq &> /dev/null && packer -Rsc $(packer -Qdtq) --noconfirm
 
 bannerline "Cleaning pacman cache"
 PACCACHE_ARGS=(-rk0)
