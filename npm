@@ -2,7 +2,7 @@
 
 source $(dirname "${BASH_SOURCE[0]}")/abash/abash.sh
 
-NPM=${NPM:-/usr/local/bin/npm}
+NPM=${NPM:-/usr/bin/npm}
 [ -x "$NPM" ] || die "cannot execute $NPM"
 
 if arge global; then
