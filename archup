@@ -18,7 +18,7 @@ PACCACHE_ARGS=(-rk0)
 [ "$NO_PACMAN_CACHE" == 1 ] || PACCACHE_ARGS+=(-u)
 sudo /usr/bin/paccache "${PACCACHE_ARGS[@]}" 2> /dev/null
 
-if [ -x /usr/local/bin/npm ]; then
+if [ -x /usr/bin/npm ]; then
   bannerline "Updating global Node modules"
   npm -g soft-update
 fi
