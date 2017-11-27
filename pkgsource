@@ -1,87 +1,75 @@
 #!/bin/bash
 
+set -euo pipefail
+
 source $(dirname "${BASH_SOURCE[0]}")/abash/abash.sh
 [ $# -ge 1 ] || usage 'PACKAGE [PACKAGE ...]'
 
-GNUPGHOME=/etc/pacman.d/gnupg
+export GNUPGHOME=/etc/pacman.d/gnupg
 
-ABSDEVEL=$HOME/devel/arch/abs
-AURDEVEL=$HOME/devel/arch/aur
+ARCH_DEVEL="$HOME/devel/arch"
+ABS_DEVEL="$ARCH_DEVEL/abs"
+AUR_DEVEL="$ARCH_DEVEL/aur"
 
-AUR_DOMAIN=aur.archlinux.org
-AUR_VERSION=5
+[ -d "$ABS_DEVEL" ] || mkdir -p "$ABS_DEVEL"
+[ -d "$AUR_DEVEL" ] || mkdir -p "$AUR_DEVEL"
 
-SVN="svn://svn.archlinux.org"
-AUR="https://${AUR_DOMAIN}"
-RPC="https://${AUR_DOMAIN}/rpc.php?v=${AUR_VERSION}&type"
+GIT_URL='git://git.archlinux.org/svntogit'
+AUR_URL="https://aur.archlinux.org"
+AUR_RPC="$AUR_URL/rpc.php?v=5&type"
 
-function getFromAUR {
-  PACKAGE="$1"
-  local TMP=$(tmpdir $PACKAGE)
+getAbsPkgbuild() {
+  local PKG=$1
+  local TMP=$(tmpdir "$PKG")
+  cd "$TMP"
 
-  AURPKG=${TMP}/${PACKAGE}.tar.gz
+  local REPO=$(pacman -Si "$PKG" 2> /dev/null | grep ^Repository | awk '{print $NF}')
+  local ARCH=$(pacman -Si "$PKG" 2> /dev/null | grep ^Architecture | awk '{print $NF}')
+  arge testing && REPO=testing
 
-  TAR=$(curl -LfGs --data-urlencode "arg=${PACKAGE}" "${RPC}=info" | jshon -Q -e results -a -e URLPath -u)
-  if [ ! -z ${TAR} ]; then
-    msg "${PACKAGE} found in AUR"
-    /usr/bin/wget -q "${AUR}${TAR}" -O ${AURPKG}
-    /bin/tar xfvz ${AURPKG} -C ${AURDEVEL}
-    cd ${AURDEVEL}/${PACKAGE}
+  local GIT_REPO=packages
+  [ $REPO = 'community' -o $REPO = 'multilib' ] && GIT_REPO=community
 
-    arge pkgbuild || makepkg -ors --noconfirm
-    msg "${PACKAGE} package ready in ${AURDEVEL}/${PACKAGE}"
-  else
-    err "${PACKAGE} not found in AUR"
-  fi
+  git init . > /dev/null
+  git config core.sparseCheckout true
+  git remote add origin "$GIT_URL/$GIT_REPO.git"
+
+  local GIT_PKG_PATH="$PKG/repos/$REPO-$ARCH"
+  arge trunk:k && GIT_PKG_PATH="$PKG/trunk"
+  echo "$GIT_PKG_PATH" >> .git/info/sparse-checkout
+
+  msg "fetching $PKG from Git"
+  git pull origin master --depth 1 || warn 'Git fetch failed'
+
+  [ -d "$ABS_DEVEL/$PKG" ] && warn "path $ABS_DEVEL/$PKG already exists"
+  cp -r "$GIT_PKG_PATH" "$ABS_DEVEL/$PKG"
+  cd "$ABS_DEVEL/$PKG"
+  arge pkgbuild || makepkg -ors --noconfirm
+
+  msg "$REPO/$PKG package ready in $ABS_DEVEL/$PKG"
 }
 
-function getPKGBUILD {
-  PACKAGE="$1"
-  local TMP=$(tmpdir $PACKAGE)
+getAurPkgbuild() {
+  local PKG=$1
+  local TMP=$(tmpdir "$PKG")
+  cd "$TMP"
 
-  # get repository given a package name
-  REPO=$(/usr/bin/pacman -Si "${PACKAGE}" 2> /dev/null | egrep ^Repository | sed -e s/^.*\:\\s*//g)
-  arge testing && REPO='testing'
+  local TAR_URL=$(curl -LfGs --data-urlencode "arg=$PKG" "$AUR_RPC=info" | jq -r .results[0].URLPath)
+  [ -n "$TAR_URL" ] || err "$PKG not found in AUR"
 
-  if [ -z ${REPO} ]; then
-    warn "${PACKAGE} not found in any known repository"
-    getFromAUR ${PACKAGE}
-    return
-  fi
-
-  if [ ${REPO} = "community" -o $REPO = "multilib" ]; then
-    SVNPKG="${SVN}/community"
-  else
-    SVNPKG="${SVN}/packages"
-  fi
-
-  msg "checking out ${PACKAGE} from subversion"
-  /usr/bin/svn co --depth=empty ${SVNPKG} ${TMP}
-  cd ${TMP}
-
-  /usr/bin/svn up ${PACKAGE}
-  PKGDIR=${TMP}/${PACKAGE}/repos/${REPO}-${HOSTTYPE}
-  if [ ! -f ${PKGDIR}/PKGBUILD ]; then
-    PKGDIR=${TMP}/${PACKAGE}/repos/${REPO}-any
-  fi
-  [ ! -f ${PKGDIR}/PKGBUILD ] && warn "subversion checkout failed"
-
-  [ -d ${ABSDEVEL}/${PACKAGE} ] && warn "path ${ABSDEVEL}/${PACKAGE} already exists"
-
-  cp -r ${PKGDIR} ${ABSDEVEL}/${PACKAGE}
-  cd ${ABSDEVEL}/${PACKAGE}
+  msg "$PKG found in AUR"
+  local TAR_FILE=$(basename "$TAR_URL")
+  wget -q "${AUR_URL}${TAR_URL}" -O "$TAR_FILE"
+  tar xfvz "$TAR_FILE" -C "$AUR_DEVEL"
+  cd "$AUR_DEVEL/$PKG"
 
   arge pkgbuild || makepkg -ors --noconfirm
-  msg "${REPO}/${PACKAGE} package ready in ${ABSDEVEL}/${PACKAGE}"
+  msg "$PKG package ready in $AUR_DEVEL/$PKG"
 }
 
-if [ ! -d ${ABSDEVEL} ]; then
-  warn "path ${ABSDEVEL} doesn't exist"
-  mkdir -p ${ABSDEVEL}
-fi
-
-for PACKAGE in $(nfargs); do
-  getPKGBUILD ${PACKAGE}
+for PKG in $(nfargs); do
+  [ "$PKG" != "$(fnfarg)" ] && echo
+  pacman -Si "$PKG" &> /dev/null && getAbsPkgbuild "$PKG" || getAurPkgbuild "$PKG"
 done
 
-arge keep || tmpdirclean
+tmpdirclean
