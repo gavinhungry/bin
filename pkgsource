@@ -3,7 +3,13 @@
 set -euo pipefail
 
 source $(dirname "${BASH_SOURCE[0]}")/abash/abash.sh
-[ $# -ge 1 ] || usage 'PACKAGE [PACKAGE ...]'
+([ $# -eq 0 ] || arge help) && usage '[options] PKGNAME [PKGNAME...]
+
+  --testing, -t    fetch from [testing] repository
+  --trunk, -k      fetch trunk
+  --pkgbuild, -p   only fetch PKGBUILD and supporting files
+  --help, -h       this message
+'
 
 export GNUPGHOME=/etc/pacman.d/gnupg
 
@@ -55,7 +61,10 @@ getAurPkgbuild() {
   cd "$TMP"
 
   local TAR_URL=$(curl -LfGs --data-urlencode "arg=$PKG" "$AUR_RPC=info" | jq -r .results[0].URLPath)
-  [ -n "$TAR_URL" ] || err "$PKG not found in AUR"
+  if [ -z "$TAR_URL" -o "$TAR_URL" == 'null' ]; then
+    err "$PKG not found in AUR"
+    return
+  fi
 
   msg "$PKG found in AUR"
   local TAR_FILE=$(basename "$TAR_URL")
