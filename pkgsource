@@ -36,23 +36,18 @@ getAbsPkgbuild() {
   local GIT_REPO=packages
   [ $REPO = 'community' -o $REPO = 'multilib' ] && GIT_REPO=community
 
-  git init . > /dev/null
-  git config core.sparseCheckout true
-  git remote add origin "$GIT_URL/$GIT_REPO.git"
-
   local GIT_PKG_PATH="$PKG/repos/$REPO-$ARCH"
   arge trunk:k && GIT_PKG_PATH="$PKG/trunk"
-  echo "$GIT_PKG_PATH" >> .git/info/sparse-checkout
 
-  msg "fetching $PKG from Git"
-  git pull origin master --depth 1 || warn 'Git fetch failed'
+  msg "fetching $REPO/$PKG"
+  git pluck "$GIT_URL/$GIT_REPO.git" "$GIT_PKG_PATH" || warn 'Git fetch failed'
 
   [ -d "$ABS_DEVEL/$PKG" ] && warn "path $ABS_DEVEL/$PKG already exists"
-  cp -r "$GIT_PKG_PATH" "$ABS_DEVEL/$PKG"
+  cp -r "$GIT_REPO/$GIT_PKG_PATH" "$ABS_DEVEL/$PKG"
   cd "$ABS_DEVEL/$PKG"
   arge pkgbuild || makepkg -ors --noconfirm
 
-  msg "$REPO/$PKG package ready in $ABS_DEVEL/$PKG"
+  msg "$REPO/$PKG sources ready in ${ABS_DEVEL#$HOME/}/$PKG"
 }
 
 getAurPkgbuild() {
@@ -66,14 +61,14 @@ getAurPkgbuild() {
     return
   fi
 
-  msg "$PKG found in AUR"
+  msg "fetching aur/$PKG"
   local TAR_FILE=$(basename "$TAR_URL")
   wget -q "${AUR_URL}${TAR_URL}" -O "$TAR_FILE"
   tar xfvz "$TAR_FILE" -C "$AUR_DEVEL"
   cd "$AUR_DEVEL/$PKG"
 
   arge pkgbuild || makepkg -ors --noconfirm
-  msg "$PKG package ready in $AUR_DEVEL/$PKG"
+  msg "aur/$PKG sources ready in ${AUR_DEVEL#$HOME/}/$PKG"
 }
 
 for PKG in $(nfargs); do
