@@ -1,13 +1,18 @@
 #!/bin/bash
 
-source $(dirname "${BASH_SOURCE[0]}")/abash/abash.sh
+source "$(dirname "${BASH_SOURCE[0]}")"/abash/abash.sh
 
 ROOT=$(pwd)
+DIRS=(*/)
 
-for DIR in */; do
-  PKG=${DIR%/}
-  bannerline $PKG
+for DIR in "${DIRS[@]}"; do
+  PKG="${DIR%/}"
 
-  cd $PKG && makepkg --noconfirm "$@"
-  cd $ROOT
+  if [ "$DIR" == "${DIRS[0]}" ]; then
+    bannerline -f "$PKG"
+  else
+    bannerline "$PKG"
+  fi
+
+  cd "$ROOT/$PKG" && makepkg --noconfirm "$@"
 done
