@@ -12,7 +12,11 @@ packer -Syy
 
 bannerline 'Updating packages'
 packer -Sua --noconfirm
-packer -Qdtq &> /dev/null && packer -Rsc $(packer -Qdtq) --noconfirm
+
+if packer -Qdtq &> /dev/null; then
+  bannerline 'Removing unrequired dependencies'
+  packer -Rsc $(packer -Qdtq) --noconfirm
+fi
 
 bannerline 'Cleaning pacman cache'
 if [ "$(printenv NO_PACMAN_CACHE)" == 1 ]; then
