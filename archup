@@ -1,24 +1,25 @@
 #!/bin/bash
 
-source "$(dirname "${BASH_SOURCE[0]}")/abash/abash.sh"
+set -euo pipefail
+
+source "$(dirname "${BASH_SOURCE[0]}")"/abash/abash.sh
 sudo -v || exit 1
 
-set -e
 sigint
 
-bannerline "Updating pacman databases"
+bannerline -f 'Updating pacman databases'
 packer -Syy
 
-bannerline "Updating packages"
-packer -Syua --noconfirm
+bannerline 'Updating packages'
+packer -Sua --noconfirm
 packer -Qdtq &> /dev/null && packer -Rsc $(packer -Qdtq) --noconfirm
 
-bannerline "Cleaning pacman cache"
+bannerline 'Cleaning pacman cache'
 PACCACHE_ARGS=(-rk0)
-[ "$NO_PACMAN_CACHE" == 1 ] || PACCACHE_ARGS+=(-u)
+[ "$(printenv NO_PACMAN_CACHE)" == 1 ] || PACCACHE_ARGS+=(-u)
 sudo /usr/bin/paccache "${PACCACHE_ARGS[@]}" 2> /dev/null
 
 if [ -x /usr/bin/npm ]; then
-  bannerline "Updating global Node modules"
+  bannerline 'Updating global Node modules'
   npm -g soft-update
 fi
