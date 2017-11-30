@@ -15,9 +15,12 @@ packer -Sua --noconfirm
 packer -Qdtq &> /dev/null && packer -Rsc $(packer -Qdtq) --noconfirm
 
 bannerline 'Cleaning pacman cache'
-PACCACHE_ARGS=(-rk0)
-[ "$(printenv NO_PACMAN_CACHE)" == 1 ] || PACCACHE_ARGS+=(-u)
-sudo /usr/bin/paccache "${PACCACHE_ARGS[@]}" 2> /dev/null
+if [ "$(printenv NO_PACMAN_CACHE)" == 1 ]; then
+  sudo paccache -rk0 | awk NF
+else
+  sudo paccache -rk1 | awk NF
+  sudo paccache -ruk0 | awk NF
+fi
 
 if [ -x /usr/bin/npm ]; then
   bannerline 'Updating global Node modules'
