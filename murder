@@ -4,4 +4,4 @@ VICTIM="$1"
 [ -z "$VICTIM" ] && exit 1
 
 PIDS=$(ps --no-headers -o pid -u "$VICTIM" 2> /dev/null)
-[ -n "$PIDS" ] && sudo kill -9 "$PIDS"
+[ -n "$PIDS" ] && sudo kill -9 $PIDS
