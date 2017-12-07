@@ -25,7 +25,9 @@ AUR_URL="https://aur.archlinux.org"
 AUR_RPC="$AUR_URL/rpc.php?v=5&type"
 
 getAbsPkgbuild() {
-  local PKG=$1
+  local PKG=$(expac -S '%e' $1)
+  [ "$PKG" == '(null)' ] && PKG=$1
+
   local TMP=$(tmpdir "$PKG")
   cd "$TMP"
 
@@ -34,13 +36,16 @@ getAbsPkgbuild() {
   arge testing && REPO=testing
 
   local GIT_REPO=packages
-  [ $REPO = 'community' -o $REPO = 'multilib' ] && GIT_REPO=community
+  [ $REPO == 'community' -o $REPO == 'multilib' ] && GIT_REPO=community
 
-  local GIT_PKG_PATH="$PKG/repos/$REPO-$ARCH"
+  local GIT_PKG_PATH="repos/$REPO-$ARCH"
   arge trunk:k && GIT_PKG_PATH="$PKG/trunk"
 
   msg "fetching $REPO/$PKG"
-  git pluck "$GIT_URL/$GIT_REPO.git" "$GIT_PKG_PATH" || warn 'Git fetch failed'
+  if ! git clone "$GIT_URL/$GIT_REPO.git" --single-branch -b packages/"$PKG"; then
+    warn 'Git fetch failed'
+    return
+  fi
 
   [ -d "$ABS_DEVEL/$PKG" ] && warn "path $ABS_DEVEL/$PKG already exists"
   cp -r "$GIT_REPO/$GIT_PKG_PATH" "$ABS_DEVEL/$PKG"
