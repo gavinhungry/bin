@@ -5,10 +5,10 @@ set -euo pipefail
 source $(dirname "${BASH_SOURCE[0]}")/abash/abash.sh
 ([ $# -eq 0 ] || arge help) && usage '[options] PKGNAME [PKGNAME...]
 
-  --testing, -t    fetch from [testing] repository
-  --trunk, -k      fetch trunk
-  --pkgbuild, -p   only fetch PKGBUILD and supporting files
-  --help, -h       this message
+  -t, --testing     fetch from [testing] repository
+  -k, --trunk       fetch trunk
+  -p, --pkgbuild    only fetch PKGBUILD and supporting files
+  -h, --help        this message
 '
 
 export GNUPGHOME=/etc/pacman.d/gnupg
