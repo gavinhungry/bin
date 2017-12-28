@@ -26,8 +26,11 @@ fi
 
 shift
 
+RDP_DESC='Remote Desktop'
+
 if arge fullscreen; then
   RDP_OPTIONS+=' /f /toggle-fullscreen'
+  RDP_DESC+=' (fullscreen)'
 fi
 
 if [ -n "$PROXY_COMMAND" ]; then
@@ -36,5 +39,5 @@ if [ -n "$PROXY_COMMAND" ]; then
   sleep 2
 fi
 
-xfreerdp ${PROFILE} /title:"${RDP_TITLE:-$RDP_HOSTNAME} - Remote Desktop" ${RDP_OPTIONS} $(arg args)
+xfreerdp ${PROFILE} /title:"${RDP_TITLE:-$RDP_HOSTNAME} - ${RDP_DESC}" ${RDP_OPTIONS} $(arg args)
 [ -n "$PROXY_COMMAND_PID" ] && kill $PROXY_COMMAND_PID
