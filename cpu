@@ -5,7 +5,7 @@ clean() {
 }
 
 IFS=$(echo -en "\n\b")
-CPU=$(lscpu | grep ^'Model name:' | clean)
+CPU=$(grep '^model name' /proc/cpuinfo | uniq | clean)
 SOCKETS=$(lscpu | grep ^'NUMA node(s):' | clean)
 THREADS=$(lscpu | grep ^'CPU(s):' | clean)
 
