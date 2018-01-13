@@ -8,11 +8,6 @@ DIRS=(*/)
 for DIR in "${DIRS[@]}"; do
   PKG="${DIR%/}"
 
-  if [ "$DIR" == "${DIRS[0]}" ]; then
-    bannerline -f "$PKG"
-  else
-    bannerline "$PKG"
-  fi
-
+  [ "$DIR" == "${DIRS[0]}" ] && bannerline -f "$PKG" || bannerline "$PKG"
   cd "$ROOT/$PKG" && makepkg --noconfirm "$@"
 done
