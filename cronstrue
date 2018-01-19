@@ -1,0 +1,10 @@
+#!/usr/bin/env node
+
+const cronstrue = require('cronstrue');
+
+try {
+  console.log(cronstrue.toString(process.argv[2]));
+} catch(err) {
+  console.error(err);
+  process.exit(1);
+}
