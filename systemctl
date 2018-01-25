@@ -2,9 +2,8 @@
 
 source $(dirname "${BASH_SOURCE[0]}")/abash/abash.sh
 
-case $(fnfarg) in
-  list-*|is-*|show-*|show|status|'')
-    /usr/bin/systemctl "$@" ;;
-  *)
-    sudo -E /usr/bin/systemctl "$@" ;;
-esac
+if [[ "$(fnfarg)" =~ ^($|status|is-.*|list-.*|show(-|$)) ]] || arge user; then
+  exec /usr/bin/systemctl "$@"
+fi
+
+exec sudo -E /usr/bin/systemctl "$@"
