@@ -8,6 +8,7 @@ source $(dirname "${BASH_SOURCE[0]}")/abash/abash.sh
   -t, --testing     fetch from [testing] repository
   -k, --trunk       fetch trunk
   -p, --pkgbuild    only fetch PKGBUILD and supporting files
+  -r, --raw         symlink to sources in-tree (remain in tmpdir)
   -h, --help        this message
 '
 
@@ -39,7 +40,7 @@ getAbsPkgbuild() {
   [ $REPO == 'community' -o $REPO == 'multilib' ] && GIT_REPO=community
 
   local GIT_PKG_PATH="repos/$REPO-$ARCH"
-  arge trunk:k && GIT_PKG_PATH="$PKG/trunk"
+  arge trunk:k && GIT_PKG_PATH="trunk"
 
   msg "fetching $REPO/$PKG"
   if ! git clone "$GIT_URL/$GIT_REPO.git" --single-branch -b packages/"$PKG"; then
@@ -48,9 +49,17 @@ getAbsPkgbuild() {
   fi
 
   [ -d "$ABS_DEVEL/$PKG" ] && warn "path $ABS_DEVEL/$PKG already exists"
-  cp -r "$GIT_REPO/$GIT_PKG_PATH" "$ABS_DEVEL/$PKG"
-  cd "$ABS_DEVEL/$PKG"
-  arge pkgbuild || makepkg -ors --noconfirm
+
+  if arge raw; then
+    ln -s "$TMP/$GIT_REPO/$GIT_PKG_PATH" "$ABS_DEVEL/$PKG"
+  else
+    cp -r "$GIT_REPO/$GIT_PKG_PATH" "$ABS_DEVEL/$PKG"
+  fi
+
+  if ! arge pkgbuild; then
+    cd "$ABS_DEVEL/$PKG"
+    arge pkgbuild || makepkg -ors --noconfirm
+  fi
 
   msg "$REPO/$PKG sources ready in ${ABS_DEVEL#$HOME/}/$PKG"
 }
@@ -81,4 +90,4 @@ for PKG in $(nfargs); do
   pacman -Si "$PKG" &> /dev/null && getAbsPkgbuild "$PKG" || getAurPkgbuild "$PKG"
 done
 
-tmpdirclean
+arge raw || tmpdirclean
