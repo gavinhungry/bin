@@ -1,0 +1,5 @@
+#!/bin/bash
+
+for DISK in $(lsblk -n | grep '\sdisk\s*$' | awk '{ print $1 }'); do
+  cat /sys/class/block/$DISK/device/model 2> /dev/null
+done
