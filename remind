@@ -14,5 +14,9 @@ THEN_S=$(faketime $THEN date +%s)
 DUR_S=$(( $THEN_S - $(date +%s) ))
 [ $DUR_S -ge 0 ] || exit 1
 
-(sleep $DUR_S && notify-send -t 0 "Reminder ($(date '+%I:%M %p'))" "$2") &
+(sleep $DUR_S;
+  NOW=$(date '+%I:%M %p')
+  while pgrep slimlock > /dev/null; do sleep 1; done;
+  notify-send -t 0 "Reminder ($NOW)" "$2") &
+
 echo "Reminder due at $(faketime $THEN date)"
