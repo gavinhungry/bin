@@ -1,0 +1,18 @@
+#!/bin/bash
+
+[ $# -eq 2 ] || exit 1
+
+THEN=$1
+if [[ $1 != *:* ]]; then
+  [[ $1 = *s ]] && THEN+="econds"
+  [[ $1 = *m ]] && THEN+="inutes"
+  [[ $1 = *h ]] && THEN+="ours"
+  [[ $1 = *d ]] && THEN+="ays"
+fi
+
+THEN_S=$(faketime $THEN date +%s)
+DUR_S=$(( $THEN_S - $(date +%s) ))
+[ $DUR_S -ge 0 ] || exit 1
+
+(sleep $DUR_S && notify-send -t 0 "Reminder ($(date '+%I:%M %p'))" "$2") &
+echo "Reminder due at $(faketime $THEN date)"
