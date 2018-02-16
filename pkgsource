@@ -76,9 +76,16 @@ getAurPkgbuild() {
   fi
 
   msg "fetching aur/$PKG"
-  local TAR_FILE=$(basename "$TAR_URL")
-  wget -q "${AUR_URL}${TAR_URL}" -O "$TAR_FILE"
-  tar xfvz "$TAR_FILE" -C "$AUR_DEVEL"
+
+  if arge raw; then
+    git clone "$AUR_URL/$PKG".git
+    ln -s "$TMP/$PKG" "$AUR_DEVEL/$PKG"
+  else
+    local TAR_FILE=$(basename "$TAR_URL")
+    wget -q "${AUR_URL}${TAR_URL}" -O "$TAR_FILE"
+    tar xfvz "$TAR_FILE" -C "$AUR_DEVEL"
+  fi
+
   cd "$AUR_DEVEL/$PKG"
 
   arge pkgbuild || makepkg -ors --noconfirm
