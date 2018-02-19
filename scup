@@ -1,5 +1,12 @@
 #!/bin/bash
 
+source $(dirname "${BASH_SOURCE[0]}")/abash/abash.sh
+arge help && usage '[options]
+
+  -d, --dry-run     do not restart services
+  -h, --help        this message
+'
+
 SERVICES=()
 
 for SERVICE in $(systemctl list-units --type=service --state=running | awk '{print $1}' | grep \.service$); do
@@ -8,9 +15,9 @@ done
 
 [ ${#SERVICES[@]} -gt 0 ] || exit 0
 
-systemctl daemon-reload
+arge dry-run || systemctl daemon-reload
 
-for SERVICE in ${SERVICES[@]}; do
+for SERVICE in "${SERVICES[@]}"; do
   echo $SERVICE
-  systemctl restart $SERVICE
+  arge dry-run || systemctl restart $SERVICE
 done
