@@ -28,5 +28,5 @@ fi
 
 if [ -x /usr/bin/npm ]; then
   bannerline 'Updating global Node modules'
-  npm -g soft-update
+  npm -g update
 fi
