@@ -5,7 +5,7 @@ source $(dirname "${BASH_SOURCE[0]}")/abash/abash.sh
 
 for ARG in "$@"; do
   if [[ $ARG =~ ^[0-9a-zA-Z]*:// ]] || [ -r "$ARG" ]; then
-    xdg-open "$ARG"
+    xdg-open "$ARG" 2> /dev/null
     continue
   fi
 
