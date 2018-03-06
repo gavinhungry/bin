@@ -10,4 +10,3 @@ echo -e $(tput sgr0)'\e[35mMAGENTA\t\t'$(tput bold)'\e[35mBRIGHT_MAGENTA'
 echo -e $(tput sgr0)'\e[36mCYAN\t\t'$(tput bold)'\e[36mBRIGHT_CYAN'
 echo -e $(tput sgr0)'\e[37mWHITE\t\t'$(tput bold)'\e[37mBRIGHT_WHITE'
 echo -e $(tput sgr0)'\e[00m'
-echo
