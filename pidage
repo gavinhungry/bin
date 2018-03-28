@@ -1,7 +1,7 @@
 #!/bin/bash
 
 source $(dirname "${BASH_SOURCE[0]}")/abash/abash.sh
-[ $# -ge 1 ] || usage 'PID'
+[ $# -ge 1 ] || usage '[-h, --human] PID'
 
 for ARG in $(nfargs); do
   PID=$(pidpid $ARG)
