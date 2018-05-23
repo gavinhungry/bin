@@ -1,0 +1,7 @@
+#!/bin/bash
+
+for PROP in $(xfconf-query -c pointers -l | grep /Acceleration$); do
+  ACCEL=$(xfconf-query -c pointers -p "$PROP")
+  xfconf-query -c pointers -p "$PROP" -s 0
+  xfconf-query -c pointers -p "$PROP" -s $ACCEL
+done

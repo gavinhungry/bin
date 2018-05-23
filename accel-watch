@@ -1,0 +1,13 @@
+#!/bin/bash
+
+[ -n "$X_TTY" ] || exit 1
+
+ttyChanged() {
+  if grep -q ${X_TTY#/*/} /sys/class/tty/tty0/active; then
+    accel-touch
+  fi
+}
+
+export -f ttyChanged
+
+exec surveil /sys/class/tty/tty0/active ttyChanged
