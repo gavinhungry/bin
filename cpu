@@ -13,5 +13,5 @@ CLEANCPU=$(echo "${CPU}" | sed -r 's/\((R|TM)\)//g' | sed -r 's/\sCPU\s/ /g')
 
 OUTPUT=""
 [ "${SOCKETS:-1}" -ne 1 ] && OUTPUT+="$SOCKETS x "
-OUTPUT+="$CLEANCPU [$THREADS]"
+OUTPUT+="$CLEANCPU ($THREADS)"
 echo $OUTPUT
