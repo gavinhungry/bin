@@ -1,0 +1,6 @@
+#!/bin/bash
+
+export GTK_MODULES=gtkparasite # GTK2 / GTK3
+export GTK_DEBUG=interactive # GTK3
+
+exec "$@"
