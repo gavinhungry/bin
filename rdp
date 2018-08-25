@@ -3,46 +3,19 @@
 source $(dirname "${BASH_SOURCE[0]}")/abash/abash.sh
 
 PROFILE_NAME=$(fnfarg)
-PROFILE_NAME=${PROFILE_NAME%.rdp}
 PROFILE_DIR=${HOME}/.rdp
-PROFILE=$(readlink -f ${PROFILE_DIR}/${PROFILE_NAME:-default}.rdp)
+PROFILE=$(readlink -f ${PROFILE_DIR}/${PROFILE_NAME:-default})
 
-[ -f ${PROFILE} ] || die 'profile not found'
+[ -f "$PROFILE" ] || die 'profile not found'
 
-RDP_TITLE=$(grep "^title:s:" ${PROFILE} | cut -d':' -f3)
-RDP_HOSTNAME=$(grep "^full address:s:" ${PROFILE} | cut -d':' -f3)
-RDP_NETBIOS=$(grep "^use netbios:i:" ${PROFILE} | cut -d':' -f3-)
-RDP_OPTIONS=$(grep "^xfreerdp:s:" ${PROFILE} | cut -d':' -f3-)
-PROXY_COMMAND=$(grep "^proxycommand:s:" ${PROFILE} | cut -d':' -f3-)
-PASSWORD_KEY=$(grep "^password key:s:" ${PROFILE} | cut -d':' -f3-)
+source "$PROFILE"
 
-# FIXME: need to accept certificate
-if [ ${RDP_NETBIOS:-0} -eq 1 ]; then
-  NMB_PROFILE=${PROFILE%.*}.nmb.rdp
-  install -m600 /dev/null ${NMB_PROFILE}
-  sed "s/^\(full\ address:s:\).*/\1$(nmbip ${RDP_HOSTNAME})/" ${PROFILE} > ${NMB_PROFILE}
-  sed "s/^\(use\ netbios:i:\).*/\10/" -i ${NMB_PROFILE}
-  PROFILE=${NMB_PROFILE}
-fi
+RDP_TITLE="$RDP_SERVER - Remote Desktop"
 
-shift
+(
+  for WINDOW_ID in $(timeout 10s xdotool search --sync --name "^${RDP_TITLE}$"); do
+    xseticon -id $WINDOW_ID ~/.icons/rdp.png
+  done
+) &
 
-RDP_DESC='Remote Desktop'
-
-if arge fullscreen; then
-  RDP_OPTIONS+=' /f /toggle-fullscreen'
-  RDP_DESC+=' (fullscreen)'
-fi
-
-if [ -n "$PROXY_COMMAND" ]; then
-  $PROXY_COMMAND &
-  PROXY_COMMAND_PID=$!
-  sleep 2
-fi
-
-if [ -n "$PASSWORD_KEY" ]; then
-  RDP_OPTIONS+=" /p:$(secret-tool lookup $PASSWORD_KEY)"
-fi
-
-xfreerdp ${PROFILE} /title:"${RDP_TITLE:-$RDP_HOSTNAME} - ${RDP_DESC}" ${RDP_OPTIONS} $(arg args)
-[ -n "$PROXY_COMMAND_PID" ] && kill $PROXY_COMMAND_PID
+exec rdesktop -T "$RDP_TITLE" $RDP_SERVER -u ${RDP_USER:-${USER}} -d ${RDP_DOMAIN:-''} -p "$RDP_PASSWORD" -a ${RDP_DEPTH:-24} -x ${RDP_EXP:-0x80} -g ${RDP_GEOMETRY:-1200x800}
