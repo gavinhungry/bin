@@ -1,0 +1,11 @@
+#!/bin/bash
+
+source $(dirname "${BASH_SOURCE[0]}")/abash/abash.sh
+(arge user && arge command) || usage '[options]
+
+  -u, --user        username to run command as
+  -c, --command     command to run
+  -h, --help        this message
+'
+
+exec sudo machinectl -q shell --uid=$(arg user) .host $(arg command)
