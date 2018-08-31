@@ -12,6 +12,10 @@ source "$PROFILE"
 
 RDP_TITLE="$RDP_SERVER - Remote Desktop"
 
+if [ "$RDP_NMB" == "1" ]; then
+  RDP_SERVER=$(nmbip "$RDP_SERVER")
+fi
+
 (
   for WINDOW_ID in $(timeout 10s xdotool search --sync --name "^${RDP_TITLE}$"); do
     xseticon -id $WINDOW_ID "$RDP_ICON_PATH"
