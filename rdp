@@ -10,16 +10,16 @@ PROFILE=$(readlink -f ${PROFILE_DIR}/${PROFILE_NAME:-default})
 
 source "$PROFILE"
 
-RDP_TITLE="$RDP_SERVER - Remote Desktop"
+WINDOW_TITLE="${RDP_TITLE:-$RDP_SERVER} - Remote Desktop"
 
 if [ "$RDP_NMB" == "1" ]; then
   RDP_SERVER=$(nmbip "$RDP_SERVER")
 fi
 
 (
-  for WINDOW_ID in $(timeout 10s xdotool search --sync --name "^${RDP_TITLE}$"); do
+  for WINDOW_ID in $(timeout 10s xdotool search --sync --name "^${WINDOW_TITLE}$"); do
     xseticon -id $WINDOW_ID "$RDP_ICON_PATH"
   done
 ) &
 
-exec rdesktop -T "$RDP_TITLE" $RDP_SERVER -u ${RDP_USER:-${USER}} -d ${RDP_DOMAIN:-''} -p "$RDP_PASSWORD" -a ${RDP_DEPTH:-24} -x ${RDP_EXP:-0x80} -g ${RDP_GEOMETRY:-1200x800}
+exec rdesktop -T "$WINDOW_TITLE" $RDP_SERVER -u ${RDP_USER:-${USER}} -d ${RDP_DOMAIN:-''} -p "$RDP_PASSWORD" -a ${RDP_DEPTH:-24} -x ${RDP_EXP:-0x80} -g ${RDP_GEOMETRY:-1200x800}
