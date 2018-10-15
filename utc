@@ -1,0 +1,4 @@
+#!/bin/bash
+
+EPOCH=${1/#/@}
+exec date -ud ${EPOCH:-now}
