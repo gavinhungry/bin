@@ -22,4 +22,9 @@ fi
   done
 ) &
 
-exec rdesktop -T "$WINDOW_TITLE" $RDP_SERVER -u ${RDP_USER:-${USER}} -d ${RDP_DOMAIN:-''} -p "$RDP_PASSWORD" -a ${RDP_DEPTH:-24} -x ${RDP_EXP:-0x80} -g ${RDP_GEOMETRY:-1200x800}
+RDESKTOP_ARGS=""
+if arge fullscreen; then
+  RDESKTOP_ARGS+="-f"
+fi
+
+exec rdesktop -T "$WINDOW_TITLE" $RDP_SERVER -u ${RDP_USER:-${USER}} -d ${RDP_DOMAIN:-''} -p "$RDP_PASSWORD" -a ${RDP_DEPTH:-24} -x ${RDP_EXP:-0x80} -g ${RDP_GEOMETRY:-1200x800} $RDESKTOP_ARGS
