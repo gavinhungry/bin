@@ -2,11 +2,20 @@
 
 source $(dirname "${BASH_SOURCE[0]}")/abash/abash.sh
 
-PROFILE_NAME=$(fnfarg)
+unset RDP_SERVER
+unset RDP_NMB
+unset RDP_DOMAIN
+unset RDP_USER
+unset RDP_PASSWORD
+unset RDP_WIDTH
+unset RDP_HEIGHT
+unset RDP_ARGS
+
 PROFILE_DIR=${HOME}/.rdp
+PROFILE_NAME=$(fnfarg)
 PROFILE=$(readlink -f ${PROFILE_DIR}/${PROFILE_NAME:-default})
 
-[ -f "$PROFILE" ] || die 'profile not found'
+[ -f ${PROFILE} ] || die 'profile not found'
 
 source "$PROFILE"
 
@@ -16,15 +25,19 @@ if [ "$RDP_NMB" == "1" ]; then
   RDP_SERVER=$(nmbip "$RDP_SERVER")
 fi
 
-(
-  for WINDOW_ID in $(timeout 10s xdotool search --sync --name "^${WINDOW_TITLE}$"); do
-    xseticon -id $WINDOW_ID "$RDP_ICON_PATH"
-  done
-) &
-
-RDESKTOP_ARGS=""
 if arge fullscreen; then
-  RDESKTOP_ARGS+="-f"
+  RDP_ARGS+=" /f"
 fi
 
-exec rdesktop -T "$WINDOW_TITLE" $RDP_SERVER -u ${RDP_USER:-${USER}} -d ${RDP_DOMAIN:-''} -p "$RDP_PASSWORD" -a ${RDP_DEPTH:-24} -x ${RDP_EXP:-0x80} -g ${RDP_GEOMETRY:-1200x800} $RDESKTOP_ARGS
+exec xfreerdp \
+  /bpp:24 \
+  /network:lan \
+  /audio-mode:1 \
+  ${RDP_ARGS} \
+  /title:"$WINDOW_TITLE" \
+  /v:"${RDP_SERVER}" \
+  /d:"${RDP_DOMAIN}" \
+  /u:"${RDP_USER}" \
+  /p:"${RDP_PASSWORD}" \
+  /w:"${RDP_WIDTH}" \
+  /h:"${RDP_HEIGHT}"
