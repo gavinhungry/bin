@@ -2,15 +2,6 @@
 
 source $(dirname "${BASH_SOURCE[0]}")/abash/abash.sh
 
-unset RDP_SERVER
-unset RDP_NMB
-unset RDP_DOMAIN
-unset RDP_USER
-unset RDP_PASSWORD
-unset RDP_WIDTH
-unset RDP_HEIGHT
-unset RDP_ARGS
-
 PROFILE_DIR=${HOME}/.rdp
 PROFILE_NAME=$(fnfarg)
 PROFILE=$(readlink -f ${PROFILE_DIR}/${PROFILE_NAME:-default})
