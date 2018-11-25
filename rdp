@@ -21,6 +21,7 @@ if arge fullscreen; then
 fi
 
 exec xfreerdp \
+  -floatbar \
   /bpp:24 \
   /network:lan \
   /audio-mode:1 \
