@@ -6,7 +6,7 @@ PROFILE_DIR=${HOME}/.rdp
 PROFILE_NAME=$(fnfarg)
 PROFILE=$(readlink -f ${PROFILE_DIR}/${PROFILE_NAME:-default})
 
-[ -f ${PROFILE} ] || die 'profile not found'
+[ -f "$PROFILE" ] || die 'profile not found'
 
 source "$PROFILE"
 
@@ -18,6 +18,10 @@ fi
 
 if arge fullscreen; then
   RDP_ARGS+=" /f"
+fi
+
+if [ -n "$RDP_PROXY" ]; then
+  RDP_ARGS+=" /proxy:$RDP_PROXY"
 fi
 
 exec xfreerdp \
