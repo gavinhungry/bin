@@ -1,0 +1,37 @@
+#!/bin/bash
+
+USER_AGENT='Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko'
+DATA_DIR="${HOME}/.cache/chrome-tor.$$${RANDOM}"
+
+mkdir -pm0700 "${DATA_DIR}/Default"
+
+cat > "${DATA_DIR}/Default/Preferences" << EOF
+{
+  "browser": {
+    "custom_chrome_frame": false
+  },
+
+  "bookmark_bar": {
+    "show_on_all_tabs": true
+  },
+
+  "default_search_provider_data": {
+    "template_url_data": {
+      "id": "0",
+      "keyword": "ddg",
+      "short_name": "DuckDuckGo",
+      "url": "https://duckduckgo.com/?q={searchTerms}"
+    }
+  }
+}
+EOF
+
+exec google-chrome \
+  --user-data-dir="$DATA_DIR" \
+  --incognito \
+  --no-pings \
+  --no-first-run \
+  --window-size=1440,1000 \
+  --proxy-server=socks5://127.0.0.1:9050 \
+  --user-agent="$USER_AGENT" \
+  'https://check.torproject.org'
