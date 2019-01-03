@@ -28,5 +28,8 @@ fi
 
 if [ -x /usr/bin/npm ]; then
   bannerline 'Updating global Node modules'
-  npm -g update
+
+  for PKG in $(npm -g outdated --parseable --depth=0 | cut -d: -f4); do
+    npm -g install "$PKG"
+  done
 fi
