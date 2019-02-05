@@ -3,5 +3,5 @@
 PROG=$(which $1 2> /dev/null)
 FILE=${PROG:-$1}
 
-QQO=$(packer -Qqo $FILE 2> /dev/null)
-[ ! -z $QQO ] && packer -Qi $QQO
+QQO=$(pacman -Qqo $FILE 2> /dev/null)
+[ ! -z $QQO ] && pacman -Qi $QQO

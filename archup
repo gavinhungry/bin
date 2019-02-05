@@ -8,14 +8,14 @@ sudo -v || exit 1
 sigint
 
 bannerline -f 'Updating pacman databases'
-packer -Syy
+pacman -Syy
 
 bannerline 'Updating packages'
-packer -Sua --noconfirm
+pacman -Su --noconfirm
 
-if packer -Qdtq &> /dev/null; then
+if pacman -Qdtq &> /dev/null; then
   bannerline 'Removing unrequired dependencies'
-  packer -Rsc $(packer -Qdtq) --noconfirm
+  pacman -Rsc $(pacman -Qdtq) --noconfirm
 fi
 
 bannerline 'Cleaning pacman cache'
