@@ -25,6 +25,13 @@ GIT_URL='git://git.archlinux.org/svntogit'
 AUR_URL="https://aur.archlinux.org"
 AUR_RPC="$AUR_URL/rpc.php?v=5&type"
 
+getPkgProp() {
+  local PKG=$1
+  local PROP=$2
+
+  pacman -Si "$PKG" 2> /dev/null | grep ^"$PROP" | awk '{print $NF}'
+}
+
 getAbsPkgbuild() {
   local PKG=$(expac -S '%e' $1)
   [ "$PKG" == '(null)' ] && PKG=$1
@@ -32,8 +39,8 @@ getAbsPkgbuild() {
   local TMP=$(tmpdir "$PKG")
   cd "$TMP"
 
-  local REPO=$(pacman -Si "$PKG" 2> /dev/null | grep ^Repository | awk '{print $NF}')
-  local ARCH=$(pacman -Si "$PKG" 2> /dev/null | grep ^Architecture | awk '{print $NF}')
+  local REPO=$(getPkgProp "$PKG" Repository)
+  local ARCH=$(getPkgProp "$PKG" Architecture)
   arge testing && REPO=testing
 
   local GIT_REPO=packages
@@ -94,7 +101,10 @@ getAurPkgbuild() {
 
 for PKG in $(nfargs); do
   [ "$PKG" != "$(fnfarg)" ] && echo
-  pacman -Si "$PKG" &> /dev/null && getAbsPkgbuild "$PKG" || getAurPkgbuild "$PKG"
+
+  [ $(getPkgProp "$PKG" Repository) == 'aur' ] &&
+    getAurPkgbuild "$PKG" ||
+    getAbsPkgbuild "$PKG"
 done
 
 arge raw || tmpdirclean
