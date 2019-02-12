@@ -14,9 +14,9 @@ source $(dirname "${BASH_SOURCE[0]}")/abash/abash.sh
 
 export GNUPGHOME=/etc/pacman.d/gnupg
 
-ARCH_SRC_DIR="$HOME/devel/arch/packages"
+PACKAGES_DIR="$HOME/devel/arch/packages"
 
-[ -d "$ARCH_SRC_DIR" ] || mkdir -p "$ARCH_SRC_DIR"
+[ -d "$PACKAGES_DIR" ] || mkdir -p "$PACKAGES_DIR"
 
 GIT_URL='git://git.archlinux.org/svntogit'
 AUR_URL="https://aur.archlinux.org"
@@ -52,20 +52,20 @@ getAbsPkgbuild() {
     return
   fi
 
-  [ -d "$ARCH_SRC_DIR/$PKG" ] && warn "path $ARCH_SRC_DIR/$PKG already exists"
+  [ -d "$PACKAGES_DIR/$PKG" ] && warn "path $PACKAGES_DIR/$PKG already exists"
 
   if arge raw; then
-    ln -s "$TMP/$GIT_REPO/$GIT_PKG_PATH" "$ARCH_SRC_DIR/$PKG"
+    ln -s "$TMP/$GIT_REPO/$GIT_PKG_PATH" "$PACKAGES_DIR/$PKG"
   else
-    cp -r "$GIT_REPO/$GIT_PKG_PATH" "$ARCH_SRC_DIR/$PKG"
+    cp -r "$GIT_REPO/$GIT_PKG_PATH" "$PACKAGES_DIR/$PKG"
   fi
 
   if ! arge pkgbuild; then
-    cd "$ARCH_SRC_DIR/$PKG"
+    cd "$PACKAGES_DIR/$PKG"
     arge pkgbuild || makepkg -ors --noconfirm
   fi
 
-  msg "$REPO/$PKG sources ready in ${ARCH_SRC_DIR#$HOME/}/$PKG"
+  msg "$REPO/$PKG sources ready in ${PACKAGES_DIR#$HOME/}/$PKG"
 }
 
 getAurPkgbuild() {
@@ -83,17 +83,17 @@ getAurPkgbuild() {
 
   if arge raw; then
     git clone "$AUR_URL/$PKG".git
-    ln -s "$TMP/$PKG" "$ARCH_SRC_DIR/$PKG"
+    ln -s "$TMP/$PKG" "$PACKAGES_DIR/$PKG"
   else
     local TAR_FILE=$(basename "$TAR_URL")
     wget -q "${AUR_URL}${TAR_URL}" -O "$TAR_FILE"
-    tar xfvz "$TAR_FILE" -C "$ARCH_SRC_DIR"
+    tar xfvz "$TAR_FILE" -C "$PACKAGES_DIR"
   fi
 
-  cd "$ARCH_SRC_DIR/$PKG"
+  cd "$PACKAGES_DIR/$PKG"
 
   arge pkgbuild || makepkg -ors --noconfirm
-  msg "aur/$PKG sources ready in ${ARCH_SRC_DIR#$HOME/}/$PKG"
+  msg "aur/$PKG sources ready in ${PACKAGES_DIR#$HOME/}/$PKG"
 }
 
 for PKG in $(nfargs); do
