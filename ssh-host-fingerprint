@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-source $(dirname "${BASH_SOURCE[0]}")/abash/abash.sh
+source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
 arge help && usage '[options]
 
   -v, --visual      include visual ASCII art representation

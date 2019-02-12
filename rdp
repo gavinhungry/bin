@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source $(dirname "${BASH_SOURCE[0]}")/abash/abash.sh
+source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
 
 PROFILE_DIR=${HOME}/.rdp
 PROFILE_NAME=$(fnfarg)

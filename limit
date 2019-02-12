@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source $(dirname "${BASH_SOURCE[0]}")/abash/abash.sh
+source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
 [ $# -ge 2 ] || usage 'KBPS PROGRAM [ARGS]'
 
 let LIMIT=$1*1024

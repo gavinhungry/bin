@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source $(dirname "${BASH_SOURCE[0]}")/abash/abash.sh
+source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
 DOMAIN=$(fnfarg)
 [ -n "$DOMAIN" ] || usage '[-4|-6] DOMAIN'
 
