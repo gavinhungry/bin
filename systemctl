@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source $(dirname "${BASH_SOURCE[0]}")/abash/abash.sh
+source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
 
 if [[ "$(fnfarg)" =~ ^($|status|is-.*|list-.*|show(-|$)) ]] || arge user; then
   exec /usr/bin/systemctl "$@"
