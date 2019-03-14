@@ -7,7 +7,7 @@ sudo -v || exit 1
 
 sigint
 
-bannerline 'Updating packages'
+bannerline -f 'Updating packages'
 pacman -Syu --noconfirm
 
 if pacman -Qdtq &> /dev/null; then
