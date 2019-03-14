@@ -7,11 +7,8 @@ sudo -v || exit 1
 
 sigint
 
-bannerline -f 'Updating pacman databases'
-pacman -Syy
-
 bannerline 'Updating packages'
-pacman -Su --noconfirm
+pacman -Syu --noconfirm
 
 if pacman -Qdtq &> /dev/null; then
   bannerline 'Removing unrequired dependencies'
