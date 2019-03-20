@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ $# -eq 0 ]; then
-  exec /usr/bin/date '+%b %-d %Y %-I:%M %p %Z'
+  exec /usr/bin/date '+%a %b %d %Y %I:%M:%S %p %Z'
 else
   exec /usr/bin/date "$@"
 fi
