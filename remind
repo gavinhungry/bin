@@ -1,6 +1,6 @@
 #!/bin/bash
 
-[ $# -eq 2 ] || exit 1
+[ $# -ge 2 ] || exit 1
 
 THEN=$1
 if [[ $1 != *:* ]]; then
@@ -10,6 +10,8 @@ if [[ $1 != *:* ]]; then
   [[ $1 = *d ]] && THEN+="ays"
 fi
 
+shift
+
 THEN_S=$(faketime $THEN date +%s)
 DUR_S=$(( $THEN_S - $(date +%s) ))
 [ $DUR_S -ge 0 ] || exit 1
@@ -17,6 +19,6 @@ DUR_S=$(( $THEN_S - $(date +%s) ))
 (sleep $DUR_S;
   NOW=$(date '+%I:%M %p')
   while pgrep slimlock > /dev/null; do sleep 1; done;
-  notify-send -t 0 "Reminder ($NOW)" "$2") &
+  notify-send -t 0 "Reminder ($NOW)" "$*") &
 
 echo "Reminder due at $(faketime $THEN date)"
