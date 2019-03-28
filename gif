@@ -1,16 +1,19 @@
 #!/bin/bash
 
 source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
-[ -n "$1" ] || usage 'FILE [--fps FRAMERATE]'
+[ -n "$1" ] || usage 'FILE [--fps FRAMERATE] [--width WIDTH]'
 [ -f "$1" ] || die "$1 does not exist"
 
 set -e
 
 FPS=$(arg fps 15)
+WIDTH=$(arg width 640)
+
 TMP=$(tmpdir)
 PALETTE=$TMP/palette-$1-$$.png
 
 ffmpeg -i "$1" -vf fps=$FPS,palettegen "$PALETTE"
-ffmpeg -i "$1" -i "$PALETTE" -filter_complex fps=$FPS,paletteuse "${1%.*}.gif"
+ffmpeg -threads 0 -i "$1" -i "$PALETTE" -filter_complex \
+  "[0:v]fps=$FPS,paletteuse,scale=$WIDTH:-1" "${1%.*}.gif"
 
 tmpdirclean
