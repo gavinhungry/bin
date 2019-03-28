@@ -1,5 +1,5 @@
 #!/bin/bash
 
-MEAN=$(sensors | grep ^Core | awk '{print $3}' | sed -e 's/.*\([[:digit:]]\{2,\}\)\..*/\1/g' | datamash mean 1)
+MEAN=$(sensors | grep ^Core | awk '{print $3}' | sed 's/+\([0-9]*\).*/\1/g' | datamash mean 1)
 TEMP=$(echo "scale=0; $MEAN/1" | bc)
 echo "${TEMP}°C"
