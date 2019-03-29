@@ -1,0 +1,5 @@
+#!/bin/bash
+
+FONT_NAME=$(xfconf-query -c xsettings -p /Gtk/FontName)
+xfconf-query -c xsettings -p /Gtk/FontName -s 0
+xfconf-query -c xsettings -p /Gtk/FontName -s "${FONT_NAME}"
