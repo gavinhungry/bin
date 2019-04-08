@@ -1,0 +1,26 @@
+#!/bin/bash
+
+CERT_NAME=${1:-localhost}
+
+exec openssl req -new -x509 -newkey rsa:4096 -sha256 -nodes -days 3650  \
+  -keyout ${CERT_NAME}.key \
+  -out ${CERT_NAME}.cer \
+  -config <( cat << EOF
+    [req]
+    prompt = no
+    x509_extensions = v3_req
+    distinguished_name = dn
+
+    [dn]
+    O = ${CERT_NAME}
+    OU = ${CERT_NAME}
+    CN = ${CERT_NAME}
+
+    [v3_req]
+    subjectAltName = @alt_names
+
+    [alt_names]
+    DNS.1 = ${CERT_NAME}
+    DNS.2 = *.${CERT_NAME}
+EOF
+)
