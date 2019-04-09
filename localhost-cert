@@ -28,7 +28,7 @@ CERT_CONFIG_FILE="
 
   [alt_names]
   DNS.1 = localhost
-  DNS.2 = *.localhost
+  DNS.2 = *.dev.localhost
 "
 
 openssl req -new -x509 \
@@ -52,5 +52,5 @@ openssl x509 -req \
   -extensions san \
   -extfile <( echo -e "$CERT_CONFIG_FILE" )
 
-cat localhost.cer > bundle.cer
-cat ca.cer >> bundle.cer
+cat localhost.cer > localhost-bundle.cer
+cat ca.cer >> localhost-bundle.cer
