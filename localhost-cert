@@ -1,0 +1,56 @@
+#!/bin/bash
+
+CA_CONFIG_FILE="
+  [req]
+  prompt = no
+  distinguished_name = dn
+
+  [dn]
+  O = localhost CA
+  OU = localhost CA
+  CN = localhost CA
+"
+
+CERT_CONFIG_FILE="
+  [req]
+  prompt = no
+  req_extensions = san
+  x509_extensions = san
+  distinguished_name = dn
+
+  [dn]
+  O = localhost
+  OU = localhost
+  CN = localhost
+
+  [san]
+  subjectAltName = @alt_names
+
+  [alt_names]
+  DNS.1 = localhost
+  DNS.2 = *.localhost
+"
+
+openssl req -new -x509 \
+  -days 3650 \
+  -newkey rsa -nodes -keyout ca.key \
+  -out ca.cer \
+  -config <( echo -e "$CA_CONFIG_FILE" )
+
+openssl req \
+  -newkey rsa -keyout localhost.key -nodes \
+  -out localhost.csr \
+  -config <( echo -e "$CERT_CONFIG_FILE" )
+
+openssl x509 -req \
+  -days 3650 \
+  -in localhost.csr \
+  -CA ca.cer \
+  -CAkey ca.key \
+  -CAcreateserial \
+  -out localhost.cer \
+  -extensions san \
+  -extfile <( echo -e "$CERT_CONFIG_FILE" )
+
+cat localhost.cer > bundle.cer
+cat ca.cer >> bundle.cer
