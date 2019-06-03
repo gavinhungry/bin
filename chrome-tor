@@ -8,7 +8,8 @@ mkdir -pm0700 "${DATA_DIR}/Default"
 cat > "${DATA_DIR}/Default/Preferences" << EOF
 {
   "browser": {
-    "custom_chrome_frame": false
+    "custom_chrome_frame": false,
+    "default_browser_setting_enabled": false
   },
 
   "bookmark_bar": {
