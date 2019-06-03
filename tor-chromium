@@ -1,14 +1,29 @@
 #!/bin/bash
 
-USER_AGENT='Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko'
-DATA_DIR="${HOME}/.cache/chrome-tor.$$${RANDOM}"
+USER_AGENT=$(node -p << EOF
+  let ua = require('random-useragent').getRandom(ua => {
+    return !ua.deviceType && ['Firefox', 'Chrome'].includes(ua.browserName)
+  });
 
+  if (ua) {
+    console.log(ua);
+  }
+
+  process.exit();
+EOF
+)
+
+[ $? -eq 0 -a -n "$USER_AGENT" ] || exit 1
+echo "USER_AGENT: $USER_AGENT"
+
+DATA_DIR="${HOME}/.cache/tor-chromium.$$${RANDOM}" # mounted in tmpfs
 mkdir -pm0700 "${DATA_DIR}/Default"
 
 cat > "${DATA_DIR}/Default/Preferences" << EOF
 {
   "browser": {
     "custom_chrome_frame": false,
+    "default_browser_infobar_last_declined": "1",
     "default_browser_setting_enabled": false
   },
 
@@ -27,12 +42,14 @@ cat > "${DATA_DIR}/Default/Preferences" << EOF
 }
 EOF
 
-exec google-chrome \
+chromium \
   --user-data-dir="$DATA_DIR" \
   --incognito \
   --no-pings \
   --no-first-run \
-  --window-size=1440,1000 \
+  --window-size=1920,1200 \
   --proxy-server=socks5://127.0.0.1:9050 \
   --user-agent="$USER_AGENT" \
   'https://check.torproject.org'
+
+rm -fr "$DATA_DIR"
