@@ -13,7 +13,7 @@ abort() {
 
 trap abort INT
 
-while ! "$@"; do
+while ! eval "$@"; do
   TRIES=$((TRIES + 1));
 done
 
