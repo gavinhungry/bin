@@ -1,0 +1,20 @@
+#!/bin/bash
+
+TRIES=1
+
+fin() {
+  echo $TRIES >&2
+}
+
+abort() {
+  fin
+  exit 1
+}
+
+trap abort INT
+
+while ! "$@"; do
+  TRIES=$((TRIES + 1));
+done
+
+fin
