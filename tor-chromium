@@ -2,7 +2,7 @@
 
 USER_AGENT=$(node -p << EOF
   let ua = require('random-useragent').getRandom(ua => {
-    return !ua.deviceType && ['Firefox', 'Chrome'].includes(ua.browserName)
+    return !ua.deviceType && ['Firefox', 'Chrome'].includes(ua.browserName);
   });
 
   if (ua) {
