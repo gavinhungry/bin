@@ -25,7 +25,6 @@ if [ -n "$RDP_PROXY" ]; then
 fi
 
 exec xfreerdp \
-  -floatbar \
   /bpp:24 \
   /network:lan \
   /audio-mode:1 \
