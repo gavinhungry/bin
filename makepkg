@@ -1,3 +1,5 @@
 #!/bin/bash
 
+unset LESS
+
 GNUPGHOME=/etc/makepkg.d/gnupg exec nicely /usr/bin/makepkg "$@"
