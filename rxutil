@@ -1,0 +1,11 @@
+#!/bin/bash
+
+UTIL=$(radeontop --dump - --limit 1)
+
+if [ $? -ne 0 ]; then
+  echo $UTIL >&2
+  exit 1
+fi
+
+PERCENT=$(echo "$UTIL" | tail -n1 | awk '{ print $5; }' | cut -d'%' -f1)
+echo "${PERCENT%.*}%"
