@@ -1,0 +1,4 @@
+#!/bin/bash
+
+TEMP=$(sensors | grep ^edge: | awk '{print $2}' | sed 's/+\([0-9]*\).*/\1/g')
+echo "${TEMP}°C"
