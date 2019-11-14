@@ -8,4 +8,4 @@ fi
 MNT_DIR=~/.mount/$1
 
 mkdir -pm 700 "$MNT_DIR"
-sshfs -o follow_symlinks -o workaround=rename $1: "$MNT_DIR"
+sshfs -o follow_symlinks -o workaround=rename $1:$2 "$MNT_DIR"
