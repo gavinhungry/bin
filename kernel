@@ -1,0 +1,9 @@
+#!/bin/bash
+
+RELEASES=$(curl -s https://www.kernel.org/releases.json)
+
+if uname -r | grep -qi '\bLTS\b'; then
+  echo $RELEASES | jq -r '[.releases[] | select(.moniker == "longterm")][0] | .version'
+else
+  echo $RELEASES | jq -r .latest_stable.version
+fi
