@@ -1,0 +1,15 @@
+#!/bin/bash
+
+if ! grep -q "^${1}$" <(ssh-aliases); then
+  echo "Host alias not found" >&2
+  exit 1
+fi
+
+MNT_DIR=~/.mount/$1
+
+if ! mountpoint -q "$MNT_DIR"; then
+  echo "Not mounted" >&2
+  exit 2
+fi
+
+umount "$MNT_DIR" && rmdir "$MNT_DIR" &> /dev/null

@@ -1,0 +1,3 @@
+#!/bin/bash
+
+scanimage --format=png | convert - -trim ${1:-scanned.png}
