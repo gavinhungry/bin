@@ -5,7 +5,7 @@ if ! grep -q "^${1}$" <(ssh-aliases); then
   exit 1
 fi
 
-MNT_DIR=~/.mount/$1
+MNT_DIR=~/.cache/mount/$1
 
 if ! mountpoint -q "$MNT_DIR"; then
   echo "Not mounted" >&2
