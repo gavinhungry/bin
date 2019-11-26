@@ -1,4 +1,4 @@
 #!/bin/bash
 
-TEMP=$(sensors | grep ^edge: | awk '{print $2}' | sed 's/+\([0-9]*\).*/\1/g')
+TEMP=$(sensors -j 2> /dev/null | jq '.["amdgpu-pci-0700"].edge.temp1_input')
 echo "${TEMP}°C"
