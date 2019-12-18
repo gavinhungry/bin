@@ -1,0 +1,9 @@
+#!/bin/bash
+
+clean() {
+  local CLEAN=$(echo -n "$1" | tr -cd '[:alnum:] [:space:] ._-' | tr -s '[:space:]' '-')
+  echo "${CLEAN#.}"
+}
+
+[ -d "$1" ] && exec tar czvf "$(clean "$1").tar.gz" "$1" # create
+[ -f "$1" ] && exec tar xzvf "$1" # extract
