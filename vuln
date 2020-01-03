@@ -1,0 +1,20 @@
+#!/bin/bash
+
+source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
+
+VULNS=/sys/devices/system/cpu/vulnerabilities/*
+MAX_LENGTH=0
+
+for VULN in $VULNS; do
+  VULN_NAME=$(basename $VULN)
+
+  if [ ${#VULN_NAME} -gt $MAX_LENGTH ]; then
+    MAX_LENGTH=${#VULN_NAME}
+  fi
+done
+
+for VULN in $VULNS; do
+  printf " $(color bold yellow)%${MAX_LENGTH}s$(color end): %s\n" \
+    "$(basename $VULN)" \
+    "$(cat $VULN)"
+done
