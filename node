@@ -1,0 +1,14 @@
+#!/bin/bash
+
+NODE=/usr/bin/node
+NODE_FLAGS=(
+  --experimental-repl-await
+)
+
+REPL_JS=$HOME/.node-repl.js
+
+if [ ! -f "$REPL_JS" -o $# != 0 ]; then
+  exec $NODE ${NODE_FLAGS[@]} "$@"
+fi
+
+exec $NODE ${NODE_FLAGS[@]} "$REPL_JS"
