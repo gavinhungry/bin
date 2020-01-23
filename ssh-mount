@@ -1,11 +1,17 @@
 #!/bin/bash
 
-if ! grep -q "^${1}$" <(ssh-aliases); then
-  echo "Host alias not found" >&2
+SSH_ALIAS=${1%%:*}
+SSH_PATH=${1#*:}
+
+[ "$SSH_ALIAS" == "$SSH_PATH" ] && SSH_PATH=
+[ -z "$SSH_ALIAS" ] && exit 1
+
+if ! grep -q "^${SSH_ALIAS}$" <(ssh-aliases); then
+  echo "Host alias '$SSH_ALIAS' not found" >&2
   exit 1
 fi
 
-MNT_DIR=~/.cache/mount/$1
+MNT_DIR=~/.cache/mount/$SSH_ALIAS
 
 mkdir -pm 700 "$MNT_DIR"
-sshfs -o follow_symlinks -o workaround=rename $1:$2 "$MNT_DIR"
+sshfs -o follow_symlinks -o workaround=rename ${SSH_ALIAS}:${SSH_PATH} "$MNT_DIR"
