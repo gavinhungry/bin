@@ -3,7 +3,7 @@
 ACTION=$(cat /sys/block/md127/md/sync_action)
 STATUS+=$ACTION
 
-if [ "$ACTION" == "check" ]; then
+if [ "$ACTION" == "check" -o "$ACTION" == "recovery" ]; then
   PERCENT=$(cat /proc/mdstat | grep % | cut -d'%' -f1 | awk '{ print $NF; }')
   STATUS+=" (${PERCENT}%)"
 fi
