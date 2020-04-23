@@ -1,0 +1,6 @@
+#!/bin/bash
+
+for MODULE in $(cat /proc/modules | awk '{print $1}' | sort); do
+  # [ "$(modinfo -F intree $MODULE)" == "Y" ] || echo $MODULE
+  [ "$(cat /sys/module/$MODULE/taint)" == "" ] || echo $MODULE
+done
