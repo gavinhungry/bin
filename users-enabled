@@ -1,0 +1,10 @@
+#!/bin/bash
+
+for LINE in $(sudo cat /etc/shadow); do
+  USER=$(echo $LINE | cut -d':' -f1)
+  HASH=$(echo $LINE | cut -d':' -f2)
+
+  if !([ "$HASH" = '!' ] || [ "$HASH" = '!!' ]); then
+    echo $USER
+  fi
+done
