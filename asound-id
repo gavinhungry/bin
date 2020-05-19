@@ -1,3 +1,4 @@
 #!/bin/bash
 
+[ -f /proc/asound/cards ] || exit 1
 grep "\[\s*${1}\s*\]:" /proc/asound/cards | awk '{print $1;}'
