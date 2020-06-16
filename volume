@@ -1,0 +1,12 @@
+#!/bin/bash
+
+playback() {
+  amixer -c ${ALSA_CARD_ID:-0} -q set ${MASTER_VOLUME_MIXER:-Master} playback "$@"
+}
+
+case $1 in
+  '') exit ;;
+  up) playback 1dB+ ;;
+  down) playback 1dB- ;;
+  *) playback "$@" ;;
+esac
