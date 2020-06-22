@@ -1,0 +1,9 @@
+#!/bin/bash
+
+ARGS=""
+if [[ "$1" = :* ]]; then
+  ARGS+=" -t ${1#:} -S ${1#:}"
+  shift
+fi
+
+exec /usrs/bin/screen $ARGS "$@"
