@@ -1,3 +1,0 @@
-#!/bin/bash
-
-faketime "${*:-now}" sh -c 'printf "WW%02d.%d\n" $(( 10#$(date +%U) + 1 - $(date -d $(date +%Y)-01-01 +%U) )) $(date +%w)'
