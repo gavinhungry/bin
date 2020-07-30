@@ -1,5 +1,0 @@
-#!/bin/bash
-
-TEMP=$(sensors -j 2> /dev/null | jq '.["amdgpu-pci-0700"].edge.temp1_input')
-[ "$TEMP" == 'null' ] && TEMP='?'
-echo "${TEMP}°C"
