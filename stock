@@ -1,0 +1,47 @@
+#!/usr/bin/env node
+
+const finnhub = require('finnhub');
+
+finnhub.ApiClient.instance.authentications.api_key.apiKey = process.env.FINNHUB_API_KEY;
+let finnhubClient = new finnhub.DefaultApi();
+
+let getQuote = symbol => {
+  return new Promise((resolve, reject) => {
+    finnhubClient.quote(symbol, (err, data) => {
+      if (err) {
+        return reject(err);
+      }
+
+      resolve(data);
+    });
+  });
+};
+
+let main = async () => {
+  let symbol = process.argv[2];
+  if (!symbol) {
+    process.exit(1);
+  }
+
+  symbol = symbol.toUpperCase();
+
+  let quote = await getQuote(symbol);
+  if (!quote) {
+    process.exit(2);
+  }
+
+  let currentValue = quote.c.toFixed(2);
+  let previousClose = quote.pc.toFixed(2);
+
+  let delta = currentValue - previousClose;
+  let indicator = delta < 0 ? '-' : '+';
+  let percentage = previousClose ?
+    (100 * Math.abs(delta / previousClose)).toFixed(2) : 0;
+
+  console.log(`$${currentValue} (${indicator}${percentage}%)`);
+};
+
+main().catch(err => {
+  console.error(err);
+  process.exit(1);
+});
