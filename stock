@@ -25,10 +25,9 @@ let main = async () => {
 
   symbol = symbol.toUpperCase();
 
-  let quote = await getQuote(symbol);
-  if (!quote) {
+  let quote = await getQuote(symbol).catch(err => {
     process.exit(2);
-  }
+  });
 
   let currentValue = quote.c.toFixed(2);
   let previousClose = quote.pc.toFixed(2);
