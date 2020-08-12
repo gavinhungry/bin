@@ -2,4 +2,10 @@
 
 MEAN=$(grep MHz /proc/cpuinfo  | awk '{print $NF;}' | datamash mean 1)
 MHZ=$(echo "scale=0; $MEAN/1" | bc)
-echo "${MHZ} MHz"
+GHZ=$(echo "scale=2; $MEAN/1000" | bc)
+
+if [ $MHZ -ge 1000 ]; then
+  echo "${GHZ} GHz"
+else
+  echo "${MHZ} MHz"
+fi
