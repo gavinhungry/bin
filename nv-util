@@ -1,0 +1,4 @@
+#!/bin/bash
+
+PERCENT=$(nvidia-smi --query-gpu=utilization.gpu --format=csv,noheader,nounits)
+echo "${PERCENT}%"
