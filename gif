@@ -6,14 +6,15 @@ source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
 
 set -e
 
-FPS=$(arg fps 15)
-WIDTH=$(arg width 640)
+FPS=$(arg fps 24)
+WIDTH=$(arg width 480)
 
 TMP=$(tmpdir)
 PALETTE=$TMP/palette-$1-$$.png
 
-ffmpeg -i "$1" -vf fps=$FPS,palettegen "$PALETTE"
-ffmpeg -threads 0 -i "$1" -i "$PALETTE" -filter_complex \
-  "[0:v]fps=$FPS,paletteuse,scale=$WIDTH:-1" "${1%.*}.gif"
+ffpb -i "$1" -vf fps=$FPS,palettegen "$PALETTE"
+ffpb -threads 0 -i "$1" -i "$PALETTE" -filter_complex \
+  "fps=$FPS,scale=$WIDTH:-1:flags=lanczos[x];[x][1:v]paletteuse" \
+  "${1%.*}.gif"
 
 tmpdirclean
