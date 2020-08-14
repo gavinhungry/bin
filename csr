@@ -1,0 +1,26 @@
+#!/bin/bash
+
+source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
+
+CSR_NAME=$(arg name localhost)
+COMMON_NAME=$(arg cn $CSR_NAME)
+
+SUBJECT_ALT_NAME=''
+for DNS in $(arg dns $CSR_NAME | split); do
+  SUBJECT_ALT_NAME+="DNS:${DNS},"
+done
+SUBJECT_ALT_NAME=${SUBJECT_ALT_NAME%,}
+
+CMD="openssl req -new -sha256 -out ${CSR_NAME}.csr"
+
+KEY=$(arg key)
+if [ -n "$KEY" ]; then
+  CMD+=" -key $KEY"
+else
+  CMD+=" -newkey rsa:4096 -nodes -keyout ${CSR_NAME}.key"
+fi
+
+CMD+=" -subj \"/CN=${COMMON_NAME}/O=${CSR_ORG}/C=${CSR_COUNTRY}/ST=${CSR_STATE}/L=${CSR_LOCALITY}\""
+CMD+=" -reqexts SAN -config <(cat /etc/ssl/openssl.cnf <(printf \"\n[SAN]\nsubjectAltName=${SUBJECT_ALT_NAME}\"))"
+
+eval $CMD
