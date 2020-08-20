@@ -1,7 +1,7 @@
 #!/bin/bash
 
 playback() {
-  amixer -c ${ALSA_CARD_ID:-0} -q set ${MASTER_VOLUME_MIXER:-Master} playback "$@"
+  amixer -c ${ALSA_CARD_ID:-0} -q set ${ALSA_MIXER:-Master} playback "$@"
 }
 
 case $1 in
