@@ -1,12 +1,12 @@
 #!/bin/bash
 
 playback() {
-  amixer -c ${ALSA_CARD_ID:-0} -q set ${ALSA_MIXER:-Master} playback "$@"
+  amixer -M -c ${ALSA_CARD_ID:-0} -q set ${ALSA_MIXER:-Master} playback "$@"
 }
 
 case $1 in
   '') exit ;;
-  up) playback 1dB+ ;;
-  down) playback 1dB- ;;
+  up) playback 1%+ ;;
+  down) playback 1%- ;;
   *) playback "$@" ;;
 esac
