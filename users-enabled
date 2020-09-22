@@ -8,5 +8,7 @@ for LINE in $(sudo cat /etc/shadow); do
   USER=$(echo $LINE | cut -d':' -f1)
   HASH=$(echo $LINE | cut -d':' -f2)
 
-  includes DISABLED_HASHES $HASH || echo $USER
+  if [[ "$HASH" != !* ]] && [ "$HASH" != 'x' ]; then
+    echo $USER
+  fi
 done
