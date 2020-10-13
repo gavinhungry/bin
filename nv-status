@@ -1,3 +1,3 @@
 #!/bin/bash
 
-echo "$(nv-temp || echo ?) / $(nv-util || echo ?)"
+echo "$(nv-util || echo ?) / $(nv-temp || echo ?)"
