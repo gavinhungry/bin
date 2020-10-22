@@ -26,7 +26,16 @@ fi
 if [ -x /usr/bin/npm ]; then
   bannerline 'Updating global Node modules'
 
-  for PKG in $(npm -g outdated --parseable --depth=0 | cut -d: -f4); do
-    npm -g install "$PKG"
+  PKGS=""
+  for PKG in $(npm -g outdated --parseable | cut -d: -f4); do
+    if [[ $PKG == npm@* ]]; then
+      warn "Ignoring package: ${PKG}"
+    else
+      echo $PKG
+      PKGS+="$PKG "
+    fi
   done
+
+  [ -n "$PKGS" ] && npm -sg install ${PKGS% *}
+  echo
 fi
