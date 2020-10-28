@@ -1,9 +1,21 @@
 #!/bin/bash
 
+source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
+(arge help) && usage '[-s, --stable] [-l, --lts]'
+
 RELEASES=$(curl -s https://www.kernel.org/releases.json)
 
-if uname -r | grep -qi '\bLTS\b'; then
-  echo $RELEASES | jq -r '[.releases[] | select(.moniker == "longterm")][0] | .version'
-else
-  echo $RELEASES | jq -r .latest_stable.version
+VER=stable
+if uname -r | grep -qi '\b-lts\b'; then
+  VER=lts
 fi
+
+arge lts && VER=lts
+arge stable && VER=stable
+arge mainline && VER=mainline
+
+case $VER in
+  lts) echo $RELEASES | jq -r '[.releases[] | select(.moniker == "longterm")][0] | .version' ;;
+  stable) echo $RELEASES | jq -r .latest_stable.version ;;
+  mainline) echo $RELEASES | jq -r '[.releases[] | select(.moniker == "mainline")][0] | .version' ;;
+esac
