@@ -1,0 +1,3 @@
+#!/bin/bash
+
+pacinfo local/$1 2> /dev/null | grep ^Version | awk '{ print $NF; }'
