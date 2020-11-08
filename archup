@@ -23,13 +23,13 @@ else
   sudo paccache -ruk0 | awk NF
 fi
 
-if [ -x /usr/bin/npm ]; then
+if which npm > /dev/null; then
   bannerline 'Updating global Node modules'
 
   PKGS=""
   for PKG in $(npm -g outdated --parseable | cut -d: -f4); do
     if [[ $PKG == npm@* ]]; then
-      warn "Ignoring package: ${PKG}"
+      continue
     else
       echo $PKG
       PKGS+="$PKG "
