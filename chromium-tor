@@ -16,7 +16,7 @@ EOF
 [ $? -eq 0 -a -n "$USER_AGENT" ] || exit 1
 echo "USER_AGENT: $USER_AGENT"
 
-DATA_DIR="${HOME}/.cache/tor-chromium.$$${RANDOM}" # mounted in tmpfs
+DATA_DIR="${HOME}/.cache/chromium-tor.$$${RANDOM}" # mounted in tmpfs
 mkdir -pm0700 "${DATA_DIR}/Default"
 
 cat > "${DATA_DIR}/Default/Preferences" << EOF
