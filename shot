@@ -6,12 +6,12 @@ CMD=${1:-'--fullscreen'}
 FILENAME=$(date +"screenshot-%Y%m%d_%H%M%S_%Z.png")
 
 case "$CMD" in
-  --fullscreen|--region)
+  -f|--fullscreen|-r|--region)
     # scrot doesn't have very good region selection
     xfce4-screenshooter "$CMD" --save "$FILENAME"
   ;;
 
-  --window)
+  -w|--window)
     # xfce4-screenshooter doesn't seem to allow capturing borderless windows
     scrot --focused "$FILENAME"
   ;;
