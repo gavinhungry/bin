@@ -1,0 +1,14 @@
+#!/bin/bash
+
+FILE=$1
+ARGS=""
+
+if [ -e "$FILE" ]; then
+  MIME=$(mime "$FILE")
+
+  if [[ "$MIME" == image/* ]]; then
+    ARGS+="-t $MIME"
+  fi
+fi
+
+xclip $ARGS -selection clipboard "$FILE"
