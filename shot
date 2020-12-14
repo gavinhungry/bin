@@ -1,3 +1,20 @@
 #!/bin/bash
 
-xfce4-screenshooter --clipboard "$@" --save $(date +"${HOSTNAME}-%Y%m%d_%H%M%S_%Z.png")
+set -euo pipefail
+
+CMD=${1:-'--fullscreen'}
+FILENAME=$(date +"screenshot-%Y%m%d_%H%M%S_%Z.png")
+
+case "$CMD" in
+  --fullscreen|--region)
+    # scrot doesn't have very good region selection
+    xfce4-screenshooter "$CMD" --save "$FILENAME"
+  ;;
+
+  --window)
+    # xfce4-screenshooter doesn't seem to allow capturing borderless windows
+    scrot --focused "$FILENAME"
+  ;;
+esac
+
+clip "$FILENAME"
