@@ -1,5 +1,5 @@
 #!/bin/bash
 
-IDLE=$(top -b -n1 | grep '^%Cpu(s):' | cut -d: -f2 | awk '{print $7}')
+IDLE=$(top -b -n1 | grep '^%Cpu(s):' | cut -d, -f4 | awk '{print $1}')
 PERCENT=$(echo "scale=0; 100 - $IDLE" | bc)
 printf "%.0f%%\n" $PERCENT
