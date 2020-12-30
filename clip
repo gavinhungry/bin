@@ -3,12 +3,14 @@
 FILE=$1
 ARGS=""
 
-if [ -e "$FILE" ]; then
-  MIME=$(mime "$FILE")
-
-  if [[ "$MIME" == image/* ]]; then
-    ARGS+="-t $MIME"
-  fi
+if [ -z "$FILE" ]; then
+  exec xclip -selection clipboard
 fi
 
-xclip $ARGS -selection clipboard "$FILE"
+MIME=$(mime "$FILE")
+
+if [[ "$MIME" == image/* ]]; then
+  ARGS+="-t $MIME"
+fi
+
+exec xclip $ARGS -selection clipboard "$FILE"
