@@ -1,14 +1,14 @@
 #!/bin/bash
 
-source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
-
-DISABLED_HASHES=('!' '!!' 'x')
-
 for LINE in $(sudo cat /etc/shadow); do
   USER=$(echo $LINE | cut -d':' -f1)
   HASH=$(echo $LINE | cut -d':' -f2)
 
-  if [[ "$HASH" != !* ]] && [ "$HASH" != 'x' ]; then
+  if (
+    [[ "$HASH" != !* ]] &&
+    [ "$HASH" != 'x' ] &&
+    [ "$HASH" != '*' ]
+  ); then
     echo $USER
   fi
 done
