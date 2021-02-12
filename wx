@@ -1,0 +1,7 @@
+#!/bin/bash
+
+JSON=$(curl -s https://api.darksky.net/forecast/$DARKSKY_API_KEY/$LAT_LONG)
+CUR_TEMP=$(echo $JSON | jq -r .currently.temperature)
+APP_TEMP=$(echo $JSON | jq -r .currently.apparentTemperature)
+
+printf "%.0f°F / %.0f°F\n" $CUR_TEMP $APP_TEMP
