@@ -1,7 +1,11 @@
 #!/bin/bash
 
-JSON=$(curl -s https://api.darksky.net/forecast/$DARKSKY_API_KEY/$LAT_LONG)
-CUR_TEMP=$(echo $JSON | jq -r .currently.temperature)
-APP_TEMP=$(echo $JSON | jq -r .currently.apparentTemperature)
+API_BASE=https://api.openweathermap.org/data/2.5/weather
+URL="${API_BASE}?q=${1:-${WX_LOCATION}}&appid=${OPENWEATHER_API_KEY}&units=imperial"
+JSON=$(curl -s "$URL")
 
-printf "%.0f°F (%.0f°F)\n" $CUR_TEMP $APP_TEMP
+CUR_TEMP=$(echo $JSON | jq -r .main.temp)
+FL_TEMP=$(echo $JSON | jq -r .main.feels_like)
+WX_DESC=$(echo $JSON | jq -r .weather[0].main)
+
+printf "%.0f°F / %.0f°F (%s)\n" $CUR_TEMP $FL_TEMP $WX_DESC
