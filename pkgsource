@@ -38,10 +38,13 @@ getAbsPkgbuild() {
 
   local REPO=$(getPkgProp "$PKG" Repository)
   local ARCH=$(getPkgProp "$PKG" Architecture)
-  arge testing && REPO=testing
 
   local GIT_REPO=packages
   [ $REPO == 'community' -o $REPO == 'multilib' ] && GIT_REPO=community
+
+  if arge testing; then
+     [ $REPO == 'community' ] && REPO='community-testing' || REPO='testing'
+  fi
 
   local GIT_PKG_PATH="repos/$REPO-$ARCH"
   arge trunk:k && GIT_PKG_PATH="trunk"
