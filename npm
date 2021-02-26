@@ -1,0 +1,54 @@
+#!/bin/bash
+
+source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
+[ -n "$SUDO_USER" ] && exit 1
+
+NPM=$(nwhich npm)
+
+export NO_UPDATE_NOTIFIER=1
+
+if [ "$1" == 'run' ]; then
+  shift
+  exec $NPM run --silent "$@"
+fi
+
+if [ "$1" == 'audit' -a $# -eq 1 ]; then
+  TMPDIR=$(tmpdir)
+
+  cp package.json "$TMPDIR"
+
+  cd "$TMPDIR"
+
+  $NPM install --save --package-lock --package-lock-only &> /dev/null
+  $NPM audit
+  RET=$?
+
+  tmpdirclean
+
+  exit $RET
+fi
+
+if [ "$1" == 'global-update' ]; then
+  PKGS_TO_UPDATE=""
+
+  for OUTDATED in $($NPM -g outdated --parseable); do
+    PKG_NAME=$(echo $OUTDATED | cut -d: -f4)
+    PKG_PATH=$(echo $OUTDATED | cut -d: -f1)
+    PKG_JSON="$PKG_PATH"/package.json
+
+    [[ $PKG_NAME == npm@* ]] && continue
+
+    # ignore private packages
+    PRIVATE=$(jq .private < "$PKG_JSON")
+    [ "$PRIVATE" == 'true' ] && continue
+
+    echo $PKG_NAME
+    PKGS_TO_UPDATE+="$PKG_NAME "
+  done
+
+  [ -n "$PKGS_TO_UPDATE" ] && exec $NPM -sg install ${PKGS_TO_UPDATE% *}
+
+  exit
+fi
+
+exec $NPM "$@"
