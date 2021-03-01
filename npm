@@ -4,6 +4,7 @@ source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
 [ -n "$SUDO_USER" ] && exit 1
 
 NPM=$(nwhich npm)
+PREFIX_DIR=$($NPM -g config get prefix)
 
 export NO_UPDATE_NOTIFIER=1
 
@@ -31,23 +32,28 @@ fi
 if [ "$1" == 'global-update' ]; then
   PKGS_TO_UPDATE=""
 
-  for OUTDATED in $($NPM -g outdated --parseable); do
-    PKG_NAME=$(echo $OUTDATED | cut -d: -f4)
-    PKG_PATH=$(echo $OUTDATED | cut -d: -f1)
-    PKG_JSON="$PKG_PATH"/package.json
+  for PKG_DIR in $PREFIX_DIR/lib/node_modules/*/; do
+    PKG_NAME=$(basename $PKG_DIR)
+    PKG_JSON="$PKG_DIR"/package.json
 
+    # don't automatically self-update npm
     [[ $PKG_NAME == npm@* ]] && continue
 
-    # ignore private packages
-    PRIVATE=$(jq .private < "$PKG_JSON")
-    [ "$PRIVATE" == 'true' ] && continue
+    # ignore local private packages
+    PKG_PRIVATE=$(jq .private < "$PKG_JSON")
+    [ "$PKG_PRIVATE" == 'true' ] && continue
 
-    echo $PKG_NAME
-    PKGS_TO_UPDATE+="$PKG_NAME "
+    PKG_VER=$(jq -r .version < "$PKG_JSON")
+    LATEST=$(npm info $PKG_NAME version)
+    VERSION=$(semver "$PKG_VER" "$LATEST" | tail -n1)
+
+    if [ "$PKG_VER" != "$VERSION" ]; then
+      echo ${PKG_NAME}@${VERSION}
+      PKGS_TO_UPDATE+="${PKG_NAME}@${VERSION} "
+    fi
   done
 
   [ -n "$PKGS_TO_UPDATE" ] && exec $NPM -sg install ${PKGS_TO_UPDATE% *}
-
   exit
 fi
 
