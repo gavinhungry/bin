@@ -1,3 +1,12 @@
 #!/bin/bash
 
-lspci | grep 'VGA compatible\|3D controller' | cut -d':' -f3 | sed 's/^\s*//g'
+VGA=$(lspci -mm | grep 'VGA compatible controller\|3D controller')
+
+VENDOR=$(echo $VGA | cut -d'"' -f4)
+MODEL_FULL=$(echo $VGA | cut -d'"' -f6)
+MODEL_NAME=$(echo $MODEL_FULL | cut -d'[' -f2 | cut -d']' -f1 | sed -r 's/^(.*)Rev\. .*/\1/')
+MODEL_NUM=$(echo $MODEL_FULL | cut -d'[' -f1)
+
+if [ "$MODEL_FULL" != "$MODEL_NUM" ]; then
+  echo "$VENDOR ${MODEL_NAME% } (${MODEL_NUM% })"
+fi
