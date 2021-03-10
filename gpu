@@ -9,6 +9,7 @@ MODEL_NUM=$(echo $MODEL_FULL | cut -d'[' -f1)
 
 if [ "$MODEL_FULL" != "$MODEL_NUM" ]; then
   echo "$VENDOR ${MODEL_NAME% } (${MODEL_NUM% })"
+  exit
 fi
 
 echo "$VENDOR $MODEL_FULL"
