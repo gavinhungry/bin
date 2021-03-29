@@ -4,8 +4,12 @@ set -euo pipefail
 
 source "$(dirname "${BASH_SOURCE[0]}")"/.abash/abash.sh
 
-MODEL=${1:-$(grep -m1 '^model name' /proc/cpuinfo | sed 's/.*\s\(\S*\) CPU.*/\1/')}
-SEARCH=$(curl -L --silent "https://ark.intel.com/search?_charset_=UTF-8&q=$MODEL")
+MODEL=${1:-$(grep -m1 '^model name' /proc/cpuinfo |
+  sed -r 's/.*:\s*(.*)\sCPU.*/\1/' |
+  sed 's/([^)]*)//g'
+)}
+
+SEARCH=$(curl -sL "https://ark.intel.com/search?_charset_=UTF-8&q=$MODEL")
 
 LINKS=(
   $(echo $SEARCH | pup '#FormRedirectUrl attr{value}')
@@ -19,4 +23,7 @@ fi
 LINK=${LINKS[0]}
 URL="https://ark.intel.com$LINK"
 
-curl -L --silent "$URL" | pup '[data-key="CodeNameText"] a text{}' | xargs | sed 's/Products formerly //'
+curl -L --silent "$URL" |\
+  pup '[data-key="CodeNameText"] a text{}' |
+  xargs |
+  sed 's/Products formerly //'
