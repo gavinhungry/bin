@@ -24,6 +24,10 @@ if [ -n "$RDP_PROXY" ]; then
   RDP_ARGS+=" /proxy:$RDP_PROXY"
 fi
 
+if [ -n "$RDP_PORT" ]; then
+  RDP_ARGS+=" /port:$RDP_PORT"
+fi
+
 exec xfreerdp \
   /bpp:24 \
   /network:lan \
