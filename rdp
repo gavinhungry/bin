@@ -16,6 +16,11 @@ if [ "$RDP_NMB" == "1" ]; then
   RDP_SERVER=$(nmbip "$RDP_SERVER")
 fi
 
+if arge maximized; then
+  RDP_HEIGHT=${RDP_MAX_HEIGHT:-$RDP_HEIGHT}
+  RDP_WIDTH=${RDP_MAX_WIDTH:-$RDP_WIDTH}
+fi
+
 if arge fullscreen; then
   RDP_ARGS+=" /f"
 fi
