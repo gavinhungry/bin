@@ -7,41 +7,21 @@ PROFILE_NAME=$(fnfarg)
 PROFILE=$(readlink -f ${PROFILE_DIR}/${PROFILE_NAME:-default})
 
 [ -f "$PROFILE" ] || die 'profile not found'
-
 source "$PROFILE"
 
-WINDOW_TITLE="${RDP_TITLE:-$RDP_SERVER} - Remote Desktop"
-
-if [ "$RDP_NMB" == "1" ]; then
-  RDP_SERVER=$(nmbip "$RDP_SERVER")
-fi
-
-if arge maximized; then
-  RDP_HEIGHT=${RDP_MAX_HEIGHT:-$RDP_HEIGHT}
-  RDP_WIDTH=${RDP_MAX_WIDTH:-$RDP_WIDTH}
-fi
-
-if arge fullscreen; then
-  RDP_ARGS+=" /f"
-fi
-
-if [ -n "$RDP_PROXY" ]; then
-  RDP_ARGS+=" /proxy:$RDP_PROXY"
-fi
-
-if [ -n "$RDP_PORT" ]; then
-  RDP_ARGS+=" /port:$RDP_PORT"
-fi
+[ -n "$RDP_PROXY" ] && RDP_ARGS+=" /proxy:$RDP_PROXY"
+[ -n "$RDP_PORT" ] && RDP_ARGS+=" /port:$RDP_PORT"
 
 exec xfreerdp \
+  /title:"${RDP_TITLE:-$RDP_SERVER} - FreeRDP" \
   /bpp:24 \
   /network:lan \
   /audio-mode:1 \
-  ${RDP_ARGS} \
-  /title:"$WINDOW_TITLE" \
+  /dynamic-resolution \
+  /w:"${RDP_WIDTH:-1920}" \
+  /h:"${RDP_HEIGHT:-1080}" \
   /v:"${RDP_SERVER}" \
   /d:"${RDP_DOMAIN}" \
   /u:"${RDP_USER}" \
   /p:"${RDP_PASSWORD}" \
-  /w:"${RDP_WIDTH}" \
-  /h:"${RDP_HEIGHT}"
+  ${RDP_ARGS}
