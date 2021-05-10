@@ -5,7 +5,7 @@ set -euo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")"/.abash/abash.sh
 
 MODEL=${1:-$(grep -m1 '^model name' /proc/cpuinfo |
-  sed -r 's/.*:\s*(.*)\sCPU.*/\1/' |
+  sed -r 's/.*:\s*.*(Intel)(.*)\s@.*/\1\2/' |
   sed 's/([^)]*)//g'
 )}
 
