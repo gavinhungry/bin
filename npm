@@ -5,6 +5,7 @@ source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
 
 NPM=$(nwhich npm)
 PREFIX_DIR=$($NPM -g config get prefix)
+MODULES_DIR=$PREFIX_DIR/lib/node_modules
 
 export NO_UPDATE_NOTIFIER=1
 
@@ -32,9 +33,8 @@ fi
 if [ "$1" == 'global-update' ]; then
   PKGS_TO_UPDATE=""
 
-  for PKG_DIR in $PREFIX_DIR/lib/node_modules/*/; do
-    PKG_NAME=$(basename $PKG_DIR)
-    PKG_JSON="$PKG_DIR"/package.json
+  for PKG_JSON in $MODULES_DIR/*/package.json $MODULES_DIR/@*/*/package.json; do
+    PKG_NAME=$(jq -r .name < "$PKG_JSON")
 
     # don't automatically self-update npm
     [[ $PKG_NAME == npm@* ]] && continue
