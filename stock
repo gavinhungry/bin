@@ -25,6 +25,8 @@ let main = async () => {
 
   symbol = symbol.toUpperCase();
 
+  let shareCount = Number(process.argv[3]) || 0;
+
   let quote = await getQuote(symbol).catch(err => {
     process.exit(2);
   });
@@ -34,10 +36,17 @@ let main = async () => {
 
   let delta = currentValue - previousClose;
   let indicator = delta < 0 ? '-' : '+';
+  let portfolio = (delta * shareCount).toLocaleString(2);
   let percentage = previousClose ?
     (100 * Math.abs(delta / previousClose)).toFixed(2) : 0;
 
-  console.log(`${currentValue} (${indicator}${percentage}%)`);
+  let str = `${currentValue} (${indicator}${percentage}%)`;
+
+  if (shareCount) {
+    str += ` (${indicator}$${portfolio})`;
+  }
+
+  console.log(str);
 };
 
 main().catch(err => {
