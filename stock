@@ -36,14 +36,18 @@ let main = async () => {
 
   let delta = currentValue - previousClose;
   let indicator = delta < 0 ? '-' : '+';
-  let portfolio = (delta * shareCount).toLocaleString(2);
   let percentage = previousClose ?
     (100 * Math.abs(delta / previousClose)).toFixed(2) : 0;
 
   let str = `${currentValue} (${indicator}${percentage}%)`;
 
   if (shareCount) {
-    str += ` (${indicator}$${portfolio})`;
+    let portfolio = Math.abs(delta * shareCount).toLocaleString(undefined, {
+      style: 'currency',
+      currency: 'USD'
+    });
+
+    str += ` (${indicator}${portfolio})`;
   }
 
   console.log(str);
