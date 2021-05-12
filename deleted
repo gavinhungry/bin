@@ -1,0 +1,8 @@
+#!/bin/bash
+
+for DIR in /proc/*/; do
+  COMM=$(cat $DIR/comm 2> /dev/null)
+  EXE=$(basename "$(readlink $DIR/exe)" 2> /dev/null)
+
+  [ "$EXE" == "$COMM (deleted)" ] && echo $COMM
+done
