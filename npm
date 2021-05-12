@@ -34,6 +34,7 @@ if [ "$1" == 'global-update' ]; then
   PKGS_TO_UPDATE=""
 
   for PKG_JSON in $MODULES_DIR/*/package.json $MODULES_DIR/@*/*/package.json; do
+    [ -e "$PKG_JSON" ] || continue
     PKG_NAME=$(jq -r .name < "$PKG_JSON")
 
     # don't automatically self-update npm
