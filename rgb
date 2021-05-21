@@ -1,0 +1,3 @@
+#!/bin/bash
+
+exec openrgb -m direct -c "$@" > /dev/null
