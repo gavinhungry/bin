@@ -1,5 +1,6 @@
 #!/bin/bash
 
-MEAN=$(sensors | grep ^Core | awk '{print $3}' | sed 's/+\([0-9]*\).*/\1/g' | datamash mean 1)
-TEMP=$(echo "scale=0; $MEAN/1" | bc)
+TEMPS=$(find /sys/devices/platform/coretemp.* -name temp[^1]_input)
+MEAN=$(cat $TEMPS | datamash mean 1)
+TEMP=$(echo "scale=0; $MEAN/1000" | bc)
 echo "${TEMP}°C"
