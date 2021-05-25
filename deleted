@@ -1,8 +1,14 @@
 #!/bin/bash
 
 for DIR in /proc/*/; do
-  COMM=$(cat $DIR/comm 2> /dev/null)
-  EXE=$(basename "$(readlink $DIR/exe)" 2> /dev/null)
+  [ ! -e $DIR/comm ] && continue
 
-  [ "$EXE" == "$COMM (deleted)" ] && echo $COMM
+  COMM=$(cat $DIR/comm)
+  [ -z "$COMM" ] && continue
+
+  DELETED="$COMM (deleted)"
+  EXE=$(basename "$(readlink -q $DIR/exe)")
+  LINK=$(basename "$(readlink -q $(which $COMM 2> /dev/null) 2> /dev/null)")
+
+  [ "$EXE" == "$COMM (deleted)" -o "$EXE" == "$LINK (deleted)" ] && echo $COMM
 done
