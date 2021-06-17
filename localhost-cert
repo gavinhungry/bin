@@ -31,6 +31,12 @@ CERT_CONFIG_FILE="
   DNS.2 = *.dev.localhost
 "
 
+DNS=2
+for ALT_NAME in "$@"; do
+  let DNS+=1
+  CERT_CONFIG_FILE+="  DNS.$DNS = ${ALT_NAME}.localhost"$'\n'
+done
+
 openssl req -new -x509 \
   -days 3650 \
   -newkey rsa -nodes -keyout ca.key \
