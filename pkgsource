@@ -18,7 +18,7 @@ PACKAGES_DIR="$HOME/devel/arch/packages"
 
 [ -d "$PACKAGES_DIR" ] || mkdir -p "$PACKAGES_DIR"
 
-GIT_URL='https://git.archlinux.org/svntogit'
+GIT_URL='https://github.com/archlinux'
 AUR_URL="https://aur.archlinux.org"
 AUR_RPC="$AUR_URL/rpc.php?v=5&type"
 
@@ -39,8 +39,8 @@ getAbsPkgbuild() {
   local REPO=$(getPkgProp "$PKG" Repository)
   local ARCH=$(getPkgProp "$PKG" Architecture)
 
-  local GIT_REPO=packages
-  [ $REPO == 'community' -o $REPO == 'multilib' ] && GIT_REPO=community
+  local GIT_REPO=svntogit-packages
+  [ $REPO == 'community' -o $REPO == 'multilib' ] && GIT_REPO=svntogit-community
 
   if arge testing; then
      [ $REPO == 'community' ] && REPO='community-testing' || REPO='testing'
