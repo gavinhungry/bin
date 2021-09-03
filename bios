@@ -1,0 +1,8 @@
+#!/bin/bash
+
+DMI=/sys/devices/virtual/dmi/id
+
+RELEASE=$(cat $DMI/bios_release)
+VERSION=$(cat $DMI/bios_version)
+
+[[ "$VERSION" == *'('* ]] && echo $RELEASE || echo $VERSION

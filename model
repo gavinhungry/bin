@@ -1,0 +1,8 @@
+#!/bin/bash
+
+DMI=/sys/devices/virtual/dmi/id
+
+FAMILY=$(cat $DMI/product_family)
+NAME=$(cat $DMI/product_name)
+
+[ ${#FAMILY} -ge ${#NAME} ] && echo $FAMILY || echo $NAME
