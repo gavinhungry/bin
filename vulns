@@ -16,7 +16,10 @@ for VULN in ${VULNS_DIR}/*; do
 done
 
 for VULN in ${VULNS_DIR}/*; do
-  printf " $(color bold yellow)%${MAX_LENGTH}s$(color end): %s\n" \
+  VAL=$(cat $VULN)
+  COLOR=yellow
+  [ "$VAL" == "Not affected" ] && COLOR=green
+  printf " $(color bold $COLOR)%${MAX_LENGTH}s$(color end): %s\n" \
     "$(basename $VULN)" \
-    "$(cat $VULN)"
+    "$VAL"
 done
