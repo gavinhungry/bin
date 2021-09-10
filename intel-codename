@@ -5,8 +5,7 @@ set -euo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")"/.abash/abash.sh
 
 MODEL=${1:-$(grep -m1 '^model name' /proc/cpuinfo |
-  sed -r 's/.*:\s*.*(Intel)(.*)\s@.*/\1\2/' |
-  sed 's/([^)]*)//g'
+  sed -r 's/.*(i[[:digit:]][^\ ]*).*/\1/'
 )}
 
 SEARCH=$(curl -sL "https://ark.intel.com/search?_charset_=UTF-8&q=$MODEL")
