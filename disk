@@ -4,6 +4,7 @@ for DISK in $(lsblk -n | grep '\sdisk\s*$' | awk '{ print $1 }'); do
   VENDOR=$(cat /sys/class/block/$DISK/device/vendor 2> /dev/null | xargs)
   MODEL=$(cat /sys/class/block/$DISK/device/model 2> /dev/null | xargs)
 
+  [ -z "$MODEL" ] && continue
   [ -n "$VENDOR" -a "$VENDOR" != "ATA" ] && echo -n "$VENDOR "
   echo "$MODEL"
 done
