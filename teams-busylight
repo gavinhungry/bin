@@ -25,7 +25,6 @@ while read STATUS; do
 
   [ "$STATUS_COLOR" == "$LAST_COLOR" ] && continue
 
-  echo "$STATUS / $STATUS_COLOR"
   busylight on "$STATUS_COLOR"
   LAST_COLOR=$STATUS_COLOR
 done < <(teams-status --watch)
