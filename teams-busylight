@@ -1,0 +1,31 @@
+#!/bin/bash
+
+declare -A STATUS_COLOR_MAP
+STATUS_COLOR_MAP[online]='#040'
+STATUS_COLOR_MAP[AppearAway]='#420'
+STATUS_COLOR_MAP[busy]='#004'
+STATUS_COLOR_MAP[outToLunch]='#004'
+STATUS_COLOR_MAP[beRightBack]='#333'
+STATUS_COLOR_MAP[InCall]='#400'
+
+LAST_COLOR=
+
+while read STATUS; do
+  if [ -z "$STATUS" -o "$STATUS" == 'offline' ]; then
+    LAST_COLOR=
+    busylight off
+    continue
+  fi
+
+  STATUS_COLOR=${STATUS_COLOR_MAP[$STATUS]}
+  if [ -z "$STATUS_COLOR" ]; then
+    echo "Unknown status: $STATUS"
+    continue
+  fi
+
+  [ "$STATUS_COLOR" == "$LAST_COLOR" ] && continue
+
+  echo "$STATUS / $STATUS_COLOR"
+  busylight on "$STATUS_COLOR"
+  LAST_COLOR=$STATUS_COLOR
+done < <(teams-status --watch)

@@ -1,0 +1,32 @@
+#!/bin/bash
+
+TEAMS=/usr/share/teams/teams
+TEAMS_DIR="${XDG_CONFIG_HOME}/Microsoft/Teams"
+LOG_FILE="$TEAMS_DIR"/logs.txt
+STORAGE_FILE="$TEAMS_DIR"/storage.json
+
+if [ "$1" == '--watch' ]; then
+  surveil "$LOG_FILE" "$STORAGE_FILE" teams-status
+  exit
+fi
+
+if ! pidof -q $TEAMS; then
+  echo 'offline'
+  exit 1
+fi
+
+APP_STATES=$(jq -r '.appStates.states' "$STORAGE_FILE")
+LAST_STATE=${APP_STATES##*,}
+
+if [ "$LAST_STATE" == 'InCall' ]; then
+  echo $LAST_STATE
+  exit
+fi
+
+if [ "$LAST_STATE" == 'Quitting' ]; then
+  echo 'offline'
+  exit
+fi
+
+# this only works when manually setting presence from the tray icon
+grep -oP 'setpresence, DataBag.PresenceState: \K([^,]*)' "$LOG_FILE" | tail -n1
