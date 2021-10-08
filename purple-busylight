@@ -10,13 +10,13 @@ const BUSYLIGHT_PATH = (
 );
 
 const STATUS_COLOR_MAP = {
-  available: '#020',
-  away: '#210',
-  busy: '#002',
-  unavailable: '#002',
-  'do-not-disturb': '#200'
-  'be-right-back': '#111',
-  invisible: '#002'
+  available: '#030',
+  away: '#310',
+  busy: '#003',
+  unavailable: '#003',
+  'do-not-disturb': '#300'
+  'be-right-back': '#222',
+  invisible: '#000'
 };
 
 let bus = DBus.getBus('session');
