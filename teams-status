@@ -18,13 +18,20 @@ fi
 APP_STATES=$(jq -r '.appStates.states' "$STORAGE_FILE")
 LAST_STATE=${APP_STATES##*,}
 
-if [ "$LAST_STATE" == 'InCall' ]; then
-  echo $LAST_STATE
+WEB_APP_STATES=$(jq -r '.webAppStates.states' "$STORAGE_FILE")
+LAST_WEB_APP_STATE=${WEB_APP_STATES##*,}
+
+if [ "$LAST_STATE" == 'Quitting' -o \
+     "$LAST_WEB_APP_STATE" == 'Disconnected' -o \
+     "$LAST_WEB_APP_STATE" == 'Offline' -o \
+     "$LAST_WEB_APP_STATE" == 'Unloaded' \
+]; then
+  echo 'offline'
   exit
 fi
 
-if [ "$LAST_STATE" == 'Quitting' ]; then
-  echo 'offline'
+if [ "$LAST_STATE" == 'InCall' ]; then
+  echo $LAST_STATE
   exit
 fi
 
