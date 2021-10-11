@@ -17,7 +17,6 @@ exec xfreerdp \
   +window-drag \
   /bpp:24 \
   /audio-mode:1 \
-  /dynamic-resolution \
   /w:"${RDP_WIDTH:-1920}" \
   /h:"${RDP_HEIGHT:-1080}" \
   /v:"${RDP_SERVER}" \
