@@ -6,8 +6,8 @@ DMI=/sys/devices/virtual/dmi/id
 if [ -d "$DT" ]; then
   cat "$DT"/model
   echo
+elif [ -d "$DMI" ]; then
+  FAMILY=$(cat $DMI/product_family)
+  NAME=$(cat $DMI/product_name)
+  [ ${#FAMILY} -ge ${#NAME} ] && echo $FAMILY || echo $NAME
 fi
-
-FAMILY=$(cat $DMI/product_family)
-NAME=$(cat $DMI/product_name)
-[ ${#FAMILY} -ge ${#NAME} ] && echo $FAMILY || echo $NAME
