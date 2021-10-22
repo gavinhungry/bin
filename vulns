@@ -19,7 +19,7 @@ for VULN in ${VULNS_DIR}/*; do
   VAL=$(cat $VULN)
   COLOR=yellow
   [ "$VAL" == "Not affected" ] && COLOR=green
-  [ "$VAL" == "Vulnerable" ] && COLOR=red
+  [[ "$VAL" == "Vulnerable"* ]] && COLOR=red
   printf " $(color bold $COLOR)%${MAX_LENGTH}s$(color end): %s\n" \
     "$(basename $VULN)" \
     "$VAL"
