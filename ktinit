@@ -1,0 +1,3 @@
+#!/bin/bash
+
+exec kinit -kt ~/.keytab-${1:-$USER} ${1:-$USER}
