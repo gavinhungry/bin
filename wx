@@ -1,11 +1,9 @@
 #!/bin/bash
 
-API_BASE=https://api.openweathermap.org/data/2.5/weather
-URL="${API_BASE}?q=${1:-${WX_LOCATION}}&appid=${OPENWEATHER_API_KEY}&units=imperial"
-JSON=$(curl -s "$URL")
+JSON=$(curl -s https://wttr.in/?format=j1)
 
-CUR_TEMP=$(echo $JSON | jq -r .main.temp)
-FL_TEMP=$(echo $JSON | jq -r .main.feels_like)
-WX_DESC=$(echo $JSON | jq -r .weather[0].main)
+CUR_TEMP=$(echo $JSON | jq -r .current_condition[0].temp_F)
+FL_TEMP=$(echo $JSON | jq -r .current_condition[0].FeelsLikeF)
+WX_DESC=$(echo $JSON | jq -r .current_condition[0].weatherDesc[0].value)
 
 printf "%.0f°F / %.0f°F (%s)\n" $CUR_TEMP $FL_TEMP $WX_DESC
