@@ -6,4 +6,8 @@ CUR_TEMP=$(echo $JSON | jq -r .current_condition[0].temp_F)
 FL_TEMP=$(echo $JSON | jq -r .current_condition[0].FeelsLikeF)
 WX_DESC=$(echo $JSON | jq -r .current_condition[0].weatherDesc[0].value)
 
-printf "%.0f°F / %.0f°F (%s)\n" $CUR_TEMP $FL_TEMP $WX_DESC
+if [ "$CUR_TEMP" == "$FL_TEMP" ]; then
+  printf "%.0f°F (%s)\n" $CUR_TEMP $WX_DESC
+else
+  printf "%.0f°F / %.0f°F (%s)\n" $CUR_TEMP $FL_TEMP $WX_DESC
+fi
