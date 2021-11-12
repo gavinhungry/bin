@@ -14,8 +14,8 @@ source "$PROFILE"
 
 exec xfreerdp \
   /title:"${RDP_TITLE:-$RDP_SERVER} - FreeRDP" \
+  +window-drag \
   /bpp:24 \
-  /network:lan \
   /audio-mode:1 \
   /dynamic-resolution \
   /w:"${RDP_WIDTH:-1920}" \
