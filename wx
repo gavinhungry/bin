@@ -1,6 +1,6 @@
 #!/bin/bash
 
-JSON=$(curl -s https://wttr.in/?format=j1)
+JSON=$(curl -s https://wttr.in/$WX_LOCATION?format=j1)
 
 WX_DESC=$(echo $JSON | jq -r .current_condition[0].weatherDesc[0].value)
 TEMP_CUR=$(echo $JSON | jq -r .current_condition[0].temp_F)
