@@ -1,7 +1,14 @@
 #!/bin/bash
 
-if [ $# -eq 0 ]; then
-  exec /usr/bin/date '+%a %b %d %Y %I:%M:%S %p %Z'
+for (( I=0; I<${BASH_ARGC:-0}; I++ )); do
+  if [[ ${BASH_ARGV[$I]} == +* ]]; then
+    DATE_TIME_FORMAT=''
+    break
+  fi
+done
+
+if [ -n "$DATE_TIME_FORMAT" ]; then
+  exec /usr/bin/date "+$DATE_TIME_FORMAT" "$@"
 else
   exec /usr/bin/date "$@"
 fi
