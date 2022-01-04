@@ -7,6 +7,10 @@ sudo -v || exit 1
 
 sigint
 
+cmd_exists() {
+  command -v $1 &> /dev/null
+}
+
 bannerline -f 'Updating packages'
 pacman -Syu --noconfirm
 
@@ -23,5 +27,12 @@ else
   sudo paccache -ruk0 | awk NF
 fi
 
-bannerline 'Updating global Node modules'
-npm global-update
+if cmd_exists pnpm; then
+  bannerline 'Updating Node modules'
+  pnpm -g update
+fi
+
+if cmd_exists pip-update; then
+  bannerline 'Updating Python modules'
+  pip-update
+fi
