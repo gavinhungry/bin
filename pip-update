@@ -1,0 +1,6 @@
+#!/bin/bash
+
+for PKG in $(pip list --user --outdated --format=freeze); do
+  PKG_NAME=$(echo $PKG | grep -v '^\-e' | cut -d= -f1)
+  pip install --user --upgrade $PKG_NAME
+done
