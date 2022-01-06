@@ -74,6 +74,9 @@ window_ids = [
   if window_id_matches(window_id)
 ]
 
+if active_window_id not in window_ids:
+  quit()
+
 next_index = (window_ids.index(active_window_id) + 1) % len(window_ids)
 next_window_id = window_ids[next_index]
 next_window = get_window_by_id(next_window_id)
