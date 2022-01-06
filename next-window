@@ -4,9 +4,7 @@
 # Focuses next window matching active WM_CLASS on current workspace
 #
 
-# e.g., Compiz workspaces
-num_virtual_workspaces = 6
-
+import os
 from Xlib import X
 from Xlib.display import Display
 
@@ -20,7 +18,8 @@ _NET_CLIENT_LIST = display.get_atom('_NET_CLIENT_LIST')
 desktop_width = root.get_full_property(
   _NET_DESKTOP_GEOMETRY, X.AnyPropertyType).value[0]
 
-workspace_width = desktop_width / num_virtual_workspaces
+workspace_count = int(os.getenv('WORKSPACE_COUNT') or 1)
+workspace_width = desktop_width / workspace_count
 
 #
 def get_window_by_id(window_id):
