@@ -1,6 +1,3 @@
 #!/bin/bash
 
-TEMPS=$(find /sys/devices/platform/coretemp.* -name temp[^1]_input)
-MEAN=$(cat $TEMPS | datamash mean 1)
-TEMP=$(echo "scale=0; $MEAN/1000" | bc)
-echo "${TEMP}°C"
+exec coretemp 'Package id 0'
