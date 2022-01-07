@@ -1,0 +1,3 @@
+#!/bin/bash
+
+exec ffpb -i "$1" -c:v dnxhd -profile:v dnxhr_hq "DNxHR-${1%.*}.mxf"

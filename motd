@@ -1,0 +1,6 @@
+#!/bin/bash
+
+[ -e /etc/motd ] || exit
+
+cate /etc/motd
+echo
