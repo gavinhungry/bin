@@ -28,13 +28,13 @@ CERT_CONFIG_FILE="
 
   [alt_names]
   DNS.1 = localhost
-  DNS.2 = *.dev.localhost
 "
 
 DNS=2
 for ALT_NAME in "$@"; do
+  [[ "$ALT_NAME" != *.* ]] && ALT_NAME+='.localhost'
+  CERT_CONFIG_FILE+="  DNS.$DNS = ${ALT_NAME}"$'\n'
   let DNS+=1
-  CERT_CONFIG_FILE+="  DNS.$DNS = ${ALT_NAME}.localhost"$'\n'
 done
 
 openssl req -new -x509 \
