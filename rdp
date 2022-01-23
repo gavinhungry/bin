@@ -12,6 +12,9 @@ source "$PROFILE"
 [ -n "$RDP_PROXY" ] && RDP_ARGS+=" /proxy:$RDP_PROXY"
 [ -n "$RDP_PORT" ] && RDP_ARGS+=" /port:$RDP_PORT"
 
+RDP_WIDTH=${RDP_GEOMETRY%x*}
+RDP_HEIGHT=${RDP_GEOMETRY#*x}
+
 exec xfreerdp \
   /title:"${RDP_TITLE:-$RDP_SERVER} - FreeRDP" \
   +window-drag \
