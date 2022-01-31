@@ -1,0 +1,12 @@
+#!/bin/bash
+
+source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
+
+nslookup is-doh.help.every1dns.net > /dev/null
+EC=$?
+
+if ! arge quiet; then
+  [ $EC -eq 0 ] && echo true || echo false
+fi
+
+exit $EC
