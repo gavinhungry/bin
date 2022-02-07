@@ -1,0 +1,8 @@
+#!/bin/bash
+
+if [ "$1" == 'run' ]; then
+  shift
+  exec /usr/bin/pnpm --silent run "$@"
+fi
+
+exec /usr/bin/pnpm "$@"
