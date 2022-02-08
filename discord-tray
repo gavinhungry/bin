@@ -7,19 +7,48 @@ import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
+import psutil
 import subprocess
 import threading
+import sys
 
 APP_NAME = 'Discord'
 APP_PATH = '/opt/discord/Discord'
 ICON_NAME = 'discord-tray'
 
 #
-def on_icon_click(icon):
-  subprocess.Popen(APP_PATH)
+def is_running(exe):
+  for proc in psutil.process_iter():
+    try:
+     if (proc.exe() == exe):
+        return True
+    except:
+      continue
+
+  return False
 
 #
-def on_icon_context_menu(icon, button, time):
+def open_app():
+  return subprocess.Popen(APP_PATH)
+
+#
+def start_app():
+  global process
+  process = open_app()
+  process.wait()
+  quit()
+
+#
+def quit_app(menuitem):
+  process.terminate()
+  Gtk.main_quit()
+
+#
+def on_click(icon):
+  open_app()
+
+#
+def on_context(icon, button, time):
   quit = Gtk.MenuItem()
   quit.set_label('Quit ' + APP_NAME)
   quit.connect('activate', quit_app)
@@ -30,25 +59,17 @@ def on_icon_context_menu(icon, button, time):
 
   menu.popup(None, None, None, Gtk.StatusIcon.position_menu, button, time)
 
-#
-def start_app():
-  global process
-  process = subprocess.Popen(APP_PATH)
-  process.wait()
-  quit()
-
-#
-def quit_app(menuitem):
-  process.terminate()
-  Gtk.main_quit()
-
 # ------------------------------------------------------------------------------
+
+if is_running(APP_PATH):
+  open_app()
+  sys.exit()
 
 icon = Gtk.StatusIcon()
 icon.set_tooltip_text(APP_NAME)
 icon.set_from_icon_name(ICON_NAME)
-icon.connect('activate', on_icon_click)
-icon.connect('popup-menu', on_icon_context_menu)
+icon.connect('activate', on_click)
+icon.connect('popup-menu', on_context)
 
 thread = threading.Thread(target=start_app)
 thread.start()
