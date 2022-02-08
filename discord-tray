@@ -1,0 +1,56 @@
+#!/usr/bin/env python3
+
+import warnings
+warnings.filterwarnings('ignore')
+
+import gi
+gi.require_version('Gtk', '3.0')
+from gi.repository import Gtk
+
+import subprocess
+import threading
+
+APP_NAME = 'Discord'
+APP_PATH = '/opt/discord/Discord'
+ICON_NAME = 'discord-tray'
+
+#
+def on_icon_click(icon):
+  subprocess.Popen(APP_PATH)
+
+#
+def on_icon_context_menu(icon, button, time):
+  quit = Gtk.MenuItem()
+  quit.set_label('Quit ' + APP_NAME)
+  quit.connect('activate', quit_app)
+
+  menu = Gtk.Menu()
+  menu.append(quit)
+  menu.show_all()
+
+  menu.popup(None, None, None, Gtk.StatusIcon.position_menu, button, time)
+
+#
+def start_app():
+  global process
+  process = subprocess.Popen(APP_PATH)
+  process.wait()
+  quit()
+
+#
+def quit_app(menuitem):
+  process.terminate()
+  Gtk.main_quit()
+
+# ------------------------------------------------------------------------------
+
+icon = Gtk.StatusIcon()
+icon.set_tooltip_text(APP_NAME)
+icon.set_from_icon_name(ICON_NAME)
+icon.connect('activate', on_icon_click)
+icon.connect('popup-menu', on_icon_context_menu)
+
+thread = threading.Thread(target=start_app)
+thread.start()
+
+Gtk.main()
