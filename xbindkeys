@@ -1,0 +1,13 @@
+#!/bin/bash
+
+XBINDKEYS=/usr/bin/xbindkeys
+
+if [ $# -ne 0 ]; then
+  exec $XBINDKEYS "$@"
+fi
+
+if [ -e $HOME/.xbindkeysrc.local ]; then
+  $XBINDKEYS --file $HOME/.xbindkeysrc.local
+fi
+
+$XBINDKEYS
