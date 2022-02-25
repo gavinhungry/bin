@@ -1,8 +1,12 @@
 #!/bin/bash
 
-for DISK in $(lsblk -n | grep '\sdisk\s*$' | awk '{ print $1 }'); do
+
+lsblk -n | grep '\sdisk\s*$' | while read LINE; do
+  DISK=$(echo "$LINE" | awk '{ print $1 }')
+
   VENDOR=$(cat /sys/class/block/$DISK/device/vendor 2> /dev/null | xargs)
   MODEL=$(cat /sys/class/block/$DISK/device/model 2> /dev/null | xargs)
+  [ "$MODEL" == 'MassStorageClass' ] && continue
 
   [ -z "$MODEL" ] && continue
   [ -n "$VENDOR" -a "$VENDOR" != "ATA" ] && echo -n "$VENDOR "
