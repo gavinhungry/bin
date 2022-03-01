@@ -4,6 +4,7 @@ NODE=/usr/bin/node
 NODE_FLAGS=()
 NODE_REPL_FLAGS=(
   --experimental-repl-await
+  --experimental-fetch
 )
 
 REPL_JS=$HOME/.node-repl.js
