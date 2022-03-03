@@ -8,6 +8,11 @@ NODE_REPL_FLAGS=(
   --experimental-repl-await
 )
 
+# ignore unsupported flags
+if ! echo 'process.exit(0);' | $NODE ${NODE_FLAGS[@]} &> /dev/null; then
+  NODE_FLAGS=()
+fi
+
 REPL_JS=$HOME/.node-repl.js
 
 if [ ! -f "$REPL_JS" -o $# != 0 ]; then
