@@ -65,7 +65,7 @@ getAbsPkgbuild() {
 
   if ! arge pkgbuild; then
     cd "$PACKAGES_DIR/$PKG"
-    arge pkgbuild || makepkg -ors --noconfirm
+    arge pkgbuild || makepkg -os --noconfirm
   fi
 
   msg "$REPO/$PKG sources ready in ${PACKAGES_DIR#$HOME/}/$PKG"
@@ -95,7 +95,7 @@ getAurPkgbuild() {
 
   cd "$PACKAGES_DIR/$PKG"
 
-  arge pkgbuild || makepkg -ors --noconfirm
+  arge pkgbuild || makepkg -os --noconfirm
   msg "aur/$PKG sources ready in ${PACKAGES_DIR#$HOME/}/$PKG"
 }
 
