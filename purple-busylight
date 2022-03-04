@@ -12,7 +12,7 @@ const BUSYLIGHT_PATH = (
 const STATUS_COLOR_MAP = {
   available: '#030',
   away: '#410',
-  busy: '#003',
+  busy: '#301',
   unavailable: '#003',
   'do-not-disturb': '#300'
   'be-right-back': '#222',
