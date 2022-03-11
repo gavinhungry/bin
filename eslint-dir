@@ -5,7 +5,7 @@ source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
 DIR=$(fnfarg)
 DIR=${DIR:-$PWD}
 
-SCRIPTS="$(shopt -s nullglob; ls ${DIR}/*.js)\n$(grep -l '^#!/usr/bin/env node$' ${DIR}/* 2> /dev/null)"
+SCRIPTS="$(ls ${DIR}/*.js 2> /dev/null)\n$(grep -l '^#!/usr/bin/env node$' ${DIR}/* 2> /dev/null)"
 
 if arge recursive; then
   SCRIPTS="$(find ${DIR} -type f -name '*.js')\n$(grep -lr '^#!/usr/bin/env node$' ${DIR}/* 2> /dev/null)"
