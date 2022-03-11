@@ -1,0 +1,23 @@
+#!/bin/bash
+
+source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
+
+DIR=$(fnfarg)
+DIR=${DIR:-$PWD}
+
+SCRIPTS="$(shopt -s nullglob; ls ${DIR}/*.js)\n$(grep -l '^#!/usr/bin/env node$' ${DIR}/* 2> /dev/null)"
+
+if arge recursive; then
+  SCRIPTS="$(find ${DIR} -type f -name '*.js')\n$(grep -lr '^#!/usr/bin/env node$' ${DIR}/* 2> /dev/null)"
+fi
+
+REL_SCRIPTS=''
+
+while read SCRIPT; do
+  [ -z "$SCRIPT" ] && continue
+
+  RELPATH=$(realpath --relative-base="$DIR" "$SCRIPT")
+  REL_SCRIPTS+="$(printf %q "$RELPATH") "
+done < <(echo -e "$SCRIPTS")
+
+eval "eslint $REL_SCRIPTS"
