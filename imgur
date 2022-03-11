@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
-var fs = require('fs');
-var imgur = require('imgur');
+const fs = require('fs');
+const imgur = require('imgur');
 
-var file = process.argv[2];
+let file = process.argv[2];
 
 if (!file) {
   console.error('Usage: imgur [IMAGE]');
@@ -15,10 +15,10 @@ if (!fs.existsSync(file)) {
   process.exit(2);
 }
 
-imgur.uploadFile(file).then(function(res) {
+imgur.uploadFile(file).then(res => {
   console.log(res.data.link);
-  console.error('https://imgur.com/delete/' + res.data.deletehash);
-}, function(err) {
+  console.error(`https://imgur.com/delete/${res.data.deletehash}`);
+}, err => {
   console.error(err);
   process.exit(3);
 });
