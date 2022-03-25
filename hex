@@ -1,0 +1,8 @@
+#!/bin/bash
+
+source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
+
+FILE=$(fnfarg)
+BITS=$(arg bits 384)
+
+dd status=none if="$FILE" bs=1 count=$BITS | hexdump -C
