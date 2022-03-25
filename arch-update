@@ -7,8 +7,19 @@ sudo -v || exit 1
 
 sigint
 
+getPkgVer() {
+  pacinfo "$1" 2> /dev/null | grep ^Version | awk '{ print $NF; }'
+}
+
 bannerline -f 'Updating packages'
 pacman -Syu --noconfirm
+
+if [ "$(getPkgVer local/nodejs)" != "$(getPkgVer community/nodejs)" ]; then
+  echo
+  bannerline -f 'Installing Node'
+  # https://unix.stackexchange.com/questions/274727
+  pacman -S community/nodejs --noconfirm --ask 4
+fi
 
 if pacman -Qdttq &> /dev/null; then
   bannerline 'Removing unrequired dependencies'
