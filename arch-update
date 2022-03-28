@@ -38,8 +38,3 @@ if cmd-exists pnpm; then
   bannerline 'Updating Node modules'
   pnpm -g update
 fi
-
-if cmd-exists pip-update; then
-  bannerline 'Updating Python modules'
-  pip-update
-fi
