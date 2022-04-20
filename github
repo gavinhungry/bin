@@ -1,0 +1,20 @@
+#!/bin/bash
+
+BASE_URL=$(git remote get-url origin | sed 's/^github:/https:\/\/github.com\//')
+[ -n "$BASE_URL" ] || exit 1
+
+open_page() {
+  PAGE_NAME=$1
+  [ -n "$3" ] && PAGE_NAME=$2
+
+  URL="${BASE_URL}/$PAGE_NAME/$3"
+  exec $BROWSER "${URL%/}"
+}
+
+case $1 in
+  i|issue|issues)      open_page issues issues $2 ;;
+  p|pull|pulls|pr|prs) open_page pulls pull $2 ;;
+  c|commit|commits)    open_page commits commit $2 ;;
+  s|settings)          open_page settings ;;
+  *)                   open_page ;;
+esac
