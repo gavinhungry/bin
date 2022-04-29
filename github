@@ -8,7 +8,7 @@ open_page() {
   [ -n "$3" ] && PAGE_NAME=$2
 
   URL="${BASE_URL}/$PAGE_NAME/$3"
-  exec $BROWSER "${URL%/}"
+  exec $BROWSER "${URL%/}" & &> /dev/null
 }
 
 case $1 in
