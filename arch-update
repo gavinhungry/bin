@@ -14,7 +14,7 @@ getPkgVer() {
 bannerline -f 'Updating packages'
 pacman -Syu --noconfirm
 
-if [ "$(getPkgVer local/nodejs)" != "$(getPkgVer community/nodejs)" ]; then
+if [ -z "$(getPkgVer local/nodejs)" ]; then
   echo
   bannerline -f 'Installing Node'
   # https://unix.stackexchange.com/questions/274727
