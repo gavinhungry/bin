@@ -1,0 +1,16 @@
+#!/bin/bash
+
+set -euo pipefail
+
+source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
+([ $# -lt 1 ] || arge help) && usage '[options] $PROGRAM'
+
+EXE=$1
+which $EXE > /dev/null
+
+if pidofuser $USER $EXE; then
+  killall -u $USER $EXE
+  exit
+fi
+
+exec one $EXE &
