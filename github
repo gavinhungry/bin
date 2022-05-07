@@ -7,8 +7,8 @@ open_page() {
   PAGE_NAME=$1
   [ -n "$3" ] && PAGE_NAME=$2
 
-  URL="${BASE_URL}/$PAGE_NAME/$3"
-  exec $BROWSER "${URL%/}" & &> /dev/null
+  URL=$(echo "${BASE_URL}/$PAGE_NAME/$3" | sed 's/\/*$//')
+  exec $BROWSER "$URL" & &> /dev/null
 }
 
 case $1 in
@@ -16,5 +16,12 @@ case $1 in
   p|pull|pulls|pr|prs) open_page pulls pull $2 ;;
   c|commit|commits)    open_page commits commit $2 ;;
   s|settings)          open_page settings ;;
-  *)                   open_page ;;
+  *)
+    BRANCH=$(git br)
+    if [ -n "$BRANCH" -a "$BRANCH" != "main" -a "$BRANCH" != "master" ]; then
+      open_page tree/$BRANCH
+    fi
+
+    open_page
+  ;;
 esac
