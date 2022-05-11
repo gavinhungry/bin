@@ -1,0 +1,3 @@
+#!/bin/bash
+
+exec playerctl -p $DEFAULT_PLAYER_NAME metadata -f '{{artist}} - {{title}}'
