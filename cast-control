@@ -1,0 +1,9 @@
+#!/bin/bash
+
+source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
+
+eval '/usr/bin/castctl connect --name="${PLAYER_NAME/_/ }" --log-level INFO' 2>&1 |
+while read -r LINE; do
+  echo $LINE
+  [ "$LINE" = "AssertionError" ] && kill $(pidofuser $USER /usr/bin/castctl)
+done
