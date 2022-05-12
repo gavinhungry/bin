@@ -1,3 +1,19 @@
 #!/bin/bash
 
-playerctl -p $PLAYER_NAME metadata -f '{{artist}} - {{title}}' | sed 's/\s*(.*//g'
+source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
+
+MAX_LENGTH=$(arg max-length 0)
+PLACEHOLDER=$(arg placeholder)
+
+TITLE=$(playerctl -p $PLAYER_NAME metadata -f '{{artist}} - {{title}}' 2> /dev/null)
+TITLE=${TITLE# - }
+TITLE=${TITLE% (*}
+
+if [ ${#TITLE} -eq 0 ]; then
+  echo $PLACEHOLDER
+  exit 1
+fi
+
+[ $MAX_LENGTH -gt 0 -a ${#TITLE} -gt $MAX_LENGTH ] && TITLE="${TITLE::$MAX_LENGTH} ..."
+
+echo $TITLE
