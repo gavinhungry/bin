@@ -10,7 +10,7 @@ TITLE=${TITLE# - }
 TITLE=${TITLE% (*}
 
 if [ ${#TITLE} -eq 0 ]; then
-  echo $PLACEHOLDER
+  [ -n "$PLACEHOLDER" ] && echo $PLACEHOLDER
   exit 1
 fi
 
