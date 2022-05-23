@@ -1,6 +1,7 @@
 #!/bin/bash
 
 DMI=/sys/devices/virtual/dmi/id
+[ -d "$DMI" ] || exit
 
 RELEASE=$(cat $DMI/bios_release)
 VERSION=$(cat $DMI/bios_version)
