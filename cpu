@@ -9,9 +9,17 @@ CPU=$(grep '^model name' /proc/cpuinfo | uniq | clean)
 SOCKETS=$(lscpu | grep ^'NUMA node(s):' | clean)
 THREADS=$(lscpu | grep ^'CPU(s):' | clean)
 
-CLEANCPU=$(echo "${CPU}" | sed -r 's/\((R|TM)\)//g' | sed -r 's/\sCPU\s/ /g')
+CPU_LABEL=$(echo "${CPU}" | sed -r 's/\((R|TM)\)//g' | sed -r 's/\sCPU\s/ /g')
+
+if [ -z "$CPU_LABEL" ]; then
+  LSCPU=$(lscpu)
+
+  CPU_LABEL=$(echo "$LSCPU" | grep -m1 ^'Vendor ID:' | clean)
+  CPU_LABEL+=' '
+  CPU_LABEL+=$(echo "$LSCPU" | grep -m1 ^'Model name:' | clean)
+fi
 
 OUTPUT=""
 [ "${SOCKETS:-1}" -ne 1 ] && OUTPUT+="$SOCKETS x "
-OUTPUT+="$CLEANCPU ($THREADS)"
+OUTPUT+="$CPU_LABEL ($THREADS)"
 echo $OUTPUT
