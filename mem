@@ -1,5 +1,20 @@
 #!/bin/bash
 
+step() {
+  printf "%.1f" $(echo "scale=2; ${1}/1024" | bc)
+}
+
 MEM_KB=$(cat /proc/meminfo | grep ^MemTotal | awk '{print $2}')
-MEM_GB=$(printf "%.1f" $(echo "scale=2; ${MEM_KB}/1024/1024" | bc))
-echo "$MEM_GB GB"
+MEM_MB=$(step $MEM_KB)
+MEM_GB=$(step $MEM_MB)
+MEM_TB=$(step $MEM_GB)
+
+if (( $(echo "$MEM_TB >= 1" | bc) )); then
+  echo "$MEM_TB TB"
+elif (( $(echo "$MEM_GB >= 1" | bc) )); then
+  echo "$MEM_GB GB"
+elif (( $(echo "$MEM_MB >= 1" | bc) )); then
+  echo "$MEM_MB MB"
+else
+  echo "$MEM_KB KB"
+fi
