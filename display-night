@@ -1,4 +1,4 @@
 #!/bin/bash
 
 redshift -x
-redshift -O ${DISPLAY_TEMP_NIGHT:-5500K}
+redshift -O ${DISPLAY_TEMP_NIGHT:-3500K}
