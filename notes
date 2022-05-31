@@ -1,0 +1,4 @@
+#!/bin/bash
+
+[ -t 1 ] && EDITOR_PATH=$EDITOR || EDITOR_PATH=$EDITOR_X11
+exec $EDITOR_PATH ${NOTES_FILE:-$HOME/.notes}
