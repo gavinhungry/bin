@@ -1,15 +1,15 @@
 #!/bin/bash
 
-VGA=$(lspci -mm | grep 'VGA compatible controller\|3D controller')
+lspci -mm | grep 'VGA compatible controller\|3D controller' | while read -r VGA ; do
+  VENDOR=$(echo $VGA | cut -d'"' -f4)
+  MODEL_FULL=$(echo $VGA | cut -d'"' -f6)
+  MODEL_NAME=$(echo $MODEL_FULL | cut -d'[' -f2 | cut -d']' -f1 | sed -r 's/^(.*)Rev\. .*/\1/')
+  MODEL_NUM=$(echo $MODEL_FULL | cut -d'[' -f1)
 
-VENDOR=$(echo $VGA | cut -d'"' -f4)
-MODEL_FULL=$(echo $VGA | cut -d'"' -f6)
-MODEL_NAME=$(echo $MODEL_FULL | cut -d'[' -f2 | cut -d']' -f1 | sed -r 's/^(.*)Rev\. .*/\1/')
-MODEL_NUM=$(echo $MODEL_FULL | cut -d'[' -f1)
+  if [ "$MODEL_FULL" != "$MODEL_NUM" ]; then
+    echo "$VENDOR ${MODEL_NAME% } (${MODEL_NUM% })"
+    continue
+  fi
 
-if [ "$MODEL_FULL" != "$MODEL_NUM" ]; then
-  echo "$VENDOR ${MODEL_NAME% } (${MODEL_NUM% })"
-  exit
-fi
-
-echo "$VENDOR $MODEL_FULL"
+  echo "$VENDOR $MODEL_FULL"
+done
