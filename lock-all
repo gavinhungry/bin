@@ -4,3 +4,4 @@ lock-1password
 lock-gpg
 lock-keyring
 lock-ssh-agent
+lock-ssh-sockets
