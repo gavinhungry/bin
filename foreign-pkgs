@@ -1,0 +1,17 @@
+#!/bin/bash
+
+URL='https://aur.archlinux.org/rpc/?v=5&type=info'
+FOREIGN_PKGS=$(pacman -Qqm | sort)
+
+for PKGNAME in $FOREIGN_PKGS; do
+  URL+="&arg[]=${PKGNAME}"
+done
+
+JSON=$(curl -s $URL)
+
+for PKGNAME in $FOREIGN_PKGS; do
+  echo $JSON | jq -e ".results[] | select(.Name == \"${PKGNAME}\")" > /dev/null
+  if [ $? -ne 0 ]; then
+    echo $PKGNAME
+  fi
+done
