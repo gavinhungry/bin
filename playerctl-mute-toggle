@@ -1,0 +1,15 @@
+#!/bin/bash
+
+source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
+
+VOLUME_FILE=$HOME/.cache/playerctl-volume
+CURRENT_VOLUME=$(playerctl -p $PLAYER_NAME volume)
+
+if [ -e "$VOLUME_FILE" -a "$CURRENT_VOLUME" = '0.000000' ]; then
+  playerctl -p $PLAYER_NAME volume $(cat "$VOLUME_FILE")
+  rm "$VOLUME_FILE"
+  exit
+fi
+
+playerctl -p $PLAYER_NAME volume > "$VOLUME_FILE"
+playerctl -p $PLAYER_NAME volume 0.0
