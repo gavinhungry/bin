@@ -8,7 +8,8 @@ open_page() {
   [ -n "$3" ] && PAGE_NAME=$2
 
   URL=$(echo "${BASE_URL}/$PAGE_NAME/$3" | sed 's/\/*$//')
-  exec $BROWSER "$URL" & &> /dev/null
+  $BROWSER "$URL" & &> /dev/null
+  exit
 }
 
 case $1 in
