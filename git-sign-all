@@ -1,0 +1,28 @@
+#!/bin/bash
+
+set -eo pipefail
+source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
+
+confirm "Really re-write entire Git history?"
+
+[ -z "$GPGKEY" ] && die 'GPGKEY not set'
+
+# subkey creation timestamp
+export KEY_TIMESTAMP=$(
+  gpg -a --export $GPGKEY | \
+  gpg --with-colons --quiet | \
+  grep ^sub: -m1 | cut -d: -f6
+)
+
+export FILTER_BRANCH_SQUELCH_WARNING=1
+
+# git filter-branch --msg-filter 'sed "s/foo/bar/g"' -- --all
+
+git filter-branch -f --commit-filter '
+  ARGS="$@"
+  TIMESTAMP=$(echo $GIT_AUTHOR_DATE | cut -d\  -f1)
+  [ "${TIMESTAMP#@}" -lt $KEY_TIMESTAMP ] && TIMESTAMP=@$KEY_TIMESTAMP
+  FAKETIME= faketime "$TIMESTAMP" bash -c "git commit-tree -S $ARGS"
+' -- --all
+
+git gc --aggressive --prune=all
