@@ -2,11 +2,18 @@
 
 TEAMS=/usr/share/teams/teams
 TEAMS_DIR="${XDG_CONFIG_HOME}/Microsoft/Teams"
-LOG_FILE="$TEAMS_DIR"/logs.txt
-STORAGE_FILE="$TEAMS_DIR"/storage.json
+TEAMS_LOG_FILE="${TEAMS_DIR}"/logs.txt
+TEAMS_STORAGE_FILE="${TEAMS_DIR}"/storage.json
+TEAMS_STATUS_FILE=${XDG_CACHE_HOME}/teams-status
 
 if [ "$1" == '--watch' ]; then
-  surveil "$LOG_FILE" "$STORAGE_FILE" teams-status
+  mkdir -p "$TEAMS_DIR"
+
+  [ ! -e "$TEAMS_LOG_FILE" ] && touch "$TEAMS_LOG_FILE"
+  [ ! -e "$TEAMS_STORAGE_FILE" ] && touch "$TEAMS_STORAGE_FILE"
+  [ ! -e "$TEAMS_STATUS_FILE" ] && echo 'unknown' > "$TEAMS_STATUS_FILE"
+
+  surveil "$TEAMS_LOG_FILE" "$TEAMS_STORAGE_FILE" "$TEAMS_STATUS_FILE" teams-status
   exit
 fi
 
@@ -15,25 +22,20 @@ if ! pidof -q $TEAMS; then
   exit 1
 fi
 
-APP_STATES=$(jq -r '.appStates.states' "$STORAGE_FILE")
+APP_STATES=$(jq -r '.appStates.states' "$TEAMS_STORAGE_FILE")
 LAST_STATE=${APP_STATES##*,}
 
-WEB_APP_STATES=$(jq -r '.webAppStates.states' "$STORAGE_FILE")
+WEB_APP_STATES=$(jq -r '.webAppStates.states' "$TEAMS_STORAGE_FILE")
 LAST_WEB_APP_STATE=${WEB_APP_STATES##*,}
 
-if [ "$LAST_STATE" == 'Quitting' -o \
-     "$LAST_WEB_APP_STATE" == 'Disconnected' -o \
-     "$LAST_WEB_APP_STATE" == 'Offline' -o \
-     "$LAST_WEB_APP_STATE" == 'Unloaded' \
+if [ \
+  "$LAST_STATE" == 'Quitting' -o \
+  "$LAST_WEB_APP_STATE" == 'Disconnected' -o \
+  "$LAST_WEB_APP_STATE" == 'Offline' -o \
+  "$LAST_WEB_APP_STATE" == 'Unloaded' \
 ]; then
   echo 'offline'
   exit
 fi
 
-if [ "$LAST_STATE" == 'InCall' ]; then
-  echo $LAST_STATE
-  exit
-fi
-
-# this only works when manually setting presence from the tray icon
-grep -oP 'setpresence, DataBag.PresenceState: \K([^,]*)' "$LOG_FILE" | tail -n1
+cat "$TEAMS_STATUS_FILE"

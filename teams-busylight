@@ -1,12 +1,35 @@
 #!/bin/bash
 
 declare -A STATUS_COLOR_MAP
+
+#  0: offline
+#  1: online
+#  2: busy
+#  3: away
+#  4: idle
+#  5: onThePhone
+#  6: outToLunch
+#  7: beRightBack
+#  8: hidden
+#  9: Disabled
+# 10: AppearAway
+# 11: Reset
+# 12: OutOfOffice
+# 13: Presenting
+# 14: InAMeeting
+# 15: unknown
+# 16: OnShift
+# 17: OffShift
+# 18: Focusing
+# 19: Blocked
+# 20: AppearOffline
+
 STATUS_COLOR_MAP[online]='#030'
-STATUS_COLOR_MAP[AppearAway]='#410'
+STATUS_COLOR_MAP[away]='#410'
 STATUS_COLOR_MAP[busy]='#301'
 STATUS_COLOR_MAP[outToLunch]='#300'
 STATUS_COLOR_MAP[beRightBack]='#222'
-STATUS_COLOR_MAP[InCall]='#300'
+STATUS_COLOR_MAP[onThePhone]='#300'
 
 LAST_COLOR=
 
