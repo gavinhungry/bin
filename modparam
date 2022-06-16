@@ -1,6 +1,8 @@
 #!/bin/bash
 
+set -eo pipefail
 source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
+
 [ $# -eq 1 ] || usage 'MODULENAME'
 
 MODULE=$1

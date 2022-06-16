@@ -1,10 +1,10 @@
 #!/bin/bash
 
+set -eo pipefail
 source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
+
 DOMAIN=$(fnfarg)
 [ -n "$DOMAIN" ] || usage '[-4|-6] DOMAIN'
-
-set -o pipefail
 
 KEY=ahosts
 arge 4 && KEY=ahostsv4

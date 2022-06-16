@@ -1,8 +1,8 @@
 #!/bin/bash
 
-set -euo pipefail
-
+set -eo pipefail
 source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
+
 ([ $# -eq 0 ] || arge help) && usage '[options] PKGNAME [PKGNAME...]
 
   -t, --testing     fetch from [testing] repository

@@ -1,6 +1,8 @@
 #!/bin/bash
 
+set -eo pipefail
 source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
+
 [ $# -ge 2 ] || usage 'OUTPUT PDF [PDF ...]'
 
 /usr/bin/gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=$1 ${@:2}

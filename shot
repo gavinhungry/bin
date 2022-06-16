@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -euo pipefail
+set -eo pipefail
 
 CMD=${1:-'--fullscreen'}
 FILENAME=${HOME}/$(date +"screenshot-%Y%m%d-%H%M%S-%3N.png")

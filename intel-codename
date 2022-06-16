@@ -1,7 +1,6 @@
 #!/bin/bash
 
-set -euo pipefail
-
+set -eo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")"/.abash/abash.sh
 
 MODEL=${1:-$(grep -m1 '^model name' /proc/cpuinfo |

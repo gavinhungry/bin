@@ -1,6 +1,8 @@
 #!/bin/bash
 
+set -eo pipefail
 source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
+
 if [ $# -lt 3 ] || ! arge duration; then
   usage 'FILE --duration DURATION [--start START] [--width WIDTH] [--gif FPS]'
 fi

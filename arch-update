@@ -1,8 +1,8 @@
 #!/bin/bash
 
-set -euo pipefail
-
+set -eo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")"/.abash/abash.sh
+
 sudo -v || exit 1
 
 sigint

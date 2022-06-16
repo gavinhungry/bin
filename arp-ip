@@ -1,6 +1,8 @@
 #!/bin/bash
 
+set -eo pipefail
 source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
+
 [ $# -eq 1 ] || usage 'MAC_ADDRESS'
 
 is_mac() {
@@ -12,8 +14,6 @@ format_mac() {
 }
 
 MAC=$(format_mac $1) || die 'invalid MAC address'
-
-set -o pipefail
 
 (arp -an | grep -i $MAC | awk -F '[()]' '{ print $2 }') || \
 (arp-scan --localnet --ignoredups | grep -i $MAC | awk '{ print $1 }')

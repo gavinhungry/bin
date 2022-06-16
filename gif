@@ -1,6 +1,8 @@
 #!/bin/bash
 
+set -eo pipefail
 source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
+
 [ -n "$1" ] || usage 'FILE [--fps FRAMERATE] [--width WIDTH]'
 [ -f "$1" ] || die "$1 does not exist"
 
