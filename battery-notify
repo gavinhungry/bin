@@ -1,0 +1,23 @@
+#!/bin/bash
+
+set -eo pipefail
+source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
+
+DEVICE=$(arg device BAT0)
+DEVICE_PATH="/sys/class/power_supply/${DEVICE}"
+
+DEVICE_NAME=$(cat ${DEVICE_PATH}/model_name)
+DEVICE_STATUS=$(cat ${DEVICE_PATH}/status)
+DEVICE_CAPACITY=$(cat ${DEVICE_PATH}/capacity)
+NOTIFY_CAPACITY=$(arg notify 20)
+
+if [ \
+  "$DEVICE_STATUS" == 'Discharging' -a \
+  $DEVICE_CAPACITY -le $NOTIFY_CAPACITY \
+]; then
+  notify-send -p -u critical -t 0 \
+    "${DEVICE_NAME} battery low" \
+    "Battery level is ${DEVICE_CAPACITY}%"
+else
+  exit 1
+fi
