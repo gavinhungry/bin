@@ -17,7 +17,7 @@ arge wait && ARGS+="--wait"
 if [ \
   "$DEVICE_STATUS" == 'Discharging' \
   -a $DEVICE_CAPACITY -le $NOTIFY_CAPACITY \
-  -a $DEVICE_CAPACITY -ne 0 \
+  -a $DEVICE_CAPACITY -gt 0 \
 ]; then
   notify-send $ARGS -u critical -t 0 \
     "${DEVICE_NAME} battery low" \
