@@ -11,13 +11,15 @@ DEVICE_STATUS=$(cat ${DEVICE_PATH}/status)
 DEVICE_CAPACITY=$(cat ${DEVICE_PATH}/capacity)
 NOTIFY_CAPACITY=$(arg notify 20)
 
+ARGS=""
+arge wait && ARGS+="--wait"
+
 if [ \
-  "$DEVICE_STATUS" == 'Discharging' -a \
-  $DEVICE_CAPACITY -le $NOTIFY_CAPACITY \
+  "$DEVICE_STATUS" == 'Discharging' \
+  -a $DEVICE_CAPACITY -le $NOTIFY_CAPACITY \
+  -a $DEVICE_CAPACITY -ne 0 \
 ]; then
-  notify-send -p -u critical -t 0 \
+  notify-send $ARGS -u critical -t 0 \
     "${DEVICE_NAME} battery low" \
     "Battery level is ${DEVICE_CAPACITY}%"
-else
-  exit 1
 fi
