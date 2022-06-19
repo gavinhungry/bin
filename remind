@@ -1,5 +1,8 @@
 #!/bin/bash
 
+set -eo pipefail
+source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
+
 [ $# -ge 2 ] || exit 1
 
 THEN=$1
@@ -16,9 +19,9 @@ THEN_S=$(faketime $THEN date +%s)
 DUR_S=$(( $THEN_S - $(date +%s) ))
 [ $DUR_S -ge 0 ] || exit 1
 
-(sleep $DUR_S;
+(xsleep $DUR_S;
   NOW=$(date '+%I:%M %p')
-  while pgrep xsecurelock > /dev/null; do sleep 1; done;
+  while pgrep xsecurelock > /dev/null; do xsleep 1; done;
   notify-send -t 0 "Reminder ($NOW)" "$*") &
 
 echo "Reminder due at $(faketime $THEN date)"
