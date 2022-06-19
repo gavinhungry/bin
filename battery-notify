@@ -19,6 +19,8 @@ if [ \
   -a $DEVICE_CAPACITY -le $NOTIFY_CAPACITY \
   -a $DEVICE_CAPACITY -gt 0 \
 ]; then
+  arge wait && xsleep 10
+
   notify-send $ARGS -u critical -t 0 \
     "${DEVICE_NAME} battery low" \
     "Battery level is ${DEVICE_CAPACITY}%"
