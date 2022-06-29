@@ -8,8 +8,10 @@ source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
 EXE=$1
 which $EXE > /dev/null
 
-if pidofuser $USER $EXE; then
-  killall -u $USER $EXE
+KILL_EXE=${2:-$EXE}
+
+if pidofuser $USER $KILL_EXE; then
+  killall -u $USER $KILL_EXE
   exit
 fi
 
