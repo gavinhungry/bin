@@ -2,4 +2,5 @@
 
 exec rofi -normal-window -disable-history \
      -modi combi -show combi -combi-modi drun,run \
-     -normalize-match -drun-display-format "{name}" "$@"
+     -drun-display-format "{name}" -drun-match-fields name \
+     -normalize-match "$@"
