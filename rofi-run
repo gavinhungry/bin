@@ -1,0 +1,6 @@
+#!/bin/bash
+
+exec rofi -normal-window -disable-history -terminal $TERMINAL \
+     -modi combi -show combi -combi-modi drun,run \
+     -normalize-match -drun-display-format "{name}"
+  
