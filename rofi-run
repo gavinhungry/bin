@@ -1,6 +1,5 @@
 #!/bin/bash
 
-exec rofi -normal-window -disable-history -terminal $TERMINAL \
+exec rofi -normal-window -disable-history \
      -modi combi -show combi -combi-modi drun,run \
-     -normalize-match -drun-display-format "{name}"
-  
+     -normalize-match -drun-display-format "{name}" "$@"
