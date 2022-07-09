@@ -1,6 +1,6 @@
 #!/bin/bash
 
-lock-1password
+lock-1password --force
 lock-gpg
 lock-keyring
 lock-ssh-agent
