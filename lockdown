@@ -1,4 +1,4 @@
 #!/bin/bash
 
-lock-all
+(lock-all &)
 exec lock
