@@ -14,6 +14,7 @@ open_page() {
 
 case $1 in
   c|commit|commits)    open_page commits commit $2 ;;
+  h|head)              open_page commit ;;
   i|issue|issues)      open_page issues issues $2 ;;
   p|pull|pulls|pr|prs) open_page pulls pull $2 ;;
   a|actions|ci)        open_page actions ;;
