@@ -5,19 +5,26 @@ CACHE_FILE=$XDG_CACHE_HOME/youtube-title.json
 URL=$1
 [ -z $URL ] && exit 1
 
-JSON='{}'
+JSON=
 
 if [ -e "$CACHE_FILE" ]; then
   JSON=$(cat "$CACHE_FILE")
 fi
 
-TITLE=$(echo $JSON | jq -r ".\"$URL\" | select( . != null )")
+if [ -z "$JSON" ]; then
+  JSON='{}'
+fi
+
+TITLE=$(echo "$JSON" | jq -r ".\"$URL\" | select( . != null )")
 
 if [ -z "$TITLE" ]; then
-  TITLE=$(youtube-dl --get-title $URL)
+  TITLE=$(youtube-dl --get-title $URL | tr -cd '[:print:]')
 
   if [ -n "$TITLE" ]; then
-    echo $JSON | jq ".\"${URL}\" += \"${TITLE}\"" > "$CACHE_FILE"
+    UPDATED_JSON=$(echo "$JSON" | jq ".\"${URL}\" += \"${TITLE}\"")
+    if [ -n "$UPDATED_JSON" ]; then
+      echo "$UPDATED_JSON" > "$CACHE_FILE"
+    fi
   fi
 fi
 
