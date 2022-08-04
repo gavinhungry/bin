@@ -9,7 +9,12 @@ TITLE=$(playerctl -p $PLAYER_NAME metadata -f '{{artist}} - {{title}}' 2> /dev/n
 TITLE=${TITLE# - }
 TITLE=${TITLE%% (*}
 
-if [ ${#TITLE} -eq 0 ]; then
+if [ "$TITLE" = 'YouTube Music' ]; then
+  URL=$(playerctl -p $PLAYER_NAME metadata -f '{{xesam:url}}')
+  TITLE=$(youtube-title "$URL")
+fi
+
+if [ -z "$TITLE" ]; then
   arge zwsp && echo -n "​" # zero-width space for Xfce genmon
   exit 1
 fi
