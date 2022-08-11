@@ -18,7 +18,8 @@ fi
 TITLE=$(echo "$JSON" | jq -r ".\"$URL\" | select( . != null )")
 
 if [ -z "$TITLE" ]; then
-  TITLE=$(youtube-dl --get-title $URL | tr -cd '[:print:]')
+  TITLE=$(youtube-dl --get-title $URL | iconv -f utf-8 -t ascii//translit)
+  TITLE=${TITLE/ x / & }
 
   if [ -n "$TITLE" ]; then
     UPDATED_JSON=$(echo "$JSON" | jq ".\"${URL}\" += \"${TITLE}\"")
