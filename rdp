@@ -16,7 +16,7 @@ RDP_WIDTH=${RDP_GEOMETRY%x*}
 RDP_HEIGHT=${RDP_GEOMETRY#*x}
 
 exec xfreerdp \
-  /title:"${RDP_TITLE:-$RDP_SERVER} - FreeRDP" \
+  /title:"${RDP_TITLE:-$RDP_SERVER} - Remote Desktop" \
   +window-drag \
   /bpp:24 \
   /audio-mode:1 \
