@@ -5,7 +5,7 @@ source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
 MAX_LENGTH=$(arg max-length 0)
 LABEL=$(arg label)
 
-TITLE=$(playerctl -p $PLAYER_NAME metadata -f '{{artist}} - {{title}}' 2> /dev/null)
+TITLE=$(playerctl -p $PLAYER_NAME metadata -f '{{artist}} • {{title}}' 2> /dev/null)
 TITLE=${TITLE# - }
 
 if [ "$TITLE" = 'YouTube Music' ]; then
