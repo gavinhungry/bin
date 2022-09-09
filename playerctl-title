@@ -7,7 +7,7 @@ LABEL=$(arg label)
 DELIMITER=$(arg delimiter -)
 
 TITLE=$(playerctl -p $PLAYER_NAME metadata -f "{{artist}} ${DELIMITER} {{title}}" 2> /dev/null)
-TITLE=${TITLE# - }
+TITLE=${TITLE# ${DELIMITER} }
 
 if [ "$TITLE" = 'YouTube Music' ]; then
   URL=$(playerctl -p $PLAYER_NAME metadata -f '{{xesam:url}}')
