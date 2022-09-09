@@ -11,7 +11,9 @@ source "$PROFILE"
 
 [ -n "$RDP_PROXY" ] && RDP_ARGS+=" /proxy:$RDP_PROXY"
 [ -n "$RDP_PORT" ] && RDP_ARGS+=" /port:$RDP_PORT"
+arge fullscreen && RDP_ARGS+=" /f"
 
+arge alt-geometry && RDP_GEOMETRY=$RDP_GEOMETRY_ALT
 RDP_WIDTH=${RDP_GEOMETRY%x*}
 RDP_HEIGHT=${RDP_GEOMETRY#*x}
 
@@ -20,6 +22,7 @@ exec xfreerdp \
   +window-drag \
   /bpp:24 \
   /audio-mode:1 \
+  -toggle-fullscreen \
   /w:"${RDP_WIDTH:-1920}" \
   /h:"${RDP_HEIGHT:-1080}" \
   /v:"${RDP_SERVER}" \
