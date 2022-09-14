@@ -2,3 +2,4 @@
 
 redshift -x
 redshift -O ${DISPLAY_TEMP_DAY:-7500K}
+backlight 50
