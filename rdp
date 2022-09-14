@@ -13,7 +13,9 @@ source "$PROFILE"
 [ -n "$RDP_PORT" ] && RDP_ARGS+=" /port:$RDP_PORT"
 arge fullscreen && RDP_ARGS+=" /f"
 
-arge alt-geometry && RDP_GEOMETRY=$RDP_GEOMETRY_ALT
+arge alt && RDP_GEOMETRY=$RDP_GEOMETRY_ALT
+arge split && RDP_GEOMETRY=$RDP_GEOMETRY_SPLIT
+
 RDP_WIDTH=${RDP_GEOMETRY%x*}
 RDP_HEIGHT=${RDP_GEOMETRY#*x}
 
