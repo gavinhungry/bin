@@ -25,4 +25,4 @@ if [ -n "$DDC_CI_I2C_BUS_ID" ]; then
 fi
 
 # laptop display does not support DDC/CI
-exec xbacklight -$XBL_CMD $VAL > /dev/null
+exec xbacklight -${XBL_CMD} $VAL > /dev/null
