@@ -1,0 +1,28 @@
+#!/bin/bash
+
+source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
+
+DDC_CMD=
+XBL_CMD=set
+VAL=$(fnfarg)
+INCREMENT=${BACKLIGHT_INCREMENT:-2}
+
+if arge down; then
+  DDC_CMD=-
+  XBL_CMD=dec
+  VAL=$(arg down)
+elif arge up; then
+  DDC_CMD=+
+  XBL_CMD=inc
+  VAL=$(arg up)
+fi
+
+VAL=${VAL:-${INCREMENT}}
+
+if [ -n "$DDC_CI_I2C_BUS_ID" ]; then
+  # Feature: 10 (Brightness)
+  exec ddcutil --bus=${DDC_CI_I2C_BUS_ID} setvcp 10 $DDC_CMD $VAL > /dev/null
+fi
+
+# laptop display does not support DDC/CI
+exec xbacklight -$XBL_CMD $VAL > /dev/null
