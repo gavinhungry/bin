@@ -1,0 +1,26 @@
+#!/bin/bash
+
+temperature() {
+  # https://iristech.co/what-is-the-best-color-temperature
+  echo "Setting display temperature: $1"
+  redshift -PrO $1 > /dev/null
+}
+
+brightness() {
+  echo "Setting display brightness: ${1}%"
+  backlight $1
+}
+
+case "$1" in
+  night)
+    # halogen lamp, evening light
+    temperature ${DISPLAY_NIGHT_TEMP:-3320K}
+    brightness ${DISPLAY_NIGHT_BRIGHT:-5}
+  ;;
+
+  day)
+    # this is a "perfectly" calibrated screen
+    temperature ${DISPLAY_DAY_TEMP:-6500K}
+    brightness ${DISPLAY_DAY_BRIGHT:-50}
+  ;;
+esac
