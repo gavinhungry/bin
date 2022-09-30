@@ -1,7 +1,5 @@
 #!/bin/bash
 
-source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
-
 JS="
 navigator.userAgent.split(' ').map(a => {
   return !a.startsWith('HeadlessChrome') ? a :
