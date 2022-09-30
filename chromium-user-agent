@@ -1,0 +1,15 @@
+#!/bin/bash
+
+source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
+
+JS="
+navigator.userAgent.split(' ').map(a => {
+  return !a.startsWith('HeadlessChrome') ? a :
+    a.split('/').map((b, i) => {
+      return !i ? 'Chrome' : b.split('.').map((c, j) => j ? 0 : c).join('.')
+  }).join('/')
+}).join(' ');
+"
+
+echo $JS | chromium --headless --repl 2> /dev/null | \
+sed 's/^>>> //' | jq -r .result.value
