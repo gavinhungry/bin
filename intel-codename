@@ -3,11 +3,9 @@
 set -eo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")"/.abash/abash.sh
 
-MODEL=${1:-$(grep -m1 '^model name' /proc/cpuinfo |
-  sed -r 's/.*(i[[:digit:]][^\ ]*).*/\1/'
-)}
-
-SEARCH=$(curl -sL "https://ark.intel.com/search?_charset_=UTF-8&q=$MODEL")
+UA=$(chromium-user-agent 2> /dev/null)
+MODEL=${1:-$(grep -m1 '^model name' /proc/cpuinfo | sed -r 's/.*(i[[:digit:]][^\ ]*).*/\1/' )}
+SEARCH=$(curl -A "$UA" -sL "https://ark.intel.com/content/www/us/en/ark/search.html?_charset_=UTF-8&q=${MODEL}")
 
 LINKS=(
   $(echo $SEARCH | pup '#FormRedirectUrl attr{value}')
@@ -19,9 +17,9 @@ if [[ ${#LINKS[@]} == 0 ]]; then
 fi
 
 LINK=${LINKS[0]}
-URL="https://ark.intel.com$LINK"
+URL="https://ark.intel.com${LINK}"
 
-curl -L --silent "$URL" |\
+curl -A "$UA" -L --silent "$URL" |\
   pup '[data-key="CodeNameText"] a text{}' |
   xargs |
   sed 's/Products formerly //'
