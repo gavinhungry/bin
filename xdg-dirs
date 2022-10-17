@@ -1,0 +1,16 @@
+#!/bin/bash
+
+source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
+
+VARS=$(compgen -A variable | grep ^XDG_ | grep '_\(DIR\|HOME\)$' | sort)
+MAX_LENGTH=0
+
+for VAR in $VARS; do
+  if [ ${#VAR} -gt $MAX_LENGTH ]; then
+    MAX_LENGTH=${#VAR}
+  fi
+done
+
+for VAR in $VARS; do
+  printf " $(color bold)%${MAX_LENGTH}s$(color end): %s\n" "$VAR" "${!VAR}"
+done
