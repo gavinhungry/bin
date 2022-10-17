@@ -1,17 +1,4 @@
 #!/bin/bash
 
-STABLE_DIFFUSION_DIR=${XDG_DATA_HOME}/stable-diffusion
-_PWD=$(pwd)
-
-eval "$(conda shell.bash hook)"
-
-cd $STABLE_DIFFUSION_DIR
-conda activate $STABLE_DIFFUSION_DIR/conda-env
-
-SCRIPT=$1
-shift
-
-exec python ${STABLE_DIFFUSION_DIR}/optimizedSD/optimized_${SCRIPT}.py \
-  --outdir "$_PWD" \
-  --W 512 --H 512 \
-  "$@"
+cd ${XDG_DATA_HOME}/stable-diffusion-ui
+exec ./start.sh
