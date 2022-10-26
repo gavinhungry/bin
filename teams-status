@@ -19,7 +19,7 @@ fi
 
 if ! pidof -q $TEAMS; then
   echo 'offline'
-  exit 1
+  exit
 fi
 
 APP_STATES=$(jq -r '.appStates.states' "$TEAMS_STORAGE_FILE")
