@@ -44,12 +44,12 @@ let main = async () => {
   let str = `${currentValue} (${indicator}${percentage}%)`;
 
   if (shareCount) {
-    let portfolio = Math.abs(delta * shareCount).toLocaleString(undefined, {
+    let portfolio = (currentValue * shareCount).toLocaleString(undefined, {
       style: 'currency',
       currency: 'USD'
     });
 
-    str += ` (${indicator}${portfolio})`;
+    str += ` (${portfolio})`;
   }
 
   console.log(str);
