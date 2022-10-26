@@ -1,9 +1,0 @@
-#!/bin/bash
-
-set -eo pipefail
-source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
-
-while true; do
-  battery-notify "$@" --wait || true
-  xsleep 7200 # 2 hours
-done
