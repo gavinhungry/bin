@@ -1,6 +1,16 @@
 #!/bin/bash
 
-[ -e /etc/motd ] || exit
+source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
+
+cate() {
+  [ -f "$1" ] && echo -e "$(cat $1)"
+}
+
+cate /etc/motd-banner
+
+echo -e "\n $(uname -sr) ($(uptime -p))\n"
 
 cate /etc/motd
-echo
+arge warning && cate /etc/motd-warning
+
+[ -f /etc/motd -o -f /etc/motd-warning ] && echo
