@@ -15,8 +15,11 @@ print_motd_file() {
 }
 
 print_motd_banner() {
+  BANNER_FILE=/etc/motd-banner-console
+  ispty && BANNER_FILE=/etc/motd-banner
+
   echo -en "\e[1;$(prompt_color)m"
-  print_motd_file /etc/motd-banner
+  print_motd_file $BANNER_FILE
   echo -en '\e[0m'
 }
 
