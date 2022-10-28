@@ -1,0 +1,19 @@
+#!/bin/bash
+
+source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
+
+# root
+if [ $(id -u) -eq 0 ]; then
+  ispty && echo '2;7;31' || echo '41;97'
+  exit
+fi
+
+PROMPT_COLOR_FILE=$(console_file_path /etc/prompt-color)
+
+# local user
+if [ -z "$SSH_TTY" -o ! -f $PROMPT_COLOR_FILE ]; then
+  ispty && echo '1;97' || echo '37'
+  exit
+fi
+
+echo $PROMPT_COLOR_FILE
