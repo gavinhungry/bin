@@ -2,36 +2,46 @@
 
 source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
 
+MOTD_FILE=/etc/motd
+MOTD_BANNER_FILE=/etc/motd-banner
+MOTD_WARNING_FILE=/etc/motd-warning
+PROMPT_COLOR_FILE=/etc/prompt-color
+
 indent() {
   echo "$1" | sed 's/^/ /g'
 }
 
+console_file_path() {
+  local _FILE_PATH=$1
+  if ! ispty && [ -f ${_FILE_PATH}.console ]; then
+    _FILE_PATH=${_FILE_PATH}.console
+  fi
+
+  echo $_FILE_PATH
+}
+
 prompt_color() {
-  [ -f /etc/prompt-color ] && cat /etc/prompt-color
+  local _PROMPT_COLOR_FILE=$(console_file_path $PROMPT_COLOR_FILE)
+  [ -f $_PROMPT_COLOR_FILE ] && cat $_PROMPT_COLOR_FILE
 }
 
 print_motd_file() {
-  [ -f "$1" ] && echo -e "\n$(indent "$(cat $1)")"
+  local _FILE_PATH=$(console_file_path $1)
+  [ -f "$1" ] && echo -e "\n$(indent "$(cat $_FILE_PATH)")"
 }
 
 print_motd_banner() {
-  BANNER_FILE=/etc/motd-banner
-
-  if ! ispty && [ -f /etc/motd-banner-console ]; then
-    BANNER_FILE=/etc/motd-banner-console
-  fi
-
   echo -en "\e[1;$(prompt_color)m"
-  print_motd_file $BANNER_FILE
+  print_motd_file $MOTD_BANNER_FILE
   echo -en '\e[0m'
 }
 
 print_motd_body() {
-  print_motd_file /etc/motd
+  print_motd_file $MOTD_FILE
 }
 
 print_motd_warning() {
-  print_motd_file /etc/motd-warning
+  print_motd_file $MOTD_WARNING_FILE
 }
 
 print_motd_banner
