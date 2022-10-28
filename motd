@@ -5,24 +5,9 @@ source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
 MOTD_FILE=/etc/motd
 MOTD_BANNER_FILE=/etc/motd-banner
 MOTD_WARNING_FILE=/etc/motd-warning
-PROMPT_COLOR_FILE=/etc/prompt-color
 
 indent() {
   echo "$1" | sed 's/^/ /g'
-}
-
-console_file_path() {
-  local _FILE_PATH=$1
-  if ! ispty && [ -f ${_FILE_PATH}.console ]; then
-    _FILE_PATH=${_FILE_PATH}.console
-  fi
-
-  echo $_FILE_PATH
-}
-
-prompt_color() {
-  local _PROMPT_COLOR_FILE=$(console_file_path $PROMPT_COLOR_FILE)
-  [ -f $_PROMPT_COLOR_FILE ] && cat $_PROMPT_COLOR_FILE
 }
 
 print_motd_file() {
@@ -31,7 +16,7 @@ print_motd_file() {
 }
 
 print_motd_banner() {
-  echo -en "\e[1;$(prompt_color)m"
+  echo -en "\e[1;$(prompt-color)m"
   print_motd_file $MOTD_BANNER_FILE
   echo -en '\e[0m'
 }
