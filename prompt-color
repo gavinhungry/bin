@@ -6,7 +6,7 @@ format_color() {
   if arge invert; then
     ispty && echo "2;7;3$1" || echo "4$1;97"
   else
-    ispty && echo "2;3$1" || echo "$1;97"
+    ispty && echo "1;2;3$1" || echo "1;9$1"
   fi
 }
 
@@ -24,4 +24,4 @@ if [ -z "$SSH_TTY" -o ! -f $PROMPT_COLOR_FILE ]; then
   exit
 fi
 
-cat $PROMPT_COLOR_FILE
+format_color $(cat $PROMPT_COLOR_FILE)
