@@ -9,6 +9,11 @@ if [ $(id -u) -eq 0 ]; then
 fi
 
 PROMPT_COLOR_FILE=$(console_file_path /etc/prompt-color)
+USER_PROMPT_COLOR_FILE=$(console_file_path $HOME/.prompt-color)
+
+if [ -f $USER_PROMPT_COLOR_FILE ]; then
+  PROMPT_COLOR_FILE=$USER_PROMPT_COLOR_FILE
+fi
 
 # local user
 if [ -z "$SSH_TTY" -o ! -f $PROMPT_COLOR_FILE ]; then
