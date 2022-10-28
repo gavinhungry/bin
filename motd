@@ -2,15 +2,34 @@
 
 source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
 
-cate() {
-  [ -f "$1" ] && echo -e "$(cat $1)"
+indent() {
+  echo "$1" | sed 's/^/ /g'
 }
 
-cate /etc/motd-banner
+prompt_color() {
+  [ -f /etc/prompt-color ] && cat /etc/prompt-color
+}
 
-echo -e "\n $(uname -sr) ($(uptime -p))\n"
+print_motd_file() {
+  [ -f "$1" ] && echo -e "\n$(indent "$(cat $1)")"
+}
 
-cate /etc/motd
-arge warning && cate /etc/motd-warning
+print_motd_banner() {
+  echo -en "\e[1;$(prompt_color)m"
+  print_motd_file /etc/motd-banner
+  echo -en '\e[0m'
+}
 
-[ -f /etc/motd -o -f /etc/motd-warning ] && echo
+print_motd_body() {
+  print_motd_file /etc/motd
+}
+
+print_motd_warning() {
+  print_motd_file /etc/motd-warning
+}
+
+print_motd_banner
+echo -e "\n $(uname -sr) ($(uptime -p))"
+print_motd_body
+arge warning && print_motd_warning
+echo
