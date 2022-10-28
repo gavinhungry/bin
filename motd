@@ -17,7 +17,7 @@ print_motd_file() {
 print_motd_banner() {
   BANNER_FILE=/etc/motd-banner
 
-  if ispty && [ -f /etc/motd-banner-console ]; then
+  if ! ispty && [ -f /etc/motd-banner-console ]; then
     BANNER_FILE=/etc/motd-banner-console
   fi
 
