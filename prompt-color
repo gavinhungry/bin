@@ -2,18 +2,21 @@
 
 source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
 
+format_color() {
+  if arge invert; then
+    ispty && echo "2;7;3$1" || echo "4$1;97"
+  else
+    ispty && echo "2;3$1" || echo "$1;97"
+  fi
+}
+
 # root
 if [ $(id -u) -eq 0 ]; then
-  ispty && echo '2;7;31' || echo '41;97'
+  echo $(format_color 1)
   exit
 fi
 
 PROMPT_COLOR_FILE=$(console_file_path /etc/prompt-color)
-USER_PROMPT_COLOR_FILE=$(console_file_path $HOME/.prompt-color)
-
-if [ -f $USER_PROMPT_COLOR_FILE ]; then
-  PROMPT_COLOR_FILE=$USER_PROMPT_COLOR_FILE
-fi
 
 # local user
 if [ -z "$SSH_TTY" -o ! -f $PROMPT_COLOR_FILE ]; then
