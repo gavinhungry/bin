@@ -1,3 +1,0 @@
-#!/bin/bash
-
-[[ $(tty) = */pts/[0-9]* ]] && [ $TERM != 'linux' ]
