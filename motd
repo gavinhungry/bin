@@ -16,7 +16,7 @@ print_motd_file() {
 }
 
 print_motd_banner() {
-  echo -en "\e[$(prompt-color)m"
+  echo -en "\e[1;$(prompt-color)m"
   print_motd_file $MOTD_BANNER_FILE
   echo -en '\e[0m'
 }
