@@ -16,4 +16,4 @@ if [ -z "$SSH_TTY" -o ! -f $PROMPT_COLOR_FILE ]; then
   exit
 fi
 
-echo $PROMPT_COLOR_FILE
+cat $PROMPT_COLOR_FILE
