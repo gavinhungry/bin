@@ -3,6 +3,15 @@
 BASE_URL=$(git remote get-url origin | sed 's/^github:/https:\/\/github.com\//')
 [ -n "$BASE_URL" ] || exit 1
 
+get_branch_suffix() {
+  BRANCH=$(git br)
+  if [ -n "$BRANCH" -a "$BRANCH" != "main" -a "$BRANCH" != "master" ]; then
+    echo ${1}/${BRANCH}
+  elif [ "${2:-1}" != 0 ]; then
+    echo $1
+  fi
+}
+
 open_page() {
   PAGE_NAME=$1
   [ -n "$3" ] && PAGE_NAME=$2
@@ -13,18 +22,11 @@ open_page() {
 }
 
 case $1 in
-  c|commit|commits)    open_page commits commit $2 ;;
+  c|commit|commits)    open_page $(get_branch_suffix commits) commit $2 ;;
   h|head)              open_page commit ;;
   i|issue|issues)      open_page issues issues $2 ;;
   p|pull|pulls|pr|prs) open_page pulls pull $2 ;;
   a|actions|ci)        open_page actions ;;
   s|settings)          open_page settings ;;
-  *)
-    BRANCH=$(git br)
-    if [ -n "$BRANCH" -a "$BRANCH" != "main" -a "$BRANCH" != "master" ]; then
-      open_page tree/$BRANCH
-    fi
-
-    open_page
-  ;;
+  *)                   open_page $(get_branch_suffix tree 0) ;;
 esac
