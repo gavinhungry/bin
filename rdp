@@ -14,10 +14,14 @@ source "$PROFILE"
 arge fullscreen && RDP_ARGS+=" /f"
 
 arge alt && RDP_GEOMETRY=$RDP_GEOMETRY_ALT
-arge split && RDP_GEOMETRY=$RDP_GEOMETRY_SPLIT
 
 RDP_WIDTH=${RDP_GEOMETRY%x*}
 RDP_HEIGHT=${RDP_GEOMETRY#*x}
+
+RDP_WIDTH=${RDP_WIDTH:-1920}
+RDP_HEIGHT=${RDP_HEIGHT:-1080}
+
+arge half && RDP_WIDTH=$(($RDP_WIDTH / 2))
 
 exec xfreerdp \
   /title:"${RDP_TITLE:-$RDP_SERVER} - Remote Desktop" \
@@ -25,8 +29,8 @@ exec xfreerdp \
   /bpp:24 \
   /audio-mode:1 \
   -toggle-fullscreen \
-  /w:"${RDP_WIDTH:-1920}" \
-  /h:"${RDP_HEIGHT:-1080}" \
+  /w:"${RDP_WIDTH}" \
+  /h:"${RDP_HEIGHT}" \
   /v:"${RDP_SERVER}" \
   /d:"${RDP_DOMAIN}" \
   /u:"${RDP_USER}" \
