@@ -1,0 +1,14 @@
+#!/bin/bash
+
+export MANGOHUD=1
+export MANGOHUD_DLSYM=1
+
+if grep -q '^nvidia ' /proc/modules; then
+  # https://github.com/HansKristian-Work/vkd3d-proton/blob/master/libs/vkd3d/device.c#L692-L727
+  # https://www.reddit.com/r/linux_gaming/comments/tbne15
+  export VKD3D_CONFIG=dxr11
+  export VKD3D_FEATURE_LEVEL=12_2
+  export PROTON_ENABLE_NVAPI=1
+fi
+
+exec /usr/bin/steam "$@"
