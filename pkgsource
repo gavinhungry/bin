@@ -40,10 +40,10 @@ getAbsPkgbuild() {
   local ARCH=$(getPkgProp "$PKG" Architecture)
 
   local GIT_REPO=svntogit-packages
-  [ $REPO == 'community' -o $REPO == 'multilib' ] && GIT_REPO=svntogit-community
+  [ "$REPO" == 'community' -o "$REPO" == 'multilib' ] && GIT_REPO=svntogit-community
 
   if arge testing; then
-     [ $REPO == 'community' ] && REPO='community-testing' || REPO='testing'
+     [ "$REPO" == 'community' ] && REPO='community-testing' || REPO='testing'
   fi
 
   local GIT_PKG_PATH="repos/$REPO-$ARCH"
@@ -101,8 +101,9 @@ getAurPkgbuild() {
 
 for PKG in $(nfargs); do
   [ "$PKG" != "$(fnfarg)" ] && echo
+  REPO=$(getPkgProp "$PKG" Repository)
 
-  [ $(getPkgProp "$PKG" Repository) == 'aur' ] &&
+  [ "$REPO" == 'aur' ] &&
     getAurPkgbuild "$PKG" ||
     getAbsPkgbuild "$PKG"
 done
