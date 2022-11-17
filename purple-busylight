@@ -10,12 +10,12 @@ const BUSYLIGHT_PATH = (
 );
 
 const STATUS_COLOR_MAP = {
-  available: '#022A02',
-  away: '#300D01',
-  busy: '#010326',
-  unavailable: '#2A0101',
-  'do-not-disturb': '#2A0101',
-  'be-right-back': '#1A1A1A',
+  available: '#002000',
+  away: '#3A1200',
+  busy: '#010333',
+  unavailable: '#440000',
+  'do-not-disturb': '#440000',
+  'be-right-back': '#440000',
   invisible: '#000'
 };
 
