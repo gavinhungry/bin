@@ -1,13 +1,23 @@
 #!/bin/bash
 
-NAME=${1:-Package}
+source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
 
-LABELS=$(find /sys/devices/platform/coretemp.* -name temp*_label)
-[ -n "$LABELS" ] || exit 2
+ALL_LABELS=$(find /sys/devices/platform/coretemp.* -name temp*_label)
+[ -n "$ALL_LABELS" ] || exit 1
 
-LABEL=$(grep -l "$NAME" $LABELS | head -n1)
-[ -e "$LABEL" ] || exit 3
+if arge core; then
+  LABELS=$(grep -l '^Core ' $ALL_LABELS) # core max
+else
+  LABELS=$(grep -l '^Package ' $ALL_LABELS | head -n1)
+fi
 
-INPUT=${LABEL%_label}_input
-TEMP=$(echo "scale=0; $(cat $INPUT) / 1000" | bc)
-echo "${TEMP}°C"
+TEMP_MAX=0
+
+for LABEL in $LABELS; do
+  INPUT=${LABEL%_label}_input
+  TEMP=$(cat $INPUT)
+  [ "$TEMP" -gt "$TEMP_MAX" ] && TEMP_MAX=$TEMP
+done
+
+TEMP_SCALED=$(echo "scale=0; $TEMP_MAX / 1000" | bc)
+echo "${TEMP_SCALED}°C"

@@ -2,5 +2,9 @@
 
 source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
 DELIMITER=$(arg delimiter /)
+TEMP_ARGS=
+if arge core; then
+  TEMP_ARGS+=' --core'
+fi
 
-echo "$(cpu-util || echo ?) ${DELIMITER} $(cpu-temp || echo ?)"
+echo "$(cpu-util || echo ?) ${DELIMITER} $(cpu-temp $TEMP_ARGS || echo ?)"
