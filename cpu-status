@@ -7,4 +7,10 @@ if arge core; then
   TEMP_ARGS+=' --core'
 fi
 
-echo "$(cpu-util || echo ?) ${DELIMITER} $(cpu-temp $TEMP_ARGS || echo ?)"
+OUTPUT="$(cpu-util || echo ?) $DELIMITER $(cpu-temp $TEMP_ARGS || echo ?)"
+
+if arge ibm-fan; then
+  OUTPUT+=" $DELIMITER $(ibm-fan --speed $(arg ibm-fan))"
+fi
+
+echo $OUTPUT

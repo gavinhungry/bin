@@ -1,0 +1,19 @@
+#!/bin/bash
+
+source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
+[ ! -e /proc/acpi/ibm/fan ] && exit 1
+
+FAN_SPEED=$(cat /proc/acpi/ibm/fan | grep ^speed: | awk '{print $NF;}')
+FAN_SPEED_MAX=$(arg speed)
+
+if [ -n "$FAN_SPEED_MAX" ]; then
+  FAN_PERCENTAGE=$(echo "100 * ($FAN_SPEED / $FAN_SPEED_MAX)" | bc)
+  FAN_PERCENTAGE=$(printf '%.0f\n' $FAN_PERCENTAGE)
+  [ "$FAN_PERCENTAGE" -gt 100 ] && FAN_PERCENTAGE=100
+
+  echo "${FAN_PERCENTAGE}%"
+  
+  exit
+fi
+
+echo "$FAN_SPEED RPM"
