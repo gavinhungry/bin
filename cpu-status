@@ -2,15 +2,10 @@
 
 source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
 DELIMITER=$(arg delimiter /)
-TEMP_ARGS=
-if arge core; then
-  TEMP_ARGS+=' --core'
-fi
-
-OUTPUT="$(cpu-util || echo ?) $DELIMITER $(cpu-temp $TEMP_ARGS || echo ?)"
+OUTPUT="$(cpu-util || echo ?) $DELIMITER $(cpu-temp $(pfarg core) || echo ?)"
 
 if arge ibm-fan; then
-  OUTPUT+=" $DELIMITER $(ibm-fan --speed $(arg ibm-fan))"
+  OUTPUT+=" $DELIMITER $(ibm-fan)"
 fi
 
 echo $OUTPUT
