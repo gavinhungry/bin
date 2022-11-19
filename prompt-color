@@ -19,7 +19,7 @@ fi
 PROMPT_COLOR_FILE=$(console_file_path /etc/prompt-color)
 
 # local user
-if [ -z "$SSH_TTY" -o ! -f $PROMPT_COLOR_FILE ]; then
+if (! arge color && [ -z "$SSH_TTY" ]) || [ ! -f $PROMPT_COLOR_FILE ]; then
   ispty && echo '1;97' || echo '37'
   exit
 fi
