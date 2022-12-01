@@ -1,0 +1,12 @@
+#!/bin/bash
+
+source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
+
+NVME=$(arg nvme 0)
+HWMON=(/sys/class/nvme/nvme${NVME}/hwmon*/temp1_input)
+[ ! -e "${HWMON[0]}" ] && exit 1
+
+TEMP=$(cat ${HWMON[0]})
+TEMP_SCALED=$(echo "scale=0; $TEMP / 1000" | bc)
+
+echo "${TEMP_SCALED}°C"
