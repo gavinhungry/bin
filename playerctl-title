@@ -14,8 +14,8 @@ if [ "$TITLE" = 'YouTube Music' ]; then
   TITLE=$(youtube-title "$URL")
 fi
 
-TITLE=${TITLE%% (*}
-TITLE=${TITLE%% [*}
+[[ "$TITLE" != *" $DELIMITER ("* ]] && TITLE=${TITLE%% (*}
+[[ "$TITLE" != *" $DELIMITER ["* ]] && TITLE=${TITLE%% [*}
 
 if [ -z "$TITLE" ]; then
   arge zwsp && echo -n "​" # zero-width space for Xfce genmon
