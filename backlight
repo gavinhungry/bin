@@ -19,9 +19,9 @@ fi
 
 VAL=${VAL:-${INCREMENT}}
 
-if [ -n "$DDC_CI_I2C_BUS_ID" ]; then
+if [ -n "$DDC_CI_I2C_MODEL" ]; then
   # Feature: 10 (Brightness)
-  exec ddcutil --bus=${DDC_CI_I2C_BUS_ID} setvcp 10 $DDC_CMD $VAL > /dev/null
+  exec ddcutil --model="$DDC_CI_I2C_MODEL" setvcp 10 $DDC_CMD $VAL > /dev/null
 fi
 
 # laptop display does not support DDC/CI
