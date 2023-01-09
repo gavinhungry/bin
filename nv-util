@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -eo pipefail
+
 MAX_CLOCK=$(nvidia-smi --query-gpu=clocks.max.graphics --format=csv,noheader,nounits)
 LOAD_CLOCK=${NVIDIA_LOAD_CLOCK:-${MAX_CLOCK}}
 
@@ -11,4 +13,4 @@ if [ $CLOCK -lt $LOAD_CLOCK ]; then
   PERCENT=$(echo "scale=0; $PERCENT * $CLOCK / $MAX_CLOCK" | bc)
 fi
 
-[ $? -eq 0 ] && echo "${PERCENT}%"
+echo "${PERCENT}%"
