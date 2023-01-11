@@ -5,10 +5,12 @@ set -eo pipefail
 PATH=$PATH:$(dirname ${BASH_SOURCE[0]})
 wsl-interop > /dev/null; eval $(wsl-interop)
 
-USER_PROFILE=$(
+[ -z "$1" ] && exit 1
+
+VALUE=$(
   /mnt/c/Windows/System32/cmd.exe \
-  /C 'echo | set /p=%USERPROFILE%& exit /b 0' 2> /dev/null
+  /C "echo | set /p=%${1}%& exit /b 0" 2> /dev/null
 )
 
 # echo with \n only
-echo $USER_PROFILE
+echo $VALUE
