@@ -1,0 +1,10 @@
+#!/bin/bash
+
+exec find -L / \
+  -path /dev -prune -o \
+  -path /proc -prune -o \
+  -path /run -prune -o \
+  -path /sys -prune -o \
+  -path /tmp -prune -o \
+  -path /var/run -prune -o \
+  -xtype l -samefile "$1" 2> /dev/null | grep -Ev '^/(dev|proc|run|sys|tmp|var/run)$'
