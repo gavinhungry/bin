@@ -1,0 +1,8 @@
+#!/bin/bash
+
+PATH=$PATH:$(dirname ${BASH_SOURCE[0]})
+
+eval $(wsl-interop)
+
+exec /mnt/c/Windows/System32/rundll32.exe \
+  'C:\Windows\System32\user32.dll',LockWorkStation

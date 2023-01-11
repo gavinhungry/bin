@@ -1,0 +1,23 @@
+#!/bin/bash
+
+#
+# From SSH:
+#
+# eval $(wsl-interop)
+# notepad.exe
+# cmd.exe (!)
+
+if [ -n "$WSL_INTEROP" ]; then
+  exit
+fi
+
+# oldest interop (init?) does not work, use second oldest
+WSL_INTEROP=$(
+  find /run/WSL \
+  -type s \
+  -printf '%T+ %p\n' \
+  | sort | head -2 | tail -1 | cut -d' ' -f2-
+)
+
+echo export PATH=$PATH:/mnt/c/Windows/System32
+echo export WSL_INTEROP=$WSL_INTEROP
