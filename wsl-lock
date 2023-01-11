@@ -1,8 +1,9 @@
 #!/bin/bash
 
-PATH=$PATH:$(dirname ${BASH_SOURCE[0]})
+set -eo pipefail
 
-eval $(wsl-interop)
+PATH=$PATH:$(dirname ${BASH_SOURCE[0]})
+wsl-interop > /dev/null; eval $(wsl-interop)
 
 exec /mnt/c/Windows/System32/rundll32.exe \
   'C:\Windows\System32\user32.dll',LockWorkStation
