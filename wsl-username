@@ -1,0 +1,14 @@
+#!/bin/bash
+
+set -eo pipefail
+
+PATH=$PATH:$(dirname ${BASH_SOURCE[0]})
+wsl-interop > /dev/null; eval $(wsl-interop)
+
+USER_NAME=$(
+  /mnt/c/Windows/System32/cmd.exe \
+  /C 'echo | set /p=%USERNAME%& exit /b 0' 2> /dev/null
+)
+
+# echo with \n only
+echo $USER_NAME

@@ -1,0 +1,13 @@
+#!/bin/bash
+
+set -eo pipefail
+
+PATH=$PATH:$(dirname ${BASH_SOURCE[0]})
+wsl-interop > /dev/null; eval $(wsl-interop)
+
+RDP_SESSION_NAME='rdp-tcp#0'
+USER_NAME=$(wsl-username)
+
+/mnt/c/Windows/System32/cmd.exe \
+  /C "query session ${USER_NAME}& exit /b 0" 2>&1 \
+  | grep "${RDP_SESSION_NAME}" > /dev/null
