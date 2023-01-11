@@ -3,7 +3,9 @@
 set -eo pipefail
 
 PATH=$PATH:$(dirname ${BASH_SOURCE[0]})
-wsl-interop > /dev/null; eval $(wsl-interop)
+
+wsl-interop > /dev/null || exit 1
+eval $(wsl-interop)
 
 [ -z "$1" ] && exit 1
 

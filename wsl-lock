@@ -3,6 +3,8 @@
 set -eo pipefail
 
 PATH=$PATH:$(dirname ${BASH_SOURCE[0]})
-wsl-interop > /dev/null; eval $(wsl-interop)
+
+wsl-interop > /dev/null || exit 1
+eval $(wsl-interop)
 
 exec rundll32.exe 'C:\Windows\System32\user32.dll',LockWorkStation
