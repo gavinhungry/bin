@@ -8,6 +8,6 @@ wsl-interop > /dev/null; eval $(wsl-interop)
 RDP_SESSION_NAME='rdp-tcp#0'
 USER_NAME=$(wsl-env-var USERNAME)
 
-/mnt/c/Windows/System32/cmd.exe \
+exec cmd.exe \
   /C "query session ${USER_NAME}& exit /b 0" 2>&1 \
   | grep "${RDP_SESSION_NAME}" > /dev/null

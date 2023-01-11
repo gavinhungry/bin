@@ -7,10 +7,5 @@ wsl-interop > /dev/null; eval $(wsl-interop)
 
 [ -z "$1" ] && exit 1
 
-VALUE=$(
-  /mnt/c/Windows/System32/cmd.exe \
-  /C "echo | set /p=%${1}%& exit /b 0" 2> /dev/null
-)
-
 # echo with \n only
-echo $VALUE
+echo $(cmd.exe /C "echo | set /p=%${1}%& exit /b 0" 2> /dev/null)
