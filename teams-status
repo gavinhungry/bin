@@ -4,6 +4,8 @@ TEAMS=/usr/share/teams/teams
 TEAMS_DIR="${XDG_CONFIG_HOME}/Microsoft/Teams"
 TEAMS_LOG_FILE="${TEAMS_DIR}"/logs.txt
 TEAMS_STORAGE_FILE="${TEAMS_DIR}"/storage.json
+
+# https://github.com/gavinhungry/patches/blob/main/teams/log-status.diff
 TEAMS_STATUS_FILE=${XDG_CACHE_HOME}/teams-status
 
 if [ "$1" == '--watch' ]; then
