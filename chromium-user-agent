@@ -10,4 +10,4 @@ navigator.userAgent.split(' ').map(a => {
 "
 
 echo $JS | chromium --headless --repl 2> /dev/null | \
-sed 's/^>>> //' | jq -r .result.value
+sed 's/^>>> //' | jq -r .result.result.value
