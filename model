@@ -7,7 +7,18 @@ if [ -d "$DT" ]; then
   cat "$DT"/model
   echo
 elif [ -d "$DMI" ]; then
-  FAMILY=$(cat $DMI/product_family)
-  NAME=$(cat $DMI/product_name)
-  [ ${#FAMILY} -ge ${#NAME} ] && echo $FAMILY || echo $NAME
+  NAMES=(
+    "$(cat $DMI/board_name)"
+    "$(cat $DMI/product_family)"
+    "$(cat $DMI/product_name)"
+  )
+
+  MODEL=
+  for NAME in "${NAMES[@]}"; do
+    if [ "$NAME" != 'Default string' -a "${#NAME}" -gt "${#MODEL}" ]; then
+      MODEL="$NAME"
+    fi
+  done
+
+  echo $MODEL
 fi
