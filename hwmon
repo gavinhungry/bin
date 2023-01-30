@@ -1,0 +1,32 @@
+#!/bin/bash
+
+set -eo pipefail
+source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
+
+([ $# -eq 0 ] || arge help || ! arge name) && usage '[options]
+
+  -n, --name        device name
+  -s, --sensor      sensor name
+  -t, --temp        treat sensor value as unscaled temperature
+  -h, --help        this message
+'
+
+HWMON_DIR=$(fmpathdir "$(arg name)" /sys/class/hwmon/*/name)
+if ! arge sensor; then
+  echo $HWMON_DIR
+  exit
+fi
+
+LABEL_FILE=$(fmpath "$(arg sensor)" "$HWMON_DIR"/*_label)
+
+INPUT_FILE="${LABEL_FILE%_label}"_input
+[ -e "$INPUT_FILE" ] || exit 1
+
+VALUE=$(cat "$INPUT_FILE")
+
+if arge temp; then
+  TEMP_SCALED=$(echo "scale=0; $VALUE / 1000" | bc)
+  VALUE="${TEMP_SCALED}°C"
+fi
+
+echo $VALUE
