@@ -1,7 +1,21 @@
 #!/bin/bash
 
 playback() {
-  amixer -M -c ${ALSA_CARD_ID:-0} -q set ${ALSA_MIXER:-Master} playback "$@"
+  CMD="$@"
+  ALSA_MIXERS=(${ALSA_MIXER:-Master})
+
+  if [ "$CMD" == 'mute' -o "$CMD" == 'unmute' -o "$CMD" == 'toggle' ]; then
+    ALSA_MIXERS+=(Headphone Speaker)
+
+    if [ "$CMD" == 'toggle' ]; then
+      CMD='unmute'
+      amixer -M -c 0 get ${ALSA_MIXERS[0]} | grep -q '\[on\]' && CMD='mute'
+    fi
+  fi
+
+  for MIXER in ${ALSA_MIXERS[@]}; do
+    amixer -M -c ${ALSA_CARD_ID:-0} -q set $MIXER playback "$CMD"
+  done
 }
 
 case $1 in
