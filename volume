@@ -9,7 +9,7 @@ playback() {
 
     if [ "$CMD" == 'toggle' ]; then
       CMD='unmute'
-      amixer -M -c 0 get ${ALSA_MIXERS[0]} | grep -q '\[on\]' && CMD='mute'
+      amixer -M -c ${ALSA_CARD_ID:-0} get ${ALSA_MIXERS[0]} | grep -q '\[on\]' && CMD='mute'
     fi
   fi
 
