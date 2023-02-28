@@ -16,6 +16,10 @@ fi
 
 [[ "$TITLE" != *" $DELIMITER ("* ]] && TITLE=${TITLE%% (*}
 [[ "$TITLE" != *" $DELIMITER ["* ]] && TITLE=${TITLE%% [*}
+[[ "$TITLE" != *" $DELIMITER |"* ]] && TITLE=${TITLE%% |*}
+
+TITLE=${TITLE// x / & }
+TITLE=$(echo "$TITLE" | sed -r 's/^[0-9]*.?\s+//')
 
 if [ -z "$TITLE" ]; then
   arge zwsp && echo -n "​" # zero-width space for Xfce genmon
