@@ -1,0 +1,24 @@
+#!/bin/bash
+
+set -eo pipefail
+source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
+
+POSITION=$(rhythmbox-client --no-start --print-playing-format '%te')
+DURATION=$(rhythmbox-client --no-start --print-playing-format '%td')
+[ -z "$POSITION" -o -z "$DURATION" ] && exit
+
+POSITION_MIN=${POSITION%:*}
+POSITION_SEC=${POSITION#*:}
+POSITION_SECS=$(echo "($POSITION_MIN * 60) + $POSITION_SEC" | bc)
+
+DURATION_MIN=${DURATION%:*}
+DURATION_SEC=${DURATION#*:}
+DURATION_SECS=$(echo "($DURATION_MIN * 60) + $DURATION_SEC" | bc)
+
+DELTA=${1:-0}
+SEEK_POSITION=$(echo "$POSITION_SECS + $DELTA" | bc)
+
+[ $SEEK_POSITION -lt 1 ] && SEEK_POSITION=1 # rhythmbox will not seek to 0
+[ $SEEK_POSITION -gt $DURATION_SECS ] && SEEK_POSITION=$DURATION_SECS
+
+exec rhythmbox-client --no-start --no-present --seek $SEEK_POSITION
