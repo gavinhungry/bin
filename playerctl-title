@@ -6,11 +6,12 @@ MAX_LENGTH=$(arg max-length 0)
 LABEL=$(arg label)
 DELIMITER=$(arg delimiter -)
 
-TITLE=$(rhythmbox-client --no-start --print-playing)
-TITLE=${TITLE%(*\[SomaFM\])}
+TITLE=$(rhythmbox-client --no-start --print-playing-format '%st')
+[ -z "$TITLE" ] && TITLE=$(rhythmbox-client --no-start --print-playing-format "%ta $DELIMITER %tt")
+TITLE=${TITLE# ${DELIMITER} }
 
-if [ -z "$TITLE" -o "$TITLE" == ' - ' ]; then
-  TITLE=$(playerctl -p $PLAYER_NAME metadata -f "{{artist}} ${DELIMITER} {{title}}" 2> /dev/null)
+if [ -z "$TITLE" ]; then
+  TITLE=$(playerctl -p $PLAYER_NAME metadata -f "{{artist}} $DELIMITER {{title}}" 2> /dev/null)
   TITLE=${TITLE# ${DELIMITER} }
 
   if [ "$TITLE" = 'YouTube Music' ]; then
