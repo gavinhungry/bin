@@ -7,6 +7,7 @@ LABEL=$(arg label)
 DELIMITER=$(arg delimiter -)
 
 TITLE=$(rhythmbox-client --no-start --print-playing)
+TITLE=${TITLE%(*\[SomaFM\])}
 
 if [ -z "$TITLE" -o "$TITLE" == ' - ' ]; then
   TITLE=$(playerctl -p $PLAYER_NAME metadata -f "{{artist}} ${DELIMITER} {{title}}" 2> /dev/null)
