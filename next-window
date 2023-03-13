@@ -4,53 +4,10 @@
 # Focuses next window matching active WM_CLASS on current workspace
 #
 
-import os
+from pylon import *
 from Xlib import X
-from Xlib.display import Display
 
-display = Display()
-root = display.screen().root
-
-_NET_DESKTOP_GEOMETRY = display.get_atom('_NET_DESKTOP_GEOMETRY')
-_NET_ACTIVE_WINDOW = display.get_atom('_NET_ACTIVE_WINDOW')
-_NET_CLIENT_LIST = display.get_atom('_NET_CLIENT_LIST')
-
-desktop_width = root.get_full_property(
-  _NET_DESKTOP_GEOMETRY, X.AnyPropertyType).value[0]
-
-workspace_count = int(os.getenv('WORKSPACE_COUNT') or 1)
-workspace_width = desktop_width / workspace_count
-
-#
-def get_window_by_id(window_id):
-  return display.create_resource_object('window', window_id)
-
-#
-def is_window_id_on_workspace(window_id):
-  window = get_window_by_id(window_id)
-  window_geometry = window.get_geometry()
-  x = window_geometry.x
-
-  while True:
-    parent = window.query_tree().parent
-    parent_geometry = parent.get_geometry()
-    x += parent_geometry.x
-
-    if parent.id == root.id:
-        break
-
-    window = parent
-
-  return 0 < x + (window_geometry.width / 2) < workspace_width
-
-#
-def get_wm_class_by_window_id(window_id):
-  window = get_window_by_id(window_id)
-  return window.get_wm_class()[0]
-
-active_window_id = root.get_full_property(
-  _NET_ACTIVE_WINDOW, X.AnyPropertyType).value[0]
-
+active_window_id = get_active_window_id()
 active_window = get_window_by_id(active_window_id)
 active_wm_class = active_window.get_wm_class()[0]
 active_wm_client = active_window.get_wm_client_machine()
@@ -65,12 +22,12 @@ def window_id_matches(window_id):
     and not window.get_wm_transient_for()
     and window.get_wm_class()[0] == active_wm_class
     and window.get_wm_client_machine() == active_wm_client
-    and is_window_id_on_workspace(window_id)
+    and is_window_id_on_current_workspace(window_id)
   )
 
 window_ids = [
   window_id for window_id
-  in root.get_full_property(_NET_CLIENT_LIST, X.AnyPropertyType).value
+  in get_all_window_ids()
   if window_id_matches(window_id)
 ]
 
