@@ -1,43 +1,20 @@
-#!/bin/bash
+#!/usr/bin/python3
 
-TEAMS=/usr/share/teams/teams
-TEAMS_DIR="${XDG_CONFIG_HOME}/Microsoft/Teams"
-TEAMS_LOG_FILE="${TEAMS_DIR}"/logs.txt
-TEAMS_STORAGE_FILE="${TEAMS_DIR}"/storage.json
+from pylon import *
 
-# https://github.com/gavinhungry/patches/blob/main/teams/log-status.diff
-TEAMS_STATUS_FILE=${XDG_CACHE_HOME}/teams-status
+TEAMS_STATUS_COLOR_MAP = {
+  '#92C353': 'available',
+  '#D74654': 'busy',
+  '#765D1E': 'away',
+  '#3D3C3C': 'offline'
+}
 
-if [ "$1" == '--watch' ]; then
-  mkdir -p "$TEAMS_DIR"
+def main():
+  window_id = get_window_ids_by_wm_class('teams.microsoft.com')[0]
+  color = get_pixel_color_at_window_id_coords(window_id, -19, 32)
+  print(TEAMS_STATUS_COLOR_MAP[color])
 
-  [ ! -e "$TEAMS_LOG_FILE" ] && touch "$TEAMS_LOG_FILE"
-  [ ! -e "$TEAMS_STORAGE_FILE" ] && touch "$TEAMS_STORAGE_FILE"
-  [ ! -e "$TEAMS_STATUS_FILE" ] && echo 'unknown' > "$TEAMS_STATUS_FILE"
-
-  surveil "$TEAMS_LOG_FILE" "$TEAMS_STORAGE_FILE" "$TEAMS_STATUS_FILE" teams-status
-  exit
-fi
-
-if ! pidof -q $TEAMS; then
-  echo 'offline'
-  exit
-fi
-
-APP_STATES=$(jq -r '.appStates.states' "$TEAMS_STORAGE_FILE")
-LAST_STATE=${APP_STATES##*,}
-
-WEB_APP_STATES=$(jq -r '.webAppStates.states' "$TEAMS_STORAGE_FILE")
-LAST_WEB_APP_STATE=${WEB_APP_STATES##*,}
-
-if [ \
-  "$LAST_STATE" == 'Quitting' -o \
-  "$LAST_WEB_APP_STATE" == 'Disconnected' -o \
-  "$LAST_WEB_APP_STATE" == 'Offline' -o \
-  "$LAST_WEB_APP_STATE" == 'Unloaded' \
-]; then
-  echo 'offline'
-  exit
-fi
-
-cat "$TEAMS_STATUS_FILE"
+try:
+  main()
+except:
+  print('offline')

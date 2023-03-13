@@ -1,53 +1,37 @@
 #!/bin/bash
 
+source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
+
 declare -A STATUS_COLOR_MAP
 
-#  0: offline
-#  1: online
-#  2: busy
-#  3: away
-#  4: idle
-#  5: onThePhone
-#  6: outToLunch
-#  7: beRightBack
-#  8: hidden
-#  9: Disabled
-# 10: AppearAway
-# 11: Reset
-# 12: OutOfOffice
-# 13: Presenting
-# 14: InAMeeting
-# 15: unknown
-# 16: OnShift
-# 17: OffShift
-# 18: Focusing
-# 19: Blocked
-# 20: AppearOffline
+STATUS_COLOR_MAP[available]='#003000'
+STATUS_COLOR_MAP[busy]='#440000'
+STATUS_COLOR_MAP[away]='#3A1000'
 
-STATUS_COLOR_MAP[online]='#002000'
-STATUS_COLOR_MAP[away]='#3A1200'
-STATUS_COLOR_MAP[busy]='#010333'
-STATUS_COLOR_MAP[outToLunch]='#440000'
-STATUS_COLOR_MAP[beRightBack]='#3A1200'
-STATUS_COLOR_MAP[onThePhone]='#440000'
+LAST_STATUS=
 
-LAST_COLOR=
+update() {
+  STATUS=$(teams-status)
+  [ "$STATUS" == "$LAST_STATUS" ] && return
 
-while read STATUS; do
+  LAST_STATUS=$STATUS
+  echo $STATUS
+
   if [ -z "$STATUS" -o "$STATUS" == 'offline' ]; then
-    LAST_COLOR=
     busylight off
-    continue
+    return
   fi
 
   STATUS_COLOR=${STATUS_COLOR_MAP[$STATUS]}
   if [ -z "$STATUS_COLOR" ]; then
     echo "Unknown status: $STATUS"
-    continue
+    return
   fi
 
-  [ "$STATUS_COLOR" == "$LAST_COLOR" ] && continue
-
   busylight on "$STATUS_COLOR"
-  LAST_COLOR=$STATUS_COLOR
-done < <(teams-status --watch)
+}
+
+while true; do
+  update
+  xsleep 2
+done
