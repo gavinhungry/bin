@@ -5,13 +5,13 @@ from pylon import *
 TEAMS_STATUS_COLOR_MAP = {
   '#92C353': 'available',
   '#D74654': 'busy',
-  '#765D1E': 'away',
+  '#FDB913': 'away',
   '#3D3C3C': 'offline'
 }
 
 def main():
   window_id = get_window_ids_by_wm_class('teams.microsoft.com')[0]
-  color = get_pixel_color_at_window_id_coords(window_id, -19, 32)
+  color = get_pixel_color_at_window_id_coords(window_id, -22, 37)
   print(TEAMS_STATUS_COLOR_MAP[color])
 
 try:
