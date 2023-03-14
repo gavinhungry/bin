@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import os
+from os import getenv
 
 from Xlib import X
 from Xlib.display import Display
@@ -25,7 +25,7 @@ def get_desktop_width():
     X.AnyPropertyType
   ).value[0]
 
-workspace_count = int(os.getenv('WORKSPACE_COUNT') or 1)
+workspace_count = int(getenv('WORKSPACE_COUNT') or 1)
 workspace_width = get_desktop_width() / workspace_count
 
 #
