@@ -79,7 +79,7 @@ def is_window_id_on_current_workspace(window_id):
   return 0 < x + (geometry.width / 2) < workspace_width
 
 #
-def get_pixel_color_at_window_id_coords(window_id, x, y):
+def get_pixel_rgba_at_window_id_coords(window_id, x, y):
   window = get_gdk_window_by_id(window_id)
   geometry = window.get_geometry()
 
@@ -90,5 +90,8 @@ def get_pixel_color_at_window_id_coords(window_id, x, y):
     y = geometry.height + y
 
   pixbuf = Gdk.pixbuf_get_from_window(window, x, y, 1, 1)
-  pixel = tuple(pixbuf.get_pixels())
-  return "#{:02X}{:02X}{:02X}".format(*pixel)
+  return tuple(pixbuf.get_pixels())
+
+#
+def rgb_to_hex(rgb):
+  return "#{:02X}{:02X}{:02X}".format(*rgb)
