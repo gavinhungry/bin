@@ -1,0 +1,16 @@
+#!/bin/bash
+
+MAN=/usr/bin/man
+
+[ -z "$*" ] && exec $MAN
+$MAN -w $* > /dev/null || exit $?
+
+exec emacs --eval "
+  (progn
+    (man \"$*\")
+    (delete-window)
+    (local-set-key \"q\" 'save-buffers-kill-emacs)
+    (local-set-key \"/\" 'isearch-forward)
+    (local-set-key (kbd \"<down>\") 'scroll-up-line)
+    (local-set-key (kbd \"<up>\") 'scroll-down-line)
+    (run-with-idle-timer 0 nil 'linum-mode 0))"
