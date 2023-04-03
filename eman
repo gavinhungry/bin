@@ -9,8 +9,12 @@ exec emacs --eval "
   (progn
     (man \"$*\")
     (delete-window)
-    (local-set-key \"q\" 'save-buffers-kill-emacs)
-    (local-set-key \"/\" 'isearch-forward)
+    (local-set-key (kbd \"q\") 'save-buffers-kill-emacs)
+    (local-set-key (kbd \"/\") 'isearch-forward)
+    (local-set-key (kbd \",\") 'isearch-repeat-backward)
+    (local-set-key (kbd \".\") 'isearch-repeat-forward)
     (local-set-key (kbd \"<down>\") 'scroll-up-line)
     (local-set-key (kbd \"<up>\") 'scroll-down-line)
+    (setq lazy-highlight-buffer t)
+    (setq lazy-highlight-cleanup nil)
     (run-with-idle-timer 0 nil 'linum-mode 0))"
