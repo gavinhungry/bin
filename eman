@@ -18,6 +18,7 @@ exec emacs --eval "
     (local-set-key (kbd \".\") 'isearch-repeat-forward)
     (local-set-key (kbd \"<down>\") 'scroll-up-line)
     (local-set-key (kbd \"<up>\") 'scroll-down-line)
+    (local-unset-key [?\r])
     (setq lazy-highlight-buffer t)
     (setq lazy-highlight-cleanup nil)
     (run-with-idle-timer 0 nil 'linum-mode 0))"
