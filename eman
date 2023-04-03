@@ -1,9 +1,12 @@
 #!/bin/bash
 
+source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
+
 MAN=/usr/bin/man
 
-[ -z "$*" ] && exec $MAN
-$MAN -w $* > /dev/null || exit $?
+[ $# -gt 0 ] || exec $MAN
+istty || exec $MAN "$@"
+$MAN -w "$@" > /dev/null || exit $?
 
 exec emacs --eval "
   (progn
