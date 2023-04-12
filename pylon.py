@@ -1,50 +1,122 @@
 #!/usr/bin/env python
 
-from os import getenv
+import functools
 
-from Xlib import X
-from Xlib.display import Display
+#
+@functools.cache
+def _getenv(var):
+  from os import getenv
+  return getenv(var)
 
-import gi
-gi.require_version('Gdk', '3.0')
-from gi.repository import Gdk
-from gi.repository import GdkX11
+#
+@functools.cache
+def _X():
+  from Xlib import X
+  return X
 
-display = Display()
-root = display.screen().root
+#
+@functools.cache
+def _display():
+  from Xlib.display import Display
+  return Display()
 
-_NET_DESKTOP_GEOMETRY = display.get_atom('_NET_DESKTOP_GEOMETRY')
-_NET_ACTIVE_WINDOW = display.get_atom('_NET_ACTIVE_WINDOW')
-_NET_CLIENT_LIST = display.get_atom('_NET_CLIENT_LIST')
+#
+@functools.cache
+def _root():
+  return _display().screen().root
 
-gdk_display = GdkX11.X11Display.get_default()
+#
+@functools.cache
+def _atom(atom_name):
+  return _display().get_atom(atom_name)
 
+#
+@functools.cache
+def _Gdk():
+  import gi
+  gi.require_version('Gdk', '3.0')
+  from gi.repository import Gdk
+  return Gdk
+
+#
+@functools.cache
+def _GdkX11():
+  import gi
+  from gi.repository import GdkX11
+  return GdkX11
+
+#
+@functools.cache
+def _gdk_display():
+  return _GdkX11().X11Display.get_default()
+
+#
+@functools.cache
+def _Wnck():
+  import gi
+  gi.require_version('Wnck', '3.0')
+  from gi.repository import Wnck
+  return Wnck
+
+#
+@functools.cache
+def _wnck_screen():
+  return _Wnck().Screen.get_default()
+
+# ------------------------------------------------------------------------------
+
+#
+@functools.cache
 def get_desktop_width():
-  return root.get_full_property(
-    _NET_DESKTOP_GEOMETRY,
-    X.AnyPropertyType
+  return _root().get_full_property(
+    _atom('_NET_DESKTOP_GEOMETRY'),
+    _X().AnyPropertyType
   ).value[0]
 
-workspace_count = int(getenv('WORKSPACE_COUNT') or 1)
-workspace_width = get_desktop_width() / workspace_count
+#
+@functools.cache
+def get_workspace_count():
+  return int(_getenv('WORKSPACE_COUNT') or 1)
+
+#
+@functools.cache
+def get_workspace_width():
+  return int(get_desktop_width() / get_workspace_count())
 
 #
 def get_window_by_id(window_id):
-  return display.create_resource_object('window', window_id)
+  return _display().create_resource_object('window', window_id)
 
 #
 def get_gdk_window_by_id(window_id):
-  return GdkX11.X11Window.foreign_new_for_display(gdk_display, window_id)
+  return _GdkX11().X11Window.foreign_new_for_display(_gdk_display(), window_id)
+
+#
+def get_wnck_window_by_id(window_id):
+  _wnck_screen().force_update()
+  return _Wnck().Window.get(window_id)
 
 #
 def get_all_window_ids():
-  return root.get_full_property(_NET_CLIENT_LIST, X.AnyPropertyType).value;
+  return _root().get_full_property(
+    _atom('_NET_CLIENT_LIST'),
+    _X().AnyPropertyType
+  ).value;
 
 #
 def get_active_window_id():
-  return root.get_full_property(
-    _NET_ACTIVE_WINDOW,
-    X.AnyPropertyType
+  return _root().get_full_property(
+    _atom('_NET_ACTIVE_WINDOW'),
+    _X().AnyPropertyType
+  ).value[0]
+
+def get_pid_by_window_id(window_id):
+  window = get_window_by_id(window_id)
+
+  return window.get_full_property(
+    _atom('_NET_WM_PID'),
+    _X().AnyPropertyType,
+    8
   ).value[0]
 
 #
@@ -71,12 +143,29 @@ def is_window_id_on_current_workspace(window_id):
     parent_geometry = parent.get_geometry()
     x += parent_geometry.x
 
-    if parent.id == root.id:
+    if parent.id == _root().id:
       break
 
     window = parent
 
-  return 0 < x + (geometry.width / 2) < workspace_width
+  return 0 < x + (geometry.width / 2) < get_workspace_width()
+
+#
+def activate_window_by_id(window_id, switch_workspace = False):
+  if switch_workspace:
+    window = get_wnck_window_by_id(window_id)
+    window.activate(1)
+    return
+
+  window = get_window_by_id(window_id)
+  _display().set_input_focus(window, _X().RevertToParent, _X().CurrentTime)
+  window.configure(stack_mode = _X().Above)
+  _display().sync()
+
+#
+def close_window_by_id(window_id):
+  window = get_window_by_id(window_id)
+  window.destroy()
 
 #
 def get_pixel_rgba_at_window_id_coords(window_id, x, y):
@@ -89,9 +178,10 @@ def get_pixel_rgba_at_window_id_coords(window_id, x, y):
   if y < 0:
     y = geometry.height + y
 
-  pixbuf = Gdk.pixbuf_get_from_window(window, x, y, 1, 1)
+  pixbuf = _Gdk().pixbuf_get_from_window(window, x, y, 1, 1)
   return tuple(pixbuf.get_pixels())
 
 #
+@functools.cache
 def rgb_to_hex(rgb):
   return "#{:02X}{:02X}{:02X}".format(*rgb)
