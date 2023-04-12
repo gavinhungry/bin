@@ -65,6 +65,12 @@ def _wnck_screen():
 
 # ------------------------------------------------------------------------------
 
+# root.change_attributes(event_mask=X.SubstructureNotifyMask)
+# event = display.next_event()
+# if event.type == X.CreateNotify or event.type == X.UnmapNotify:
+
+# ------------------------------------------------------------------------------
+
 #
 @functools.cache
 def get_desktop_width():
@@ -122,7 +128,12 @@ def get_pid_by_window_id(window_id):
 #
 def window_id_has_wm_class(window_id, wm_class):
   window = get_window_by_id(window_id)
-  return wm_class in window.get_wm_class()
+
+  try:
+    wm_classes = window.get_wm_class()
+    return wm_class in wm_classes if wm_classes != None else False
+  except:
+    return False
 
 #
 def get_window_ids_by_wm_class(wm_class):
