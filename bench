@@ -1,0 +1,8 @@
+#!/bin/bash
+
+ITER=${1:-1}; shift
+CMD=$@
+
+time for I in $(seq 1 $ITER); do
+  $CMD &> /dev/null
+done
