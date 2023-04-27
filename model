@@ -8,9 +8,9 @@ if [ -d "$DT" ]; then
   echo
 elif [ -d "$DMI" ]; then
   NAMES=(
-    "$(cat $DMI/board_name)"
-    "$(cat $DMI/product_family)"
-    "$(cat $DMI/product_name)"
+    "$(kat $DMI/board_name)"
+    "$(kat $DMI/product_family)"
+    "$(kat $DMI/product_name)"
   )
 
   MODEL=
