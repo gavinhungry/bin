@@ -1,0 +1,33 @@
+#!/bin/bash
+
+CONFIG_FILE=$XDG_CONFIG_HOME/compiz-1/compizconfig/Default.ini
+ACTIVE_PLUGINS_KEY=s0_active_plugins
+
+list() {
+  grep "^${ACTIVE_PLUGINS_KEY}\s*=" $CONFIG_FILE | \
+  sed 's/^[^=]*=\s*//' | sed 's/;$//' | tr ';' '\n'
+}
+
+is_enabled() {
+  list | grep -q ^${1}$
+}
+
+enable() {
+  is_enabled $1 && return
+  update_list "$(list)\n${1}"
+}
+
+disable() {
+  update_list "$(list | grep -v ^${1}$)"
+}
+
+update_list() {
+  PLUGINS=$(echo -e "$@" | tr '\n' ';')
+  sed -r "s/^(${ACTIVE_PLUGINS_KEY}\s*=\s*).*/\1${PLUGINS}/" $CONFIG_FILE -i
+}
+
+case $1 in
+  list) list ;;
+  enable) enable $2 ;;
+  disable) disable $2 ;;
+esac
