@@ -1,66 +1,41 @@
 #!/bin/bash
 
-set -eo pipefail
 source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
 
 ([ $# -eq 0 ] || arge help) && usage '[options] PKGNAME [PKGNAME...]
-
-  -t, --testing     fetch from [testing] repository
-  -k, --trunk       fetch trunk
   -p, --pkgbuild    only fetch PKGBUILD and supporting files
-  -r, --raw         symlink to sources in-tree (remain in tmpdir)
   -h, --help        this message
 '
 
 export GNUPGHOME=/etc/pacman.d/gnupg
 
 PACKAGES_DIR="$HOME/devel/arch/packages"
-
 [ -d "$PACKAGES_DIR" ] || mkdir -p "$PACKAGES_DIR"
 
-GIT_URL='https://github.com/archlinux'
-AUR_URL="https://aur.archlinux.org"
-AUR_RPC="$AUR_URL/rpc.php?v=5&type"
+for PKG in $(nfargs); do
+  _PKG=$(expac -S '%e' $PKG)
+  [ "$_PKG" != '' -a "$_PKG" != '(null)' ] && PKG=$_PKG
 
-getPkgProp() {
-  local PKG=$1
-  local PROP=$2
-
-  pacman -Si "$PKG" 2> /dev/null | grep ^"$PROP" | awk '{print $NF}'
-}
-
-getAbsPkgbuild() {
-  local PKG=$(expac -S '%e' $1)
-  [ "$PKG" == '(null)' ] && PKG=$1
-
-  local TMP=$(tmpdir "$PKG")
-  cd "$TMP"
-
-  local REPO=$(getPkgProp "$PKG" Repository)
-  local ARCH=$(getPkgProp "$PKG" Architecture)
-
-  local GIT_REPO=svntogit-packages
-  [ "$REPO" == 'community' -o "$REPO" == 'multilib' ] && GIT_REPO=svntogit-community
-
-  if arge testing; then
-     [ "$REPO" == 'community' ] && REPO='community-testing' || REPO='testing'
+  REPO=$(pacman -Si "$PKG" 2> /dev/null | grep ^Repository | awk '{print $NF}')
+  if [ -z "$REPO" ]; then
+    warn "Unknown repo for package $PKG"
+    continue
   fi
 
-  local GIT_PKG_PATH="repos/$REPO-$ARCH"
-  arge trunk:k && GIT_PKG_PATH="trunk"
+  cd "$PACKAGES_DIR"
 
   msg "fetching $REPO/$PKG"
-  if ! git clone "$GIT_URL/$GIT_REPO.git" --single-branch -b packages/"$PKG"; then
-    warn 'Git fetch failed'
-    return
-  fi
-
   [ -d "$PACKAGES_DIR/$PKG" ] && warn "path $PACKAGES_DIR/$PKG already exists"
 
-  if arge raw; then
-    ln -s "$TMP/$GIT_REPO/$GIT_PKG_PATH" "$PACKAGES_DIR/$PKG"
+  if [ "$REPO" == 'aur' ]; then
+    git clone https://aur.archlinux.org/"$PKG"
   else
-    cp -r "$GIT_REPO/$GIT_PKG_PATH" "$PACKAGES_DIR/$PKG"
+    pkgctl repo clone "$PKG"
+  fi
+
+  if [ $? -ne 0 ]; then
+    warn 'Git fetch failed'
+    continue
   fi
 
   if ! arge pkgbuild; then
@@ -69,43 +44,4 @@ getAbsPkgbuild() {
   fi
 
   msg "$REPO/$PKG sources ready in ${PACKAGES_DIR#$HOME/}/$PKG"
-}
-
-getAurPkgbuild() {
-  local PKG=$1
-  local TMP=$(tmpdir "$PKG")
-  cd "$TMP"
-
-  local TAR_URL=$(curl -LfGs --data-urlencode "arg=$PKG" "$AUR_RPC=info" | jq -r .results[0].URLPath)
-  if [ -z "$TAR_URL" -o "$TAR_URL" == 'null' ]; then
-    err "$PKG not found in AUR"
-    return
-  fi
-
-  msg "fetching aur/$PKG"
-
-  if arge raw; then
-    git clone "$AUR_URL/$PKG".git
-    ln -s "$TMP/$PKG" "$PACKAGES_DIR/$PKG"
-  else
-    local TAR_FILE=$(basename "$TAR_URL")
-    wget -q "${AUR_URL}${TAR_URL}" -O "$TAR_FILE"
-    tar xfvz "$TAR_FILE" -C "$PACKAGES_DIR"
-  fi
-
-  cd "$PACKAGES_DIR/$PKG"
-
-  arge pkgbuild || makepkg -os --noconfirm
-  msg "aur/$PKG sources ready in ${PACKAGES_DIR#$HOME/}/$PKG"
-}
-
-for PKG in $(nfargs); do
-  [ "$PKG" != "$(fnfarg)" ] && echo
-  REPO=$(getPkgProp "$PKG" Repository)
-
-  [ "$REPO" == 'aur' ] &&
-    getAurPkgbuild "$PKG" ||
-    getAbsPkgbuild "$PKG"
 done
-
-arge raw || tmpdirclean
