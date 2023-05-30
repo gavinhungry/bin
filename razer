@@ -1,0 +1,31 @@
+#!/usr/bin/env python
+
+import getopt
+import sys
+
+from openrazer.client import DeviceManager
+device_manager = DeviceManager()
+
+def print_option(option, quiet = False):
+  for device in device_manager.devices:
+    value = getattr(device, option)
+
+    if (quiet):
+      print(value)
+      return
+
+    print (f"{ option }: {value}")
+
+args, _ = getopt.getopt(sys.argv[1:], 'o:q', ['option=', 'quiet'])
+
+option = None
+quiet = False
+
+for arg, val in args:
+  if arg in ('-o', '--option'):
+    option = val
+
+  if arg in ('-q', '--quiet'):
+    quiet = True
+
+print_option(option, quiet)
