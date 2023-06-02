@@ -5,7 +5,7 @@ source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
 DDC_CMD=
 XBL_CMD=set
 VAL=$(fnfarg)
-INCREMENT=${BACKLIGHT_INCREMENT:-2}
+INCREMENT=${BACKLIGHT_INCREMENT:-5}
 
 if arge down; then
   DDC_CMD=-
