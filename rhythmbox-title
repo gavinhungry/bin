@@ -1,0 +1,20 @@
+#!/bin/bash
+
+set -eo pipefail
+
+playerctl_rhythmbox() {
+  playerctl -p rhythmbox "$@" 2> /dev/null
+}
+
+STATUS=$(playerctl_rhythmbox status)
+[ "$STATUS" == 'Playing' ] || exit 1
+
+ARTIST_FIELD=artist
+GENRE=$(playerctl_rhythmbox metadata -f "{{xesam:genre}}")
+[ "$GENRE" == 'Podcast' ] && ARTIST_FIELD=album
+
+ARTIST=$(playerctl_rhythmbox metadata -f "{{xesam:${ARTIST_FIELD}}}")
+TITLE=$(playerctl_rhythmbox metadata -f "{{xesam:title}}")
+
+echo $ARTIST
+echo $TITLE

@@ -1,0 +1,17 @@
+#!/bin/bash
+
+set -eo pipefail
+
+CACHE_FILE=$XDG_CACHE_HOME/yt-music-metadata.json
+
+JSON=
+[ -e "$CACHE_FILE" ] && JSON=$(cat "$CACHE_FILE")
+
+PLAYING=$(echo "$JSON" | jq -r '.is_playing')
+[ "$PLAYING" == 'true' ] || exit 1
+
+ARTIST=$(echo "$JSON" | jq -r '.artist')
+TITLE=$(echo "$JSON" | jq -r '.title')
+
+echo $ARTIST
+echo $TITLE
