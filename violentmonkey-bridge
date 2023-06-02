@@ -1,0 +1,77 @@
+#!/usr/bin/env node
+
+const bodyParser = require('body-parser');
+const child_process = require('child_process');
+const express = require('express');
+const objectHash = require('object-hash');
+const fs = require('fs');
+
+const PORT = 9999;
+
+const API_KEY = process.env['VIOLENTMONKEY_BRIDGE_API_KEY'];
+if (!API_KEY) {
+  console.error('VIOLENTMONKEY_BRIDGE_API_KEY environment variable not set');
+  process.exit();
+}
+
+const writeJson = (path, obj) => {
+  fs.writeFileSync(path, JSON.stringify(obj, null, 2))
+};
+
+const CACHE = {};
+
+const ACTION = {
+  open_fx_url: (res, data) => {
+    if (!data) {
+      return res.status(400).end();
+    }
+
+    child_process.exec(`/usr/bin/firefox --new-tab "${data}"`);
+  },
+
+  yt_music_metadata: (res, data, cache) => {
+    if (data.beforeunload) {
+      data = null;
+    }
+
+    let hash = objectHash(data);
+    if (hash === cache.prev) {
+      return;
+    }
+
+    cache.prev = hash;
+
+    writeJson(`${process.env.XDG_CACHE_HOME}/yt-music-metadata.json`, data);
+  }
+};
+
+const api = new express();
+api.use(bodyParser());
+
+api.post('/', async (req, res) => {
+  if (req.headers.authorization !== API_KEY) {
+    return res.status(401).end();
+  }
+
+  let { action } = req.body;
+  if (!Object.hasOwn(ACTION, action)) {
+    return res.status(400).end();
+  }
+
+  let { data = null } = req.body;
+
+  if (!Object.hasOwn(CACHE, action)) {
+    CACHE[action] = {};
+  };
+
+  let cache = CACHE[action];
+
+  await ACTION[action](res, data, cache);
+
+  res.status(200).end();
+});
+
+// reverse proxied as https://bridge.localhost
+api.listen(PORT, () => {
+  console.debug(`Listening on port ${PORT}`);
+});
