@@ -1,0 +1,49 @@
+#!/usr/bin/env node
+
+const {
+  INTERVAL,
+  INTERVAL_MAX,
+  COMMANDS,
+  FAN_INPUTS,
+  CURVE
+} = require(`${process.env.XDG_LOCAL_HOME}/etc/fangd.json`);
+
+const { execSync } = require('child_process');
+const { globSync } = require('glob');
+
+const FAN_INPUT_PATHS = globSync(FAN_INPUTS);
+
+const mean = arr => arr.reduce((memo, num) => memo + num, 0) / arr.length;
+
+let results = [];
+let lastCurve = null;
+
+const update = () => {
+  let temps = COMMANDS.map(cmd => {
+    let temp = Number(execSync(cmd));
+    return temp > 1000 ? temp / 1000 : temp;
+  });
+
+  results.push(Math.max(...temps));
+  results = results.slice(Math.max(0, results.length - INTERVAL_MAX));
+
+  let avg = Math.round(mean(results));
+  let curve = (
+    CURVE.find(curve => curve.TEMP <= avg) ||
+    CURVE[CURVE.length - 1]
+  );
+
+  if (curve !== lastCurve) {
+    console.debug({ avg, curve });
+    lastCurve = curve;
+  }
+
+  // 40-fanpwm-rw
+  FAN_INPUT_PATHS.forEach(input => {
+    execSync(`echo ${curve.PWM} > ${input}`);
+  });
+
+  setTimeout(update, INTERVAL * 1000);
+};
+
+update();
