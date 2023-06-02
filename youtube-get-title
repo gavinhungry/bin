@@ -1,19 +1,15 @@
 #!/bin/bash
 
-CACHE_FILE=$XDG_CACHE_HOME/youtube-title.json
+set -eo pipefail
+
+CACHE_FILE=$XDG_CACHE_HOME/youtube-get-title.json
 
 URL=$1
 [ -z $URL ] && exit 1
 
 JSON=
-
-if [ -e "$CACHE_FILE" ]; then
-  JSON=$(cat "$CACHE_FILE")
-fi
-
-if [ -z "$JSON" ]; then
-  JSON='{}'
-fi
+[ -e "$CACHE_FILE" ] && JSON=$(cat "$CACHE_FILE")
+[ -z "$JSON" ] && JSON='{}'
 
 TITLE=$(echo "$JSON" | jq -r ".\"$URL\" | select( . != null )")
 
