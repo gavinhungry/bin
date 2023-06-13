@@ -10,8 +10,4 @@ JSON=
 PLAYING=$(echo "$JSON" | jq -r '.is_playing')
 [ "$PLAYING" == 'true' ] || exit 1
 
-ARTIST=$(echo "$JSON" | jq -r '.artist')
-TITLE=$(echo "$JSON" | jq -r '.title')
-
-echo $ARTIST
-echo $TITLE
+jq -r '.artist,.title' $CACHE_FILE
