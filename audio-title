@@ -8,7 +8,7 @@ DELIMITER=$(arg delimiter -)
   
 TITLE=
 while IFS= read -r LINE; do
-  LINE=${LINE% (*)}
+  LINE=$(echo $LINE | sed 's/ [[(][^])[(]*[])]//g')
   TITLE+="$LINE $DELIMITER "
 done <<< $(castctl-title || yt-music-title || rhythmbox-title)
 TITLE=${TITLE% $DELIMITER }
