@@ -1,0 +1,48 @@
+#!/bin/bash
+
+WATCH_FILE=$XDG_CACHE_HOME/viewport
+DISPLAY_WIDTH=$(xdpyinfo | awk '/dimensions:/ { print $2 }' | cut -dx -f1)
+
+get_xprop_width() {
+  awk '{ print $3 }' | cut -d, -f1
+}
+
+get_viewport_count() {
+  DESKTOP_WIDTH=$(xprop -root _NET_DESKTOP_GEOMETRY | get_xprop_width)
+  echo "scale=0; $DESKTOP_WIDTH / $DISPLAY_WIDTH" | bc
+}
+
+get_viewport_index_from_left() {
+  echo "scale=0; 1 + ($1 / $DISPLAY_WIDTH)" | bc
+}
+
+get_current_viewport_index() {
+  VIEWPORT_LEFT=$(xprop -root _NET_DESKTOP_VIEWPORT | get_xprop_width)
+  get_viewport_index_from_left $VIEWPORT_LEFT
+}
+
+set_viewport_index() {
+  wmctrl -o $(echo "scale=0; $DISPLAY_WIDTH * ($1 - 1)" | bc),0
+}
+
+case $1 in
+  watch)
+    PREV_VIEWPORT_INDEX=
+    xprop -spy -root _NET_DESKTOP_VIEWPORT | while read LINE; do
+      PREV_VIEWPORT_INDEX=$VIEWPORT_INDEX
+      VIEWPORT_INDEX=$(get_viewport_index_from_left $(echo $LINE | get_xprop_width))
+
+      echo -e "prev:$PREV_VIEWPORT_INDEX\ncurr:$VIEWPORT_INDEX" > "$WATCH_FILE"
+    done
+  ;;
+
+  count) get_viewport_count ;;
+  get) get_current_viewport_index ;;
+  set) set_viewport_index $2 ;;
+  prev)
+    if [ -e "$WATCH_FILE" ]; then
+      PREV_VIEWPORT_INDEX=$(grep ^prev: "$WATCH_FILE" | cut -d: -f2)
+      [ -n "$PREV_VIEWPORT_INDEX" ] && set_viewport_index $PREV_VIEWPORT_INDEX
+    fi
+  ;;
+esac
