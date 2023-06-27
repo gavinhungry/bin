@@ -1,7 +1,12 @@
 #!/bin/bash
 
 for ARG in "$@"; do
-  if [[ $ARG == irc://* ]]; then
+  if [[ $ARG == fx:* ]]; then
+    /usr/bin/firefox "${ARG#fx:}"
+    continue
+  fi
+
+  if [[ $ARG == irc:* ]]; then
     /usr/bin/xdg-open "ircs:${ARG#irc:}"
     continue
   fi
