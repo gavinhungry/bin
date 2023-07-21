@@ -1,49 +1,43 @@
 #!/usr/bin/env node
 
 const {
-  INTERVAL,
-  INTERVAL_MAX,
-  COMMANDS,
-  FAN_INPUTS,
-  CURVE
+  interval,
+  interval_max,
+  curve,
+  targets
 } = require(`${process.env.XDG_LOCAL_HOME}/etc/fangd.json`);
 
 const { execSync } = require('child_process');
 const { globSync } = require('glob');
 
-const FAN_INPUT_PATHS = globSync(FAN_INPUTS);
-
 const mean = arr => arr.reduce((memo, num) => memo + num, 0) / arr.length;
 
-let results = [];
-let lastCurve = null;
+targets.forEach(target => {
+  const pwmPaths = globSync(target.pwm);
 
-const update = () => {
-  let temps = COMMANDS.map(cmd => {
-    let temp = Number(execSync(cmd));
-    return temp > 1000 ? temp / 1000 : temp;
-  });
+  let temps = [];
+  let prev = null;
 
-  results.push(Math.max(...temps));
-  results = results.slice(Math.max(0, results.length - INTERVAL_MAX));
+  const update = () => {
+    let temp = Number(execSync(target.command));
+    temps.push(temp > 1000 ? temp / 1000 : temp);
+    temps = temps.slice(Math.max(0, temps.length - interval_max));
 
-  let avg = Math.round(mean(results));
-  let curve = (
-    CURVE.find(curve => curve.TEMP <= avg) ||
-    CURVE[CURVE.length - 1]
-  );
+    let avg = Math.round(mean(temps));
+    let item = curve.find(item => item.temp <= avg) || curve[curve.length - 1];
 
-  if (curve !== lastCurve) {
-    console.debug({ avg, curve });
-    lastCurve = curve;
-  }
+    if (item !== prev) {
+      console.debug(`${target.name}: ${item.pwm}`);
+      prev = item;
+    }
 
-  // 40-fanpwm-rw
-  FAN_INPUT_PATHS.forEach(input => {
-    execSync(`echo ${curve.PWM} > ${input}`);
-  });
+    // 40-fan-pwm-rw
+    pwmPaths.forEach(input => {
+      execSync(`echo ${item.pwm} > ${input}`);
+    });
 
-  setTimeout(update, INTERVAL * 1000);
-};
+    setTimeout(update, interval * 1000);
+  };
 
-update();
+  update();
+});
