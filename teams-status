@@ -1,28 +1,7 @@
-#!/usr/bin/python3
+#!/bin/bash
 
-import colorsys
-import pylon
+if ! xdotool search --classname "teams.microsoft.com" &> /dev/null; then
+  exit 1
+fi
 
-def main():
-  window_id = pylon.get_window_ids_by_wm_class('teams.microsoft.com')[0]
-  rgba = pylon.get_pixel_rgba_at_window_id_coords(window_id, -22, 37)
-
-  hsv = colorsys.rgb_to_hsv(rgba[0], rgba[1], rgba[2])
-  hue = hsv[0] * 360
-
-  if not hue or hsv[1] < 0.25 or hsv[2] < 100:
-    raise Exception('Invalid status color')
-
-  if 84 < hue < 88:
-    print('available')
-  elif 352 < hue < 356:
-    print('busy')
-  elif 40 < hue < 44:
-    print('away')
-  else:
-    raise Exception('No status')
-
-try:
-  main()
-except:
-  print('offline')
+jq -r .status ~/.cache/teams-state.json
