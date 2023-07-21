@@ -3,7 +3,12 @@
 set -eo pipefail
 source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
 
-confirm "Really re-write entire Git history?"
+ARGS='--all'
+
+# fatal: options not supported in --stdin mode
+arge n && ARGS="--max-count=$(arg n) HEAD"
+
+confirm "Really re-write Git history?"
 
 [ -z "$GPGKEY" ] && die 'GPGKEY not set'
 
@@ -23,6 +28,6 @@ git filter-branch -f --commit-filter '
   TIMESTAMP=$(echo $GIT_AUTHOR_DATE | cut -d\  -f1)
   [ "${TIMESTAMP#@}" -lt $KEY_TIMESTAMP ] && TIMESTAMP=@$KEY_TIMESTAMP
   FAKETIME= faketime "$TIMESTAMP" bash -c "git commit-tree -S $ARGS"
-' -- --all
+' -- $ARGS
 
 git gc --aggressive --prune=all
