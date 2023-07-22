@@ -29,6 +29,7 @@ update() {
   STATUS_COLOR=${STATUS_COLOR_MAP[$STATUS]}
   if [ -z "$STATUS_COLOR" ]; then
     echo "Unknown status: $STATUS"
+    busylight off
     return
   fi
 
