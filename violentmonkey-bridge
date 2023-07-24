@@ -27,6 +27,9 @@ const writeJsonToCacheFile = (pathName, data) => {
 const CACHE = {};
 
 const ACTION = {
+  /*
+   * Open URL from Chrome PWAs in Firefox
+   */
   open_fx_url: (res, data) => {
     if (!data) {
       return res.status(400).end();
@@ -35,10 +38,16 @@ const ACTION = {
     child_process.exec(`/usr/bin/firefox --new-tab "${data}"`);
   },
 
+  /*
+   * Record Teams state for external use
+   */
   report_teams_state: (res, data) => {
     writeJsonToCacheFile('teams-state.json', data);
   },
 
+  /*
+   * Record YouTube Music metadata for external use
+   */
   yt_music_metadata: (res, data, cache) => {
     if (data.beforeunload) {
       data = null;
