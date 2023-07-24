@@ -4,39 +4,59 @@ source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
 
 declare -A STATUS_COLOR_MAP
 
+DEFAULT_DELAY=2
+FLASH_DELAY=0.75
+
 STATUS_COLOR_MAP[available]='#003000'
 STATUS_COLOR_MAP[busy]='#000033'
 STATUS_COLOR_MAP[do_not_disturb]='#000033'
-STATUS_COLOR_MAP[be_right_back]='#3A1000'
-STATUS_COLOR_MAP[away]='#3A1000'
+STATUS_COLOR_MAP[be_right_back]='#441100'
+STATUS_COLOR_MAP[away]='#441100'
 
 STATUS_COLOR_MAP[in_a_call]='#440000'
+STATUS_COLOR_MAP[presenting]='#440000'
+STATUS_COLOR_MAP[presenting2]='#110000'
 
 LAST_STATUS=
 
+set_status_color() {
+  local STATUS_COLOR=${STATUS_COLOR_MAP[$1]}
+
+  if [ -z "$STATUS_COLOR" ]; then
+    busylight off
+    return
+  fi
+
+  echo $1
+  LAST_STATUS=$1
+  busylight on "$STATUS_COLOR"
+}
+
 update() {
-  STATUS=$(teams-status)
+  local STATUS=$(teams-status)
+
+  if [ "$LAST_STATUS" == 'presenting' ]; then
+    set_status_color presenting2
+    xsleep $FLASH_DELAY
+    update
+    return
+  fi
+
   [ "$STATUS" == "$LAST_STATUS" ] && return
 
-  LAST_STATUS=$STATUS
-  echo $STATUS
-
   if [ -z "$STATUS" -o "$STATUS" == 'offline' ]; then
-    busylight off
+    set_status_color off
     return
   fi
 
-  STATUS_COLOR=${STATUS_COLOR_MAP[$STATUS]}
-  if [ -z "$STATUS_COLOR" ]; then
-    echo "Unknown status: $STATUS"
-    busylight off
-    return
-  fi
-
-  busylight on "$STATUS_COLOR"
+  set_status_color $STATUS
 }
 
 while true; do
   update
-  xsleep 2
+
+  DELAY=$DEFAULT_DELAY
+  [ "$LAST_STATUS" == 'presenting' ] && DELAY=$FLASH_DELAY
+
+  xsleep $DELAY
 done
