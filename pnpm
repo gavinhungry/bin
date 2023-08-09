@@ -1,8 +1,10 @@
 #!/bin/bash
 
-if [ "$1" == 'run' ]; then
-  shift
-  exec /usr/bin/pnpm --silent run "$@"
-fi
+PNPM=/usr/bin/pnpm
+
+case "$1" in
+  d|deps) shift; exec $PNPM install --frozen-lockfile ;;
+  run) shift; exec $PNPM --silent run "$@" ;;
+esac
 
 exec /usr/bin/pnpm "$@"
