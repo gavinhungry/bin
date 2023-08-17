@@ -4,6 +4,9 @@
 lsblk -n | grep '\sdisk\s*$' | while read LINE; do
   DISK=$(echo "$LINE" | awk '{ print $1 }')
 
+  REMOVABLE=$(cat /sys/class/block/$DISK/removable)
+  [ "$REMOVABLE" == 1 ] && continue
+
   VENDOR=$(cat /sys/class/block/$DISK/device/vendor 2> /dev/null | xargs)
   MODEL=$(cat /sys/class/block/$DISK/device/model 2> /dev/null | xargs)
   [ "$MODEL" == 'MassStorageClass' ] && continue
