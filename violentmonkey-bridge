@@ -17,7 +17,7 @@ if (!API_KEY) {
 const writeJsonToCacheFile = (pathName, data) => {
   return fs.writeFileSync(
     `${process.env.XDG_CACHE_HOME}/${pathName}`,
-    JSON.stringify(data, null, 2),
+    JSON.stringify(data, null, 2) + '\n',
     {
       mode: 0o600
     }
