@@ -1,0 +1,10 @@
+[Unit]
+Description=Chromecast Control
+
+[Service]
+EnvironmentFile=/etc/environment
+ExecStart=/home/gavin/bin/services/castd
+Restart=always
+
+[Install]
+WantedBy=default.target

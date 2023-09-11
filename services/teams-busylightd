@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
+source $(dirname "${BASH_SOURCE[0]}")/../.abash/abash.sh
 
 declare -A STATUS_COLOR_MAP
 

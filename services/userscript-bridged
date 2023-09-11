@@ -8,9 +8,9 @@ const fs = require('fs');
 
 const PORT = 9999;
 
-const API_KEY = process.env['VIOLENTMONKEY_BRIDGE_API_KEY'];
+const API_KEY = process.env['USERSCRIPT_BRIDGE_API_KEY'];
 if (!API_KEY) {
-  console.error('VIOLENTMONKEY_BRIDGE_API_KEY environment variable not set');
+  console.error('USERSCRIPT_BRIDGE_API_KEY environment variable not set');
   process.exit();
 }
 
