@@ -15,7 +15,7 @@ from gi.repository import GLib, Gtk
 import warnings
 warnings.filterwarnings('ignore', category=DeprecationWarning)
 
-class TeamsNotify:
+class TeamsIcon:
   def __init__(self):
     self.TEAMS_APP_NAME = 'Microsoft Teams'
 
@@ -131,4 +131,4 @@ class TeamsNotify:
 
 if __name__ == '__main__':
   signal.signal(signal.SIGINT, signal.SIG_DFL)
-  TeamsNotify()
+  TeamsIcon()

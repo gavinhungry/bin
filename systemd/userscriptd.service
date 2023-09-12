@@ -1,12 +1,12 @@
 [Unit]
-Description=Fang Fan Control
+Description=Userscript Bridge
 Requires=xfce4-session.target
 After=xfce4-session.target
 
 [Service]
 EnvironmentFile=/home/gavin/.config/user-dirs.dirs
 Environment=NODE_PATH=/home/gavin/.local/lib/node_modules
-ExecStart=/home/gavin/bin/services/fangd
+ExecStart=/home/gavin/bin/userscriptd
 KillSignal=SIGINT
 
 [Install]
