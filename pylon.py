@@ -81,13 +81,13 @@ def get_desktop_width():
 
 #
 @functools.cache
-def get_workspace_count():
-  return int(_getenv('WORKSPACE_COUNT') or 1)
+def get_viewport_count():
+  return int(_getenv('VIEWPORT_COUNT') or 1)
 
 #
 @functools.cache
-def get_workspace_width():
-  return int(get_desktop_width() / get_workspace_count())
+def get_viewport_width():
+  return int(get_desktop_width() / get_viewport_count())
 
 #
 def get_window_by_id(window_id):
@@ -144,7 +144,7 @@ def get_window_ids_by_wm_class(wm_class):
   ]
 
 #
-def is_window_id_on_current_workspace(window_id):
+def is_window_id_on_current_viewport(window_id):
   window = get_window_by_id(window_id)
   geometry = window.get_geometry()
   x = geometry.x
@@ -159,11 +159,11 @@ def is_window_id_on_current_workspace(window_id):
 
     window = parent
 
-  return 0 < x + (geometry.width / 2) < get_workspace_width()
+  return 0 < x + (geometry.width / 2) < get_viewport_width()
 
 #
-def activate_window_by_id(window_id, switch_workspace = False):
-  if switch_workspace:
+def activate_window_by_id(window_id, switch_viewport = False):
+  if switch_viewport:
     window = get_wnck_window_by_id(window_id)
     window.activate(1)
     return

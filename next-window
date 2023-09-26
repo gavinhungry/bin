@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 #
-# Focuses next window matching active WM_CLASS on current workspace
+# Focuses next window matching active WM_CLASS on current viewport
 #
 
 import pylon
@@ -22,7 +22,7 @@ def window_id_matches(window_id):
     and not window.get_wm_transient_for()
     and window.get_wm_class()[0] == active_wm_class
     and window.get_wm_client_machine() == active_wm_client
-    and pylon.is_window_id_on_current_workspace(window_id)
+    and pylon.is_window_id_on_current_viewport(window_id)
   )
 
 window_ids = [
