@@ -13,6 +13,7 @@ STATUS_COLOR_MAP[do_not_disturb]='#000033'
 STATUS_COLOR_MAP[be_right_back]='#441100'
 STATUS_COLOR_MAP[away]='#441100'
 
+STATUS_COLOR_MAP[in_a_meeting]='#440000'
 STATUS_COLOR_MAP[in_a_call]='#440000'
 STATUS_COLOR_MAP[presenting]='#440000'
 STATUS_COLOR_MAP[presenting2]='#110000'
