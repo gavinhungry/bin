@@ -1,3 +1,15 @@
 #!/bin/bash
 
-scanimage --format=png | convert - -trim ${1:-scanned.png}
+DEFAULT_DPI=300
+
+source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
+arg help && usage "[options]
+  -d, --dpi         resolution of scanned image ($DEFAULT_DPI)
+  -h, --help        this message
+"
+
+DPI=$(arg dpi $DEFAULT_DPI)
+OUT="./scan-$(epoch).png"
+
+scanimage -p --resolution=$DPI --format=png |\
+  convert - -trim "$OUT"
