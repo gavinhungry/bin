@@ -1,0 +1,12 @@
+#!/bin/bash
+
+clear
+echo
+
+exec /usr/bin/neofetch \
+  --ascii_bold off \
+  --separator '\n' \
+  --gap 4 \
+  --refresh_rate on \
+  --memory_unit gib \
+  "$@"
