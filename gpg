@@ -1,0 +1,12 @@
+#!/bin/bash
+
+source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
+
+if [ \
+  "$(arg list-secret-key:K)" == "$GPGKEY" -o \
+  "$(arg local-user:u)" == "$GPGKEY" \
+]; then
+  export GNUPGHOME=${HOME}/.gnupg
+fi
+
+exec /usr/bin/gpg "$@"
