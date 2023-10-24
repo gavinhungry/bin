@@ -5,6 +5,10 @@ source "$(dirname "${BASH_SOURCE[0]}")"/.abash/abash.sh
 
 UA=$(chromium-user-agent 2> /dev/null)
 MODEL=${1:-$(grep -m1 '^model name' /proc/cpuinfo | sed -r 's/.*(i[[:digit:]][^\ ]*).*/\1/' )}
+
+# Remove Core prefix
+MODEL=${MODEL#i[3579]-}
+
 SEARCH=$(curl -A "$UA" -sL "https://ark.intel.com/content/www/us/en/ark/search.html?_charset_=UTF-8&q=${MODEL}")
 
 LINKS=(
