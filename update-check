@@ -1,0 +1,9 @@
+#!/bin/bash
+
+PKG_COUNT=$(/usr/bin/checkupdates | wc -l)
+[ $PKG_COUNT -eq 0 ] && exit
+
+PKGS_STRING=package
+[ $PKG_COUNT -gt 1 ] && PKGS_STRING=packages
+
+echo "$PKG_COUNT $PKGS_STRING to update"
