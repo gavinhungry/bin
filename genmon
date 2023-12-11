@@ -1,0 +1,11 @@
+#!/bin/bash
+
+source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
+
+COMMAND=$(arg command)
+TOOLTIP=$(arg tooltip)
+
+cat <<EOF
+<txt>$(${COMMAND})</txt>
+<tool>$(${TOOLTIP})</tool>
+EOF
