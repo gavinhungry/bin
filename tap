@@ -1,0 +1,5 @@
+#!/bin/bash
+
+source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
+
+exec surveil "$1" 'clear; echo $1; echo; date; hr; $(realpath "$1")'
