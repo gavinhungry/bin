@@ -30,7 +30,9 @@ print_motd_warning() {
 }
 
 print_motd_banner
-echo -e "\n $(uname -sr) ($(uptime -p))"
+echo
+[ -n "$SSH_TTY" ] && echo -e " $(sshd -V 2>&1)"
+echo -e " $(uname -sr) ($(uptime -p))"
 print_motd_body
 arge warning && print_motd_warning
 echo
