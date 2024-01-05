@@ -1,0 +1,5 @@
+#!/bin/bash
+
+while read -r LINE; do
+  printf "%q\n" "$LINE"
+done < "${1:-/dev/stdin}"
