@@ -1,0 +1,5 @@
+#!/bin/bash
+
+source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
+
+exec $TERMINAL -T $(arg title "$USER@$HOSTNAME") -e $(arg command /bin/bash)
