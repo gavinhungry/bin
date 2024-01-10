@@ -44,6 +44,13 @@ class TeamsIcon:
 
   #
   def init_dbus(self):
+    #
+    # The notification handling no longer works with dbus-broker, as eavesdrop
+    # support has been removed for security. Will need to investigate another
+    # solution for handling notifications.
+    #
+    return
+
     bus = dbus.SessionBus()
     bus.add_match_string('interface=org.freedesktop.Notifications,member=Notify,eavesdrop=true')
     bus.add_message_filter(self.handle_dbus_notification)
