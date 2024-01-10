@@ -1,5 +1,6 @@
 #!/bin/bash
 
-source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
+export PROG=$(realpath "$1")
+[ -x "$PROG" ] || exit 1
 
-exec surveil "$1" 'clear; echo $1; echo; date; hr; $(realpath "$1")'
+exec surveil "$1" 'echo $1; echo; date; hr; $PROG'
