@@ -1,13 +1,4 @@
 #!/bin/bash
 
-source "$(dirname "${BASH_SOURCE[0]}")"/.abash/abash.sh
-
-ROOT=$(pwd)
-DIRS=(*/)
-
-for DIR in "${DIRS[@]}"; do
-  PKG="${DIR%/}"
-
-  [ "$DIR" == "${DIRS[0]}" ] && bannerline -f "$PKG" || bannerline "$PKG"
-  cd "$ROOT/$PKG" && makepkg --noconfirm "$@"
-done
+exec forp -n 3 --command "cd {} && makepkg --noconfirm $@" --shell --args \
+  "$(find . -mindepth 1 -maxdepth 1 -type d -exec realpath {} \;)"
