@@ -1,0 +1,17 @@
+#!/bin/bash
+
+source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
+
+N=$(arg n 2)
+CMD=$(arg command echo)
+ARGS=$(arg args)
+
+run() {
+  echo "$ARGS" | xargs -P $N -d'\n' -I {} "$@"
+}
+
+if arge shell; then
+  run bash -c "$CMD"
+else
+  run $CMD {}
+fi
