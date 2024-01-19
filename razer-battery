@@ -1,6 +1,11 @@
 #!/usr/bin/env python
 
-from openrazer.client import DeviceManager
+import sys
+
+try:
+  from openrazer.client import DeviceManager
+except ImportError:
+  sys.exit()
 
 for device in DeviceManager().devices:
   print(f"{device.name}: {device.battery_level}%")
