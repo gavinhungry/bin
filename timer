@@ -1,0 +1,135 @@
+#!/usr/bin/env python
+
+import datetime
+import gi
+import pint
+import re
+import signal
+import subprocess
+import sys
+import time
+
+import warnings
+warnings.filterwarnings('ignore', category=DeprecationWarning)
+
+gi.require_version('Gtk', '3.0')
+from gi.repository import GLib, Gtk
+
+class Timer:
+  #
+  def __init__(self, seconds, message):
+    self.seconds = seconds
+    self.message = message
+
+    self.icon = Gtk.StatusIcon()
+    self.icon.connect('popup-menu', self.on_context)
+
+    signal.signal(signal.SIGINT, self.quit)
+    self.start()
+
+  #
+  def start(self):
+    self.start_time = time.time()
+
+    self.update()
+    GLib.timeout_add(1000, self.update)
+
+    Gtk.main()
+
+  #
+  def on_context(self, icon, button, time):
+    cancel = Gtk.MenuItem()
+    cancel.set_label('Cancel Timer')
+    cancel.connect('activate', self.quit)
+
+    add_5m = Gtk.MenuItem()
+    add_5m.set_label('+ 5 minutes')
+    add_5m.connect('activate', self.add_seconds, 60 * 5)
+
+    add_10m = Gtk.MenuItem()
+    add_10m.set_label('+ 10 minutes')
+    add_10m.connect('activate', self.add_seconds, 60 * 10)
+
+    add_15m = Gtk.MenuItem()
+    add_15m.set_label('+ 15 minutes')
+    add_15m.connect('activate', self.add_seconds, 60 * 15)
+
+    add_30m = Gtk.MenuItem()
+    add_30m.set_label('+ 30 minutes')
+    add_30m.connect('activate', self.add_seconds, 60 * 30)
+
+    menu = Gtk.Menu()
+
+    menu.append(add_5m)
+    menu.append(add_10m)
+    menu.append(add_15m)
+    menu.append(add_30m)
+
+    sep = Gtk.SeparatorMenuItem()
+    menu.append(sep)
+    menu.append(cancel)
+
+    menu.show_all()
+    menu.popup(None, None, None, Gtk.StatusIcon.position_menu, button, time)
+
+  #
+  def add_seconds(self, menuitem, seconds_to_add = 0):
+    self.seconds += seconds_to_add
+
+  #
+  def update(self):
+    current_time = time.time()
+    elapsed_seconds = round(current_time - self.start_time)
+    remaining_seconds = self.seconds - elapsed_seconds
+    completion = elapsed_seconds / self.seconds
+
+    icon_index = round(61 - (61 * completion))
+    if (icon_index <= 0):
+      icon_index = 0
+
+    icon_name = 'pomodoro-indicator-light-{}'.format(str(icon_index).zfill(2))
+    self.icon.set_from_icon_name(icon_name)
+
+    remaining_str = datetime.timedelta(seconds=remaining_seconds)
+    tooltip = '{} remaining'.format(remaining_str)
+    if self.message:
+      tooltip += ' - {}'.format(self.message)
+
+    self.icon.set_tooltip_text(tooltip)
+
+    if completion >= 1:
+      self.notify()
+      self.quit()
+
+    return True
+
+  #
+  def notify(self):
+    subprocess.run([
+      '/usr/bin/notify-send',
+      '--expire-time=0',
+      'Timer expired',
+      self.message
+    ])
+
+  #
+  def quit(self, *_args):
+    Gtk.main_quit()
+
+if __name__ == '__main__':
+  args = sys.argv[1:]
+
+  ureg = pint.UnitRegistry()
+  ureg.define('m = minutes')
+  ureg.define('s = seconds')
+  ureg.define('h = hours')
+  ureg.define('d = days')
+
+  duration = ureg('0s')
+  for s in re.findall('[0-9]+[a-z]', args[0]):
+    duration += ureg(s)
+
+  seconds = int(duration.magnitude)
+  message = ' '.join(args[1:])
+
+  timer = Timer(seconds, message)
