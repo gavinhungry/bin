@@ -77,38 +77,54 @@ class Timer:
     self.seconds += seconds_to_add
 
   #
+  def set_icon_index(self, icon_index):
+    if (icon_index < 0):
+      icon_index = 0
+
+    if (icon_index > 61):
+      icon_index = 61
+
+    icon_suffix = str(icon_index).zfill(2)
+    self.set_icon_suffix(icon_suffix)
+
+  #
+  def set_icon_suffix(self, icon_suffix):
+    icon_name = 'pomodoro-indicator-light-{}'.format(icon_suffix)
+
+    self.icon.set_from_icon_name(icon_name)
+    Gtk.main_iteration_do(True)
+
+  #
   def update(self):
     current_time = time.time()
     elapsed_seconds = round(current_time - self.start_time)
     remaining_seconds = self.seconds - elapsed_seconds
     completion = elapsed_seconds / self.seconds
 
-    icon_index = round(61 - (61 * completion))
-    if (icon_index <= 0):
-      icon_index = 0
+    if completion < 1:
+      icon_index = round(61 - (61 * completion))
+      self.set_icon_index(icon_index)
 
-    icon_name = 'pomodoro-indicator-light-{}'.format(str(icon_index).zfill(2))
-    self.icon.set_from_icon_name(icon_name)
+      remaining_str = datetime.timedelta(seconds=remaining_seconds)
+      tooltip_text = '{} remaining'.format(remaining_str)
+      if self.message:
+        tooltip_text += ' - {}'.format(self.message)
 
-    remaining_str = datetime.timedelta(seconds=remaining_seconds)
-    tooltip = '{} remaining'.format(remaining_str)
-    if self.message:
-      tooltip += ' - {}'.format(self.message)
+      self.icon.set_tooltip_text(tooltip_text)
+      return True
 
-    self.icon.set_tooltip_text(tooltip)
-
-    if completion >= 1:
-      self.notify()
-      self.quit()
-
-    return True
+    self.set_icon_suffix('end')
+    Gtk.main_iteration_do(True)
+    self.notify()
+    self.quit()
 
   #
   def notify(self):
     subprocess.run([
       '/usr/bin/notify-send',
       '--expire-time=0',
-      'Timer expired',
+      '--wait',
+      'Timer complete',
       self.message
     ])
 
