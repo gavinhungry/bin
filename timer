@@ -120,11 +120,13 @@ class Timer:
 
   #
   def notify(self):
+    time_str = datetime.datetime.now().strftime('%l:%M %p').strip()
+
     subprocess.run([
       '/usr/bin/notify-send',
       '--expire-time=0',
       '--wait',
-      'Timer complete',
+      'Timer complete ({})'.format(time_str),
       self.message
     ])
 
