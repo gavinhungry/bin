@@ -106,9 +106,9 @@ class Timer:
       self.set_icon_index(icon_index)
 
       remaining_str = datetime.timedelta(seconds=remaining_seconds)
-      tooltip_text = '{} remaining'.format(remaining_str)
+      tooltip_text = remaining_str
       if self.message:
-        tooltip_text += ' - {}'.format(self.message)
+        tooltip_text = '{} ({})'.format(self.message, remaining_str)
 
       self.icon.set_tooltip_text(tooltip_text)
       return True
