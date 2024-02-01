@@ -59,7 +59,7 @@ chromium \
   --no-pings \
   --no-first-run \
   --window-size=1920,1200 \
-  --proxy-server=socks5h://127.0.0.1:9050 \
+  --proxy-server=socks://127.0.0.1:9050 \
   --user-agent="$USER_AGENT" \
   'https://check.torproject.org'
 
