@@ -2,10 +2,12 @@
 
 source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
 
+entity() { sed 's/&/&amp;/g' ;}
+
 COMMAND=$(arg command)
 TOOLTIP=$(arg tooltip)
 
 cat <<EOF
-<txt>$(${COMMAND})</txt>
-<tool>$(${TOOLTIP})</tool>
+<txt>$(${COMMAND} | entity)</txt>
+<tool>$(${TOOLTIP} | entity)</tool>
 EOF
