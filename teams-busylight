@@ -24,6 +24,7 @@ set_status_color() {
   local STATUS_COLOR=${STATUS_COLOR_MAP[$1]}
 
   if [ -z "$STATUS_COLOR" ]; then
+    LAST_STATUS=
     busylight off
     return
   fi
