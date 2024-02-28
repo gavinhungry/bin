@@ -1,8 +1,13 @@
 #!/bin/bash
 
-ARGS=""
+ARGS=' -t screen'
+
 if [[ "$1" = :* ]]; then
-  ARGS+=" -t ${1#:} -S ${1#:}"
+  TITLE=${1#:}
+  if [ -n "$TITLE" ]; then
+    ARGS=" -t ${1#:} -S ${1#:}"
+  fi
+
   shift
 fi
 
