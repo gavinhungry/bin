@@ -1,7 +1,7 @@
 #!/bin/bash
 
 lspci -mm | grep 'VGA compatible controller\|3D controller' | while read -r VGA ; do
-  VENDOR=$(echo $VGA | cut -d'"' -f4)
+  VENDOR=$(echo $VGA | cut -d'"' -f4 | sed 's/ Corporation//g')
   MODEL_FULL=$(echo $VGA | cut -d'"' -f6)
   MODEL_NAME=$(echo $MODEL_FULL | cut -d'[' -f2 | cut -d']' -f1 | sed -r 's/^(.*)Rev\. .*/\1/')
   MODEL_NUM=$(echo $MODEL_FULL | cut -d'[' -f1)
