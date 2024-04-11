@@ -1,6 +1,6 @@
 #!/bin/bash
 
-exec rofi -normal-window -disable-history \
+exec rofi -kb-cancel 'Escape,Pause' -disable-history \
   -modi combi -show combi -combi-modi drun,run \
   -drun-display-format "{name}" -drun-match-fields name \
   -sort -sorting-method levenshtein \
