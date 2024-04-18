@@ -4,8 +4,7 @@ source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
 DELIMITER=$(arg delimiter /)
 OUTPUT="$(cpu-util || echo ?) $DELIMITER $(cpu-temp $(pfarg core) || echo ?)"
 
-if arge ibm-fan; then
-  OUTPUT+=" $DELIMITER $(ibm-fan)"
-fi
+arge ibm-fan && OUTPUT+=" $DELIMITER $(ibm-fan)"
+OUTPUT=$(enpad "$OUTPUT" $(arg padding 0))
 
-echo $OUTPUT
+echo "$OUTPUT"
