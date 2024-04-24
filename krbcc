@@ -1,0 +1,7 @@
+#!/bin/bash
+
+KRB_ID=$1
+DEFAULT_ID=${2:-$USER}
+[ -z "$KRB_ID" -o "$KRB_ID" = "$DEFAULT_ID" ] && KRB_ID=$(id -u)
+
+echo /tmp/krb5cc_${KRB_ID}
