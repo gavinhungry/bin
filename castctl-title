@@ -1,18 +1,14 @@
 #!/bin/bash
 
-playerctl_castctl() {
-  playerctl -p $CASTCTL_PLAYER_NAME "$@" 2> /dev/null
-}
-
-STATUS=$(playerctl_castctl status)
+STATUS=$(playerctl-castctl status)
 [ "$STATUS" == 'Playing' ] || exit 1
 
 ARTIST_FIELD=artist
-GENRE=$(playerctl_castctl metadata -f "{{xesam:genre}}")
+GENRE=$(playerctl-castctl metadata -f "{{xesam:genre}}")
 [ "$GENRE" == 'Podcast' ] && ARTIST_FIELD=album
 
-ARTIST=$(playerctl_castctl metadata -f "{{xesam:${ARTIST_FIELD}}}")
-TITLE=$(playerctl_castctl metadata -f "{{xesam:title}}")
+ARTIST=$(playerctl-castctl metadata -f "{{xesam:${ARTIST_FIELD}}}")
+TITLE=$(playerctl-castctl metadata -f "{{xesam:title}}")
 
 echo $ARTIST
 echo $TITLE

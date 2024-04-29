@@ -1,0 +1,3 @@
+#!/bin/bash
+
+PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python exec $HOME/.local/bin/castctl "$@"

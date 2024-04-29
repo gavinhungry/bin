@@ -3,7 +3,7 @@ Description=Chromecast Control
 
 [Service]
 EnvironmentFile=/etc/environment
-ExecStart=/home/gavin/bin/castd
+ExecStart=/home/gavin/bin/castctld
 Restart=always
 
 [Install]
