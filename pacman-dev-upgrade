@@ -1,3 +1,6 @@
 #!/bin/bash
 
-exec pacman -S $(pacman -Qq | grep -E "\-(git|hg|svn|bzr)\b") "$@"
+exec pacman -S $(
+  pacman -Qq | grep -E "\-(git|hg|svn|bzr)\b" |\
+    xargs -I{} bash -c 'pacman -Si {} > /dev/null && echo {}'
+) "$@"
