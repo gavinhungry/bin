@@ -18,7 +18,7 @@ if [ -z "$(getPkgVer local/nodejs)" ]; then
   echo
   bannerline -f 'Installing Node'
   # https://unix.stackexchange.com/questions/274727
-  pacman -S community/nodejs --noconfirm --ask 4
+  pacman -S extra/nodejs --noconfirm --ask 4
 fi
 
 if pacman -Qdttq &> /dev/null; then
