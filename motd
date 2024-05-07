@@ -4,6 +4,7 @@ source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
 
 MOTD_FILE=/etc/motd
 MOTD_BANNER_FILE=/etc/motd-banner
+MOTD_TAGLINE_FILE=/etc/motd-tagline
 MOTD_WARNING_FILE=/etc/motd-warning
 
 indent() {
@@ -18,6 +19,7 @@ print_motd_file() {
 print_motd_banner() {
   echo -en "\e[1;$(prompt-color $(pfarg color))m"
   print_motd_file $MOTD_BANNER_FILE
+  print_motd_file $MOTD_TAGLINE_FILE
   echo -en '\e[0m'
 }
 
