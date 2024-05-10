@@ -1,0 +1,43 @@
+#!/usr/bin/env node
+
+const colors = require('colors');
+const sanitizeHtml = require('sanitize-html');
+const wrap = require('ipo-lib/modules/wrap');
+const dieWithError = require('ipo-lib/modules/dieWithError');
+
+const main = async () => {
+  if (!process.env.BIOS_PRODUCT) {
+    throw new Error('BIOS_PRODUCT not defined');
+  }
+
+  const BIOS_URL = `https://us.msi.com/api/v1/product/support/panel?type=bios&product=${process.env.BIOS_PRODUCT}`;
+
+  let res = await fetch(BIOS_URL);
+  let json = await res.json();
+
+  let latest = json.result.downloads['AMI BIOS'][0];
+
+  let description = sanitizeHtml(latest.download_description, {
+    allowedTags: []
+  });
+
+  description = wrap(description, {
+    indent: 4
+  });
+
+  description = description.split('\n').map(line => {
+    return line.replace(/^-\s*/, '  - ');
+  }).join('\n');
+
+  console.log(`
+${colors.bold.blue('Date')}     ${latest.download_release}
+${colors.bold.blue('Version')}  ${latest.download_version}
+${colors.bold.blue('Download')} ${latest.download_url}
+
+${colors.bold.blue('Description')}
+
+${description}
+  `);
+};
+
+main().catch(dieWithError);
