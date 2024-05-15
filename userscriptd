@@ -46,6 +46,13 @@ const ACTION = {
   },
 
   /*
+   * Report outgoing Teams notifications (for desktop integration)
+   */
+  teams_notification: (res, data) => {
+    writeJsonToCacheFile('teams-notification.json', data);
+  },
+
+  /*
    * Record YouTube Music metadata for external use
    */
   yt_music_metadata: (res, data, cache) => {
