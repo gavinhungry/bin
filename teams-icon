@@ -1,12 +1,10 @@
 #!/usr/bin/env python
 
-import os
+from os import getenv, utime
+import dbus
+import json
 import pylon
 import signal
-
-import dbus
-from dbus.mainloop.glib import DBusGMainLoop
-DBusGMainLoop(set_as_default=True)
 
 import gi
 gi.require_version('Gtk', '3.0')
@@ -14,6 +12,11 @@ from gi.repository import GLib, Gtk
 
 import warnings
 warnings.filterwarnings('ignore', category=DeprecationWarning)
+
+from watchdog.observers import Observer
+from watchdog.events import FileSystemEventHandler, FileModifiedEvent
+
+XDG_CACHE_HOME = getenv('XDG_CACHE_HOME')
 
 class TeamsIcon:
   def __init__(self):
@@ -23,11 +26,14 @@ class TeamsIcon:
     self.TEAMS_ICON_ONLINE  = 'teams-online'
     self.TEAMS_ICON_NOTIFY  = 'teams-notify'
 
+    self.NOTIFICATION_PATH = f"{XDG_CACHE_HOME}/teams-notification.json"
+
     self.ICON_CHECK_DURATION = 2000
     self.ICON_FLASH_DURATION = 500
 
     self.init_icon()
     self.init_dbus()
+    self.init_watchdog()
     GLib.MainLoop().run()
 
   #
@@ -44,16 +50,45 @@ class TeamsIcon:
 
   #
   def init_dbus(self):
-    #
-    # The notification handling no longer works with dbus-broker, as eavesdrop
-    # support has been removed for security. Will need to investigate another
-    # solution for handling notifications.
-    #
-    return
+    self.notify_if = dbus.Interface(
+      dbus.SessionBus().get_object(
+        'org.freedesktop.Notifications',
+        '/org/freedesktop/Notifications'
+      ),
+      'org.freedesktop.Notifications'
+    )
 
-    bus = dbus.SessionBus()
-    bus.add_match_string('interface=org.freedesktop.Notifications,member=Notify,eavesdrop=true')
-    bus.add_message_filter(self.handle_dbus_notification)
+  #
+  def init_watchdog(self):
+    with open(self.NOTIFICATION_PATH, 'a'):
+      utime(self.NOTIFICATION_PATH, None)
+
+    handler = FileSystemEventHandler()
+    handler.on_modified = self.handle_notification_event
+
+    observer = Observer()
+    observer.schedule(handler, path=self.NOTIFICATION_PATH, recursive=False)
+    observer.start()
+
+  #
+  def handle_notification_event(self, event):
+    if not isinstance(event, FileModifiedEvent):
+      return
+
+    with open(self.NOTIFICATION_PATH, 'r') as file:
+      data = json.load(file)
+      self.handle_notification(data)
+
+  #
+  def handle_notification(self, data):
+    self.notify_if.Notify(
+      "", 0, "",
+      "Microsoft Teams",
+      f"{data.get('title', '')}\n\n{data.get('body', '')}".strip(),
+      [], {}, -1
+    )
+
+    self.flash_icon(True)
 
   #
   def on_icon_click(self, icon):
@@ -75,15 +110,6 @@ class TeamsIcon:
       return pylon.window_id_has_wm_class(active_window_id, self.TEAMS_WM_CLASS)
     except:
       return False
-
-  #
-  def handle_dbus_notification(self, bus, msg):
-    args = msg.get_args_list()
-    if len(args) < 5:
-      return
-
-    if 'teams.microsoft.com' in args[4]:
-      self.flash_icon(True)
 
   #
   def reset_icon(self):
