@@ -1,0 +1,18 @@
+#!/bin/bash
+
+source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
+istty || exec termwin -t fastfetch -c 'pause fastfetch'
+
+clear
+echo
+
+exec /usr/bin/fastfetch \
+  --disk-show-regular false \
+  --localip-show-ipv4 false \
+  --localip-show-ipv6 false \
+  --lib-xfconf /dev/null \
+  --display-key Display \
+  --percent-type 0 \
+  --separator ' ' \
+  --title-color-host "$(prompt-color --color)" \
+  "$@"
