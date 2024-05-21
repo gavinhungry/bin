@@ -6,6 +6,8 @@ istty || exec termwin -t fastfetch -c 'pause fastfetch'
 clear
 echo
 
+PROMPT_COLOR=$(prompt-color)
+
 exec /usr/bin/fastfetch \
   --disk-show-regular false \
   --localip-show-ipv4 false \
@@ -14,5 +16,7 @@ exec /usr/bin/fastfetch \
   --display-key Display \
   --percent-type 0 \
   --separator ' ' \
-  --title-color-host "$(prompt-color --color)" \
+  --title-color-at '1;96' \
+  --logo-color-1 "$PROMPT_COLOR" \
+  --logo-color-2 "$PROMPT_COLOR" \
   "$@"
