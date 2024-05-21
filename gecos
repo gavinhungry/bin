@@ -7,4 +7,4 @@ case "$2" in
   contact|email) F=4 ;;
 esac
 
-grep ^${1:-$(whoami)}: /etc/passwd | cut -d':' -f5 | cut -d',' -f${F:-1}
+/usr/bin/grep ^${1:-$(whoami)}: /etc/passwd | /usr/bin/cut -d':' -f5 | /usr/bin/cut -d',' -f${F:-1}
