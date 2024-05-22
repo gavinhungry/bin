@@ -1,0 +1,12 @@
+#!/bin/bash
+
+hex_to_dec() {
+  echo "$((16#$1))"
+}
+
+HEX="${1#'#'}"
+R=$(hex_to_dec "${HEX:0:2}")
+G=$(hex_to_dec "${HEX:2:2}")
+B=$(hex_to_dec "${HEX:4:2}")
+
+echo "$R $G $B"
