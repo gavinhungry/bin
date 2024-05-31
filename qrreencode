@@ -1,0 +1,6 @@
+#!/bin/bash
+
+QR=$1
+shift
+
+qrdecode "$QR" | sed -z 's/\n*$//' | qrencode -s4 -o "$QR" "$@"
