@@ -1,0 +1,28 @@
+#!/usr/bin/env python
+
+import warnings
+warnings.filterwarnings('ignore')
+
+import gi
+gi.require_version('Gtk', '3.0')
+from gi.repository import Gtk
+
+import pylon
+import subprocess
+
+#
+def on_click(icon):
+  window_ids = pylon.get_window_ids_by_wm_class('Yubico-authenticator')
+
+  if len(window_ids) > 0:
+    for window_id in window_ids:
+      pylon.activate_window_by_id(window_id, True)
+  else:
+    subprocess.Popen('/usr/bin/yubico-authenticator')
+
+icon = Gtk.StatusIcon()
+icon.set_tooltip_text('Yubico Authenticator')
+icon.set_from_icon_name('yubico-tray')
+icon.connect('activate', on_click)
+
+Gtk.main()
