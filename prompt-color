@@ -3,25 +3,19 @@
 source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
 
 format_color() {
-  if arge invert; then
-    ispty && echo "2;7;3$1" || echo "4$1;97"
-  else
-    ispty && echo "1;2;3$1" || echo "1;9$1"
-  fi
+  ispty && echo "1;2;3$1" || echo "1;9$1"
 }
 
 # root
-if [ $(id -u) -eq 0 ]; then
+if [ $UID -eq 0 ]; then
   echo $(format_color 1)
   exit
 fi
 
-PROMPT_COLOR_FILE=$(console_file_path /etc/prompt-color)
-
 # local user
-if (! arge color && [ -z "$SSH_TTY" ]) || [ ! -f $PROMPT_COLOR_FILE ]; then
+if (! arge color && [ -z "$SSH_TTY" ]) || [ -z "$PROMPT_FG_COLOR" ]; then
   ispty && echo '1;97' || echo '37'
   exit
 fi
 
-format_color $(cat $PROMPT_COLOR_FILE)
+format_color $PROMPT_FG_COLOR

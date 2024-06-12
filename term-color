@@ -1,0 +1,6 @@
+#!/bin/bash
+
+[ $UID -eq 0 ] && TERM_BG_COLOR='#160000'
+TERM_BG_COLOR=${TERM_BG_COLOR:-#000000}
+
+exec printf "\033]11;${TERM_BG_COLOR}\033\\"
