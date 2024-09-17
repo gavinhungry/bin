@@ -2,8 +2,8 @@
 
 const colors = require('colors');
 const sanitizeHtml = require('sanitize-html');
-const wrap = require('ipo-lib/modules/wrap');
-const dieWithError = require('ipo-lib/modules/dieWithError');
+
+const USER_AGENT = 'Mozilla/5.0 (X11; Linux x86_64; rv:100.0) Gecko/20100101 Firefox/100.0';
 
 const main = async () => {
   if (!process.env.BIOS_PRODUCT) {
@@ -12,17 +12,21 @@ const main = async () => {
 
   const BIOS_URL = `https://us.msi.com/api/v1/product/support/panel?type=bios&product=${process.env.BIOS_PRODUCT}`;
 
-  let res = await fetch(BIOS_URL);
-  let json = await res.json();
+  let res = await fetch(BIOS_URL, {
+    headers: {
+      'User-Agent': USER_AGENT
+    }
+  });
 
+  if (!res.ok) {
+    throw res.statusText;
+  }
+
+  let json = await res.json();
   let latest = json.result.downloads['AMI BIOS'][0];
 
   let description = sanitizeHtml(latest.download_description, {
     allowedTags: []
-  });
-
-  description = wrap(description, {
-    indent: 4
   });
 
   description = description.split('\n').map(line => {
@@ -40,4 +44,4 @@ ${description}
   `);
 };
 
-main().catch(dieWithError);
+main().catch(console.error);
