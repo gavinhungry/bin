@@ -24,6 +24,7 @@ exec xfreerdp \
   /bpp:24 \
   /audio-mode:1 \
   -toggle-fullscreen \
+  +clipboard \
   /dynamic-resolution \
   /w:"${RDP_WIDTH}" \
   /h:"${RDP_HEIGHT}" \
