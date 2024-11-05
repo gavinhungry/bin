@@ -19,13 +19,13 @@ RDP_HEIGHT=${RDP_GEOMETRY#*x}
 
 exec xfreerdp \
   /title:"${RDP_TITLE:-$RDP_SERVER}  —  Remote Desktop" \
-  +window-drag \
   /gfx:AVC444 \
   /bpp:24 \
   /audio-mode:1 \
-  -toggle-fullscreen \
-  +clipboard \
   /dynamic-resolution \
+  -toggle-fullscreen \
+  +window-drag \
+  +clipboard \
   /w:"${RDP_WIDTH}" \
   /h:"${RDP_HEIGHT}" \
   /v:"${RDP_SERVER}" \
