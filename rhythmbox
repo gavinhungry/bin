@@ -1,0 +1,5 @@
+#!/bin/bash
+
+dconf load /org/gnome/rhythmbox/ < ${XDG_LOCAL_HOME}/etc/dconf/rhythmbox.conf
+
+exec /usr/bin/rhythmbox "$@"
