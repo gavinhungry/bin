@@ -35,7 +35,7 @@ const ACTION = {
       return res.status(400).end();
     }
 
-    child_process.exec(`/usr/bin/firefox "${data}"`);
+    child_process.exec(`/usr/local/bin/firefox "${data}"`);
   },
 
   /*
