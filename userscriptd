@@ -35,7 +35,7 @@ const ACTION = {
       return res.status(400).end();
     }
 
-    child_process.exec(`/usr/bin/firefox --new-tab "${data}"`);
+    child_process.exec(`gtk-launch firefox "${data}"`);
   },
 
   /*

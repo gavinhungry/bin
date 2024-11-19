@@ -116,6 +116,7 @@ def get_active_window_id():
     _X().AnyPropertyType
   ).value[0]
 
+#
 def get_pid_by_window_id(window_id):
   window = get_window_by_id(window_id)
 
@@ -126,21 +127,36 @@ def get_pid_by_window_id(window_id):
   ).value[0]
 
 #
-def window_id_has_wm_class(window_id, wm_class):
+def get_window_role_by_id(window_id):
+  window = get_window_by_id(window_id)
+
+  return window.get_full_property(
+    _atom('WM_WINDOW_ROLE'),
+    _X().AnyPropertyType,
+  ).value.decode()
+
+#
+def window_id_has_wm_class(window_id, *wm_classes):
+  if len(wm_classes) == 0:
+    return False
+
   window = get_window_by_id(window_id)
 
   try:
-    wm_classes = window.get_wm_class()
-    return wm_class in wm_classes if wm_classes != None else False
+    _wm_classes = window.get_wm_class()
+    if _wm_classes == None:
+      return False
+
+    return all(wm_class in _wm_classes for wm_class in wm_classes)
   except:
     return False
 
 #
-def get_window_ids_by_wm_class(wm_class):
+def get_window_ids_by_wm_class(*wm_classes):
   return [
     window_id for window_id
     in get_all_window_ids()
-    if window_id_has_wm_class(window_id, wm_class)
+    if window_id_has_wm_class(window_id, *wm_classes)
   ]
 
 #

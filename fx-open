@@ -1,0 +1,29 @@
+#!/usr/bin/env python
+
+import sys
+import pylon
+import subprocess
+import time
+
+args = sys.argv[1:]
+if not args:
+  sys.exit()
+
+window_ids = pylon.get_window_ids_by_wm_class('firefox', 'Navigator')
+window_id = window_ids[0] if window_ids else None
+
+for _window_id in window_ids:
+  if pylon.is_window_id_on_current_viewport(_window_id):
+    window_id = _window_id
+    break
+
+if window_id:
+  pylon.activate_window_by_id(window_id, switch_viewport=False)
+
+subprocess.Popen(['/usr/bin/firefox', *args],
+  stdout = subprocess.DEVNULL,
+  stderr = subprocess.DEVNULL
+)
+
+if window_id:
+  pylon.activate_window_by_id(window_id, switch_viewport=True)

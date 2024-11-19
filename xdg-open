@@ -2,7 +2,7 @@
 
 for ARG in "$@"; do
   if [[ $ARG == fx:* ]]; then
-    /usr/bin/firefox "${ARG#fx:}"
+    $HOME/bin/fx-open "${ARG#fx:}"
     continue
   fi
 
