@@ -3,7 +3,7 @@
 [ -f "$1" ] || exit 1
 
 MIME_TYPE=$(mime "$1")
-[ "$MIME_TYPE" == 'image/png' ] || exit 2
+[[ "$MIME_TYPE" == image/* ]] || exit 2
 
 BASE_64=$(base64 -w0 "$1")
-echo "data:image/png;base64,${BASE_64}"
+echo "data:${MIME_TYPE};base64,${BASE_64}"
