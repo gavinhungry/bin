@@ -1,0 +1,8 @@
+#!/bin/bash
+
+TMP_QR=$(mktemp)
+
+xfce4-screenshooter --region --save $TMP_QR
+qrdecode $TMP_QR
+
+rm $TMP_QR
