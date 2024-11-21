@@ -4,11 +4,15 @@ CA_CONFIG_FILE="
   [req]
   prompt = no
   distinguished_name = dn
+  x509_extensions = v3_ca
 
   [dn]
   O = localhost CA
   OU = localhost CA
   CN = localhost CA
+
+  [v3_ca]
+  basicConstraints = critical,CA:TRUE
 "
 
 CERT_CONFIG_FILE="
