@@ -1,0 +1,82 @@
+#!/bin/bash
+
+source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
+
+NAME=$(arg name local)
+ORG=$(arg org $NAME)
+
+CA_CONFIG_FILE="
+  [req]
+  prompt = no
+  distinguished_name = dn
+  x509_extensions = v3_ca
+
+  [dn]
+  O = $ORG
+  CN = $ORG CA
+
+  [v3_ca]
+  basicConstraints = critical,CA:TRUE
+"
+
+CERT_CONFIG_FILE="
+  [req]
+  prompt = no
+  req_extensions = san
+  x509_extensions = san
+  distinguished_name = dn
+
+  [dn]
+  O = $ORG
+  CN = $ORG
+
+  [san]
+  subjectAltName = @alt_names
+
+  [alt_names]
+"
+
+DNS=1
+
+IFS=,
+
+for ALT_NAME in $(arg fqdn:D); do
+  echo "$ALT_NAME"
+  CERT_CONFIG_FILE+="  DNS.$DNS = $ALT_NAME"$'\n'
+  let DNS+=1
+done
+
+for ALT_NAME in $(arg domains); do
+  [[ "$ALT_NAME" != *.* ]] && ALT_NAME+=".$NAME"
+  echo "$ALT_NAME"
+  CERT_CONFIG_FILE+="  DNS.$DNS = $ALT_NAME"$'\n'
+  let DNS+=1
+done
+
+openssl req -new -x509 \
+  -days 3650 \
+  -newkey ec -nodes \
+  -pkeyopt ec_paramgen_curve:secp384r1 \
+  -keyout $NAME-ca.key \
+  -out $NAME-ca.cer \
+  -config <( echo -e "$CA_CONFIG_FILE" )
+
+openssl req \
+  -newkey ec -nodes \
+  -pkeyopt ec_paramgen_curve:secp384r1 \
+  -keyout $NAME.key \
+  -out $NAME.csr \
+  -config <( echo -e "$CERT_CONFIG_FILE" )
+
+openssl x509 -req \
+  -days 3650 \
+  -in $NAME.csr \
+  -CA $NAME-ca.cer \
+  -CAkey $NAME-ca.key \
+  -CAcreateserial \
+  -out $NAME.cer \
+  -extensions san \
+  -extfile <( echo -e "$CERT_CONFIG_FILE" )
+
+cat $NAME.cer > $NAME-bundle.cer
+cat $NAME-ca.cer >> $NAME-bundle.cer
