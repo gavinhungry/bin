@@ -15,7 +15,6 @@ done <<< $(castctl-title || yt-music-title || rhythmbox-title)
 TITLE=${TITLE% $DELIMITER }
 
 if [ -z "$TITLE" ]; then
-  arge zwsp && echo -n "​" # zero-width space for Xfce genmon
   exit 1
 fi
 
