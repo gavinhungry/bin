@@ -7,7 +7,10 @@ entity() { sed 's/&/&amp;/g' ;}
 COMMAND=$(arg command)
 TOOLTIP=$(arg tooltip)
 
+TXT=$(${COMMAND} | entity)
+TOOL=$(${TOOLTIP} | entity)
+
 cat <<EOF
-<txt>$(${COMMAND} | entity)</txt>
-<tool>$(${TOOLTIP} | entity)</tool>
+<txt>${TXT:- }</txt>
+<tool>$TOOL</tool>
 EOF
