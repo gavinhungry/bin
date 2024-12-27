@@ -1,5 +1,34 @@
 #!/bin/bash
 
-IDLE=$(top -b -n1 | grep '^%Cpu(s):' | cut -d, -f4 | awk '{print $1}')
-PERCENT=$(echo "scale=0; 100 - $IDLE" | bc)
-printf "%.0f%%\n" $PERCENT
+get_cpu_time() {
+  CPU_STAT=($(grep '^cpu ' /proc/stat))
+
+  CPU_TIME_USER=${CPU_STAT[1]}
+  CPU_TIME_NICE=${CPU_STAT[2]}
+  CPU_TIME_SYST=${CPU_STAT[3]}
+  CPU_TIME_IDLE=${CPU_STAT[4]}
+
+  CPU_TIME_TOTAL=$((
+    CPU_TIME_USER +
+    CPU_TIME_NICE +
+    CPU_TIME_SYST +
+    CPU_TIME_IDLE
+  ))
+
+  echo "$CPU_TIME_TOTAL $CPU_TIME_IDLE"
+}
+
+CPU_TIME_A=($(get_cpu_time)); sleep 1
+CPU_TIME_B=($(get_cpu_time));
+
+CPU_TIME_A_TOTAL=${CPU_TIME_A[0]}
+CPU_TIME_B_TOTAL=${CPU_TIME_B[0]}
+
+CPU_TIME_A_IDLE=${CPU_TIME_A[1]}
+CPU_TIME_B_IDLE=${CPU_TIME_B[1]}
+
+TOTAL_DIFF=$(( CPU_TIME_B_TOTAL - CPU_TIME_A_TOTAL ))
+IDLE_DIFF=$(( CPU_TIME_B_IDLE - CPU_TIME_A_IDLE ))
+
+USAGE=$(printf %.0f $(echo "100 * ($TOTAL_DIFF - $IDLE_DIFF) / $TOTAL_DIFF" | bc -l))
+echo "${USAGE}%"
