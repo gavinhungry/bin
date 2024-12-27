@@ -84,11 +84,11 @@ def start_server():
             media.stop()
 
         case 'prev':
-          if media.is_active:
+          if is_playing(media) or is_paused(media):
             media.queue_prev()
 
         case 'next':
-          if media.is_active:
+          if is_playing(media) or is_paused(media):
             media.queue_next()
 
         case 'vol-down':
