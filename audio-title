@@ -1,10 +1,7 @@
 #!/bin/bash
 
-source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
-
-MAX_LENGTH=$(arg max-length 0)
-LABEL=$(arg label)
-DELIMITER=$(arg delimiter -)
+MAX_LENGTH=${1:-80}
+DELIMITER=•
   
 TITLE=
 while IFS= read -r LINE; do
@@ -19,6 +16,5 @@ if [ -z "$TITLE" ]; then
 fi
 
 [ $MAX_LENGTH -gt 0 -a ${#TITLE} -gt $MAX_LENGTH ] && TITLE="${TITLE::$MAX_LENGTH} ..."
-[ -n "$LABEL" ] && echo -n "$LABEL "
 
-echo $TITLE
+echo -en "🎵 ${TITLE}\n"

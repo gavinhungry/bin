@@ -1,9 +1,8 @@
 #!/bin/bash
 
 source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
-DELIMITER=$(arg delimiter /)
 
-OUTPUT="$(nv-util || echo ?) ${DELIMITER} $(nv-temp || echo ?)"
+OUTPUT="$(nv-util || echo ?) • $(nv-temp || echo ?)"
 OUTPUT=$(enpad "$OUTPUT" $(arg padding 0))
 
 echo "$OUTPUT"

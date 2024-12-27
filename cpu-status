@@ -1,10 +1,8 @@
 #!/bin/bash
 
 source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
-DELIMITER=$(arg delimiter /)
-OUTPUT="$(cpu-util || echo ?) $DELIMITER $(cpu-temp $(pfarg core) || echo ?)"
 
-arge ibm-fan && OUTPUT+=" $DELIMITER $(ibm-fan)"
+OUTPUT="$(cpu-util || echo ?) • $(cpu-temp || echo ?)"
 OUTPUT=$(enpad "$OUTPUT" $(arg padding 0))
 
 echo "$OUTPUT"
