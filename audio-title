@@ -12,6 +12,7 @@ done <<< $(castd metadata || yt-music-title || rhythmbox-title)
 TITLE=${TITLE% $DELIMITER }
 
 if [ -z "$TITLE" ]; then
+  [ "$(ps -o comm= $PPID)" == 'wrapper-2.0' ] && echo ' ' # xfce4-panel
   exit 1
 fi
 
