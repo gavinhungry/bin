@@ -1,13 +1,20 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
+import atexit
 import os
+import signal
 import socket
 import sys
+
 import pychromecast
-import atexit
-import signal
+from pychromecast.socket_client import ConnectionStatusListener
 
 SOCKET_PATH = f'{os.environ['XDG_CACHE_HOME']}/castd.sock'
+
+class CastdConnectionStatusListener(ConnectionStatusListener):
+  def new_connection_status(self, status):
+    if status.status == 'LOST':
+      send_command('quit')
 
 def is_server_running():
   return os.path.exists(SOCKET_PATH)
@@ -16,18 +23,18 @@ def cleanup():
   if is_server_running():
     os.remove(SOCKET_PATH)
 
-def cleanup_and_exit():
+def cleanup_and_exit(exit_code = 0):
   cleanup()
-  sys.exit(0)
+  sys.exit(exit_code)
 
 def cleanup_and_exit_handler(signum, frame):
-  cleanup_and_exit()
+  cleanup_and_exit(128 + signum)
 
-def is_playing(controller):
-  return controller.status.player_state == 'PLAYING'
+def is_playing(media):
+  return media.status.player_state == 'PLAYING'
 
-def is_paused(controller):
-  return controller.status.player_state == 'PAUSED'
+def is_paused(media):
+  return media.status.player_state == 'PAUSED'
 
 def start_server():
   cleanup()
@@ -40,14 +47,13 @@ def start_server():
   server.bind(SOCKET_PATH)
   server.listen(4)
 
-  [ cast ], browser = pychromecast.get_listed_chromecasts(friendly_names=[
-    os.environ['CASTD_NAME']
-  ])
+  [ cast ], browser = pychromecast.get_listed_chromecasts(friendly_names=[os.environ['CASTD_NAME']])
+  cast.register_connection_listener(CastdConnectionStatusListener())
 
   cast.wait()
   browser.stop_discovery()
 
-  controller = cast.media_controller
+  media = cast.media_controller
 
   while True:
     client, _ = server.accept()
@@ -60,28 +66,30 @@ def start_server():
           cleanup_and_exit()
 
         case 'play':
-          if not is_playing(controller):
-            controller.play()
+          if is_paused(media):
+            media.play()
 
         case 'pause':
-          if not is_paused(controller):
-            controller.pause()
+          if is_playing(media):
+            media.pause()
 
         case 'playpause':
-          if is_paused(controller):
-            controller.play()
-          elif is_playing(controller):
-            controller.pause()
+          if is_paused(media):
+            media.play()
+          elif is_playing(media):
+            media.pause()
 
         case 'stop':
-          if is_playing(controller) or is_paused(controller):
-            controller.stop()
+          if is_playing(media) or is_paused(media):
+            media.stop()
 
         case 'prev':
-          controller.queue_prev()
+          if media.is_active:
+            media.queue_prev()
 
         case 'next':
-          controller.queue_next()
+          if media.is_active:
+            media.queue_next()
 
         case 'vol-down':
           cast.volume_down(0.05)
@@ -101,10 +109,10 @@ def start_server():
             cast.set_volume_muted(False)
 
         case 'metadata':
-          if is_playing(controller):
+          if is_playing(media):
             metadata = '\n'.join([
-              controller.status.artist,
-              controller.status.title
+              media.status.artist,
+              media.status.title
             ]);
 
             client.sendall(metadata.encode('utf-8'))
@@ -118,7 +126,7 @@ def send_command(command):
   client.close()
 
   if (command == 'metadata' and not response):
-    sys.exit(1)
+    sys.exit(3)
 
   print(response)
 
