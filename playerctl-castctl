@@ -1,3 +1,0 @@
-#!/bin/bash
-
-exec playerctl -p $CASTCTL_PLAYER "$@"

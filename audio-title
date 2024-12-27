@@ -11,7 +11,7 @@ while IFS= read -r LINE; do
   LINE=$(echo $LINE | sed 's/ [[(][^])[(]*[])]//g')
   [ ${#LINE} -eq 0 ] && continue
   TITLE+="$LINE $DELIMITER "
-done <<< $(castctl-title || yt-music-title || rhythmbox-title)
+done <<< $(castd metadata || yt-music-title || rhythmbox-title)
 TITLE=${TITLE% $DELIMITER }
 
 if [ -z "$TITLE" ]; then

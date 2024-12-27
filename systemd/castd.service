@@ -1,0 +1,14 @@
+[Unit]
+Description=Chromecast Daemon
+Requires=xfce4-session.target
+After=xfce4-session.target
+
+[Service]
+EnvironmentFile=/etc/environment
+EnvironmentFile=%h/.config/user-dirs.dirs
+ExecStart=/home/gavin/bin/castd
+Type=forking
+Restart=always
+
+[Install]
+WantedBy=xfce4-session.target

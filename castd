@@ -1,0 +1,152 @@
+#!/usr/bin/env python3
+
+import os
+import socket
+import sys
+import pychromecast
+import atexit
+import signal
+
+SOCKET_PATH = f'{os.environ['XDG_CACHE_HOME']}/castd.sock'
+
+def is_server_running():
+  return os.path.exists(SOCKET_PATH)
+
+def cleanup():
+  if is_server_running():
+    os.remove(SOCKET_PATH)
+
+def cleanup_and_exit():
+  cleanup()
+  sys.exit(0)
+
+def cleanup_and_exit_handler(signum, frame):
+  cleanup_and_exit()
+
+def is_playing(controller):
+  return controller.status.player_state == 'PLAYING'
+
+def is_paused(controller):
+  return controller.status.player_state == 'PAUSED'
+
+def start_server():
+  cleanup()
+
+  atexit.register(cleanup)
+  signal.signal(signal.SIGINT, cleanup_and_exit_handler)
+  signal.signal(signal.SIGTERM, cleanup_and_exit_handler)
+
+  server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+  server.bind(SOCKET_PATH)
+  server.listen(4)
+
+  [ cast ], browser = pychromecast.get_listed_chromecasts(friendly_names=[
+    os.environ['CASTD_NAME']
+  ])
+
+  cast.wait()
+  browser.stop_discovery()
+
+  controller = cast.media_controller
+
+  while True:
+    client, _ = server.accept()
+    with client:
+      command = client.recv(16).decode('utf-8').strip()
+
+      match command:
+        case 'quit':
+          server.close()
+          cleanup_and_exit()
+
+        case 'play':
+          if not is_playing(controller):
+            controller.play()
+
+        case 'pause':
+          if not is_paused(controller):
+            controller.pause()
+
+        case 'playpause':
+          if is_paused(controller):
+            controller.play()
+          elif is_playing(controller):
+            controller.pause()
+
+        case 'stop':
+          if is_playing(controller) or is_paused(controller):
+            controller.stop()
+
+        case 'prev':
+          controller.queue_prev()
+
+        case 'next':
+          controller.queue_next()
+
+        case 'vol-down':
+          cast.volume_down(0.05)
+
+        case 'vol-up':
+          cast.volume_up(0.05)
+
+        case 'mute':
+          if not cast.status.volume_muted:
+            cast.set_volume_muted(True)
+
+        case 'mutetoggle':
+          cast.set_volume_muted(not cast.status.volume_muted)
+
+        case 'unmute':
+          if cast.status.volume_muted:
+            cast.set_volume_muted(False)
+
+        case 'metadata':
+          if is_playing(controller):
+            metadata = '\n'.join([
+              controller.status.artist,
+              controller.status.title
+            ]);
+
+            client.sendall(metadata.encode('utf-8'))
+
+def send_command(command):
+  client = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+  client.connect(SOCKET_PATH)
+
+  client.sendall(command.encode('utf-8'))
+  response = client.recv(1024).decode('utf-8')
+  client.close()
+
+  if (command == 'metadata' and not response):
+    sys.exit(1)
+
+  print(response)
+
+def main():
+  command = sys.argv[1] if len(sys.argv) > 1 else None
+
+  if command == None:
+    if is_server_running():
+      sys.exit(0)
+
+    pid = os.fork()
+
+    if pid == 0:
+      start_server()
+      sys.exit(0)
+
+    sys.exit(0)
+
+  if command == 'quit':
+    if is_server_running():
+      send_command('quit')
+
+    sys.exit(0)
+
+  if not is_server_running():
+    sys.exit(1)
+
+  send_command(command)
+
+if __name__ == '__main__':
+  main()
