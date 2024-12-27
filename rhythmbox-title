@@ -16,14 +16,14 @@ GENRE=$(playerctl_rhythmbox metadata -f "{{xesam:genre}}")
 ARTIST=$(playerctl_rhythmbox metadata -f "{{xesam:${ARTIST_FIELD}}}")
 TITLE=$(playerctl_rhythmbox metadata -f "{{xesam:title}}")
 
-STREAM=$(playerctl_rhythmbox metadata -f "{{rhythmbox:streamTitle}}")
-if [[ "$STREAM" == *'[SomaFM]' ]]; then
-  ARTIST=$(echo "$STREAM" | cut -d: -f1)
+STREAM_URL=$(playerctl_rhythmbox metadata -f "{{xesam:url}}")
 
-  # e.g. '<-- cliqhop -->'
-  if [[ "$ARTIST" == '<--'* ]]; then
-    ARTIST=$(echo "$ARTIST" | sed -r 's/<-- ([^-]*) .*/\1/')
-  fi
+if [[ "$STREAM_URL" == *'.somafm.com/'* ]]; then
+  ARTIST="${TITLE%% - *}"
+  TITLE="${TITLE#* - }"
+
+  STREAM_TITLE=$(playerctl_rhythmbox metadata -f "{{rhythmbox:streamTitle}}")
+  [ -z "$STREAM_TITLE" ] && TITLE=''
 fi
 
 echo $ARTIST
