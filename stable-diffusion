@@ -1,4 +1,0 @@
-#!/bin/bash
-
-cd ${XDG_DATA_HOME}/stable-diffusion-ui
-exec ./start.sh
