@@ -4,20 +4,42 @@ source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
 
 NAME=$(arg name local)
 ORG=$(arg org $NAME)
+CERT_NAME=$(arg cert-name $NAME)
 
-CA_CONFIG_FILE="
-  [req]
-  prompt = no
-  distinguished_name = dn
-  x509_extensions = v3_ca
+if [ -e $CERT_NAME.key -a -e $CERT_NAME.cer ]; then
+  warn "Key and certificate already exist ($CERT_NAME)"
+  exit 1
+fi
 
-  [dn]
-  O = $ORG
-  CN = $ORG CA
+if [ -e $NAME-ca.key -a -e $NAME-ca.cer ]; then
+  warn 'Reusing existing CA key and certificate'
+else
+  inform 'Creating CA key and certificate'
 
-  [v3_ca]
-  basicConstraints = critical,CA:TRUE
-"
+  CA_CONFIG_FILE="
+    [req]
+    prompt = no
+    distinguished_name = dn
+    x509_extensions = v3_ca
+
+    [dn]
+    O = $ORG
+    CN = $ORG CA
+
+    [v3_ca]
+    basicConstraints = critical,CA:TRUE
+  "
+
+  openssl req -new -x509 \
+    -days 3650 \
+    -newkey ec -nodes \
+    -pkeyopt ec_paramgen_curve:secp384r1 \
+    -keyout $NAME-ca.key \
+    -out $NAME-ca.cer \
+    -config <( echo -e "$CA_CONFIG_FILE" )
+fi
+
+inform "Creating key and certificate ($CERT_NAME)"
 
 CERT_CONFIG_FILE="
   [req]
@@ -40,43 +62,39 @@ DNS=1
 
 IFS=,
 
-for ALT_NAME in $(arg fqdn:D); do
-  echo "$ALT_NAME"
-  CERT_CONFIG_FILE+="  DNS.$DNS = $ALT_NAME"$'\n'
+add_dns_to_cert_config() {
+  echo "$1"
+  CERT_CONFIG_FILE+="  DNS.$DNS = $1"$'\n'
   let DNS+=1
+}
+
+for ALT_NAME in $(arg fqdn:D); do
+  add_dns_to_cert_config $ALT_NAME
 done
 
 for ALT_NAME in $(arg domains); do
   [[ "$ALT_NAME" != *.* ]] && ALT_NAME+=".$NAME"
-  echo "$ALT_NAME"
-  CERT_CONFIG_FILE+="  DNS.$DNS = $ALT_NAME"$'\n'
-  let DNS+=1
+  add_dns_to_cert_config $ALT_NAME
 done
-
-openssl req -new -x509 \
-  -days 3650 \
-  -newkey ec -nodes \
-  -pkeyopt ec_paramgen_curve:secp384r1 \
-  -keyout $NAME-ca.key \
-  -out $NAME-ca.cer \
-  -config <( echo -e "$CA_CONFIG_FILE" )
 
 openssl req \
   -newkey ec -nodes \
   -pkeyopt ec_paramgen_curve:secp384r1 \
-  -keyout $NAME.key \
-  -out $NAME.csr \
+  -keyout $CERT_NAME.key \
+  -out $CERT_NAME.csr \
   -config <( echo -e "$CERT_CONFIG_FILE" )
 
 openssl x509 -req \
   -days 3650 \
-  -in $NAME.csr \
   -CA $NAME-ca.cer \
   -CAkey $NAME-ca.key \
   -CAcreateserial \
-  -out $NAME.cer \
+  -in $CERT_NAME.csr \
+  -out $CERT_NAME.cer \
   -extensions san \
   -extfile <( echo -e "$CERT_CONFIG_FILE" )
 
-cat $NAME.cer > $NAME-bundle.cer
-cat $NAME-ca.cer >> $NAME-bundle.cer
+inform 'Creating bundle'
+
+cat $CERT_NAME.cer > $CERT_NAME-bundle.cer
+cat $NAME-ca.cer >> $CERT_NAME-bundle.cer
