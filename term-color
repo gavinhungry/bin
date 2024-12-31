@@ -1,6 +1,6 @@
 #!/bin/bash
 
-[ -z "$SSH_TTY" -o -z "$TERM_BG_COLOR" ] && TERM_BG_COLOR='#000000'
+[ -z "$SSH_TTY" -o -z "$TERM_BG_COLOR" ] && TERM_BG_COLOR='#0A0A0A'
 [ $UID -eq 0 ] && TERM_BG_COLOR='#160000'
 
 exec printf "\033]11;${TERM_BG_COLOR}\033\\"
