@@ -1,0 +1,6 @@
+#!/bin/bash
+
+find ${@:-.} -exec lsattr {} + 2> /dev/null \
+  | grep '^[^ ]*i' \
+  | cut -d' ' -f2- \
+  | sort -u
