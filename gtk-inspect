@@ -1,5 +1,5 @@
 #!/bin/bash
 
-export GTK_DEBUG=interactive # GTK3
+# gsettings set org.gtk.Settings.Debug enable-inspector-keybinding true
 
-exec "$@"
+GTK_DEBUG=interactive exec "$@"
