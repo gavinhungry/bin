@@ -1,4 +1,0 @@
-#!/bin/bash
-
-sed -i "s/\(pref name='list_visible' type='bool' value\)='0'/\1='1'/" ${HOME}/.purple/prefs.xml
-NSS_SSL_CBC_RANDOM_IV=0 exec /usr/bin/pidgin -f "$@"
