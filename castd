@@ -110,10 +110,12 @@ def start_server():
 
         case 'metadata':
           if is_playing(media):
-            metadata = '\n'.join([
-              media.status.artist,
-              media.status.title
-            ]);
+            metadata = '\n'.join(
+              filter(None, ([
+                media.status.artist,
+                media.status.title
+              ]))
+            )
 
             client.sendall(metadata.encode('utf-8'))
 
