@@ -1,6 +1,6 @@
 #!/bin/bash
 
-WATCH_FILE=$XDG_CACHE_HOME/viewport
+WATCH_FILE=$XDG_CACHE_HOME/viewport.json
 DISPLAY_WIDTH=$(xdpyinfo | awk '/dimensions:/ { print $2 }' | cut -dx -f1)
 
 get_xprop_width() {
@@ -32,7 +32,8 @@ case $1 in
       PREV_VIEWPORT_INDEX=$VIEWPORT_INDEX
       VIEWPORT_INDEX=$(get_viewport_index_from_left $(echo $LINE | get_xprop_width))
 
-      echo -e "prev:$PREV_VIEWPORT_INDEX\ncurr:$VIEWPORT_INDEX" > "$WATCH_FILE"
+      jo prevIndex=$PREV_VIEWPORT_INDEX currIndex=$VIEWPORT_INDEX |
+      jq --indent 4 > "$WATCH_FILE"
     done
   ;;
 
@@ -41,7 +42,7 @@ case $1 in
   set) set_viewport_index $2 ;;
   prev)
     if [ -e "$WATCH_FILE" ]; then
-      PREV_VIEWPORT_INDEX=$(grep ^prev: "$WATCH_FILE" | cut -d: -f2)
+      PREV_VIEWPORT_INDEX=$(cat "$WATCH_FILE" | jq .prevIndex)
       [ -n "$PREV_VIEWPORT_INDEX" ] && set_viewport_index $PREV_VIEWPORT_INDEX
     fi
   ;;
