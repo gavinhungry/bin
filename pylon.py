@@ -81,8 +81,13 @@ def get_desktop_width():
 
 #
 @functools.cache
+def get_display_width():
+  return _wnck_screen().get_width()
+
+#
+@functools.cache
 def get_viewport_count():
-  return int(_getenv('VIEWPORT_COUNT') or 1)
+  return int(get_desktop_width() / get_display_width())
 
 #
 @functools.cache
