@@ -3,6 +3,7 @@
 from os import getenv, utime
 import dbus
 import json
+import os
 import pylon
 import signal
 
@@ -60,8 +61,8 @@ class TeamsTray:
 
   #
   def init_watchdog(self):
-    with open(self.NOTIFICATION_PATH, 'a'):
-      utime(self.NOTIFICATION_PATH, None)
+    os.open(self.NOTIFICATION_PATH, os.O_CREAT | os.O_WRONLY, 0o600)
+    utime(self.NOTIFICATION_PATH, None)
 
     handler = FileSystemEventHandler()
     handler.on_modified = self.handle_notification_event
