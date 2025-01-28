@@ -12,4 +12,4 @@ DPI=$(arg dpi $DEFAULT_DPI)
 OUT="./scan-$(epoch).png"
 
 scanimage -p --resolution=$DPI --format=png |\
-  convert - -trim "$OUT"
+  magick - -trim "$OUT"
