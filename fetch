@@ -40,13 +40,13 @@ if [ -n "$STR" ]; then
   echo "$STR"
 fi
 
-STR=$(disk | sed ':a;N;$!ba;s/\n/, /g')
+STR=$(disk)
 if [ -n "$STR" ]; then
   color bold yellow
   echo -n '   DISK'
   color end
   echo -n ': '
-  echo "$STR"
+  echo "$STR" | sed ':a;N;$!ba;s/\n/, /g'
 fi
 
 STR=$(model)
