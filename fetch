@@ -1,0 +1,55 @@
+#!/bin/bash
+
+source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
+
+echo
+
+color bold black
+echo -n '   HOST'
+color end
+echo -n ': '
+hostname -f
+
+color bold blue
+echo -n '    CPU'
+color end
+echo -n ': '
+cpu
+
+color bold green
+echo -n '    GPU'
+color end
+echo -n ': '
+gpu
+
+color bold magenta
+echo -n '    RAM'
+color end
+echo -n ': '
+mem
+
+color bold yellow
+echo -n '   DISK'
+color end
+echo -n ': '
+disk | sed ':a;N;$!ba;s/\n/, /g'
+
+color bold cyan
+echo -n '  MODEL'
+color end
+echo -n ': '
+model
+
+color bold cyan
+echo -n '   BIOS'
+color end
+echo -n ': '
+bios
+
+color bold red
+echo -n '  UCODE'
+color end
+echo -n ': '
+ucode
+
+echo
