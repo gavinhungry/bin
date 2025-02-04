@@ -4,52 +4,76 @@ source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
 
 echo
 
-color bold black
-echo -n '   HOST'
-color end
-echo -n ': '
-hostname -f
+STR=(hostname -f)
+if [ -n "$STR" ]; then
+  color bold black
+  echo -n '   HOST'
+  color end
+  echo -n ': '
+  echo "$STR"
+fi
 
-color bold blue
-echo -n '    CPU'
-color end
-echo -n ': '
-cpu
+STR=$(cpu)
+if [ -n "$STR" ]; then
+  color bold blue
+  echo -n '    CPU'
+  color end
+  echo -n ': '
+  echo "$STR"
+fi
 
-color bold green
-echo -n '    GPU'
-color end
-echo -n ': '
-gpu
+STR=$(gpu)
+if [ -n "$STR" ]; then
+  color bold green
+  echo -n '    GPU'
+  color end
+  echo -n ': '
+  echo "$STR"
+fi
 
-color bold magenta
-echo -n '    RAM'
-color end
-echo -n ': '
-mem
+STR=$(mem)
+if [ -n "$STR" ]; then
+  color bold magenta
+  echo -n '    MEM'
+  color end
+  echo -n ': '
+  echo "$STR"
+fi
 
-color bold yellow
-echo -n '   DISK'
-color end
-echo -n ': '
-disk | sed ':a;N;$!ba;s/\n/, /g'
+STR=$(disk | sed ':a;N;$!ba;s/\n/, /g')
+if [ -n "$STR" ]; then
+  color bold yellow
+  echo -n '   DISK'
+  color end
+  echo -n ': '
+  echo "$STR"
+fi
 
-color bold cyan
-echo -n '  MODEL'
-color end
-echo -n ': '
-model
+STR=$(model)
+if [ -n "$STR" ]; then
+  color bold cyan
+  echo -n '  MODEL'
+  color end
+  echo -n ': '
+  echo "$STR"
+fi
 
-color bold cyan
-echo -n '   BIOS'
-color end
-echo -n ': '
-bios
+STR=$(bios)
+if [ -n "$STR" ]; then
+  color bold cyan
+  echo -n '   BIOS'
+  color end
+  echo -n ': '
+  echo "$STR"
+fi
 
-color bold red
-echo -n '  UCODE'
-color end
-echo -n ': '
-ucode
+STR=$(ucode)
+if [ -n "$STR" ]; then
+  color bold red
+  echo -n '  UCODE'
+  color end
+  echo -n ': '
+  echo "$STR"
+fi
 
 echo
