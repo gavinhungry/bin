@@ -4,7 +4,7 @@ source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
 
 echo
 
-STR=$(hostname -f)
+STR=$(hostname)
 if [ -n "$STR" ]; then
   color bold black
   echo -n '   HOST'
