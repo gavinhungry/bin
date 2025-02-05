@@ -14,13 +14,6 @@ getPkgVer() {
 bannerline -f 'Updating packages'
 pacman -Syu --noconfirm
 
-if [ -z "$(getPkgVer local/nodejs)" ]; then
-  echo
-  bannerline -f 'Installing Node'
-  # https://unix.stackexchange.com/questions/274727
-  pacman -S extra/nodejs --noconfirm --ask 4
-fi
-
 if pacman -Qdttq &> /dev/null; then
   bannerline 'Removing unrequired dependencies'
   pacman -Rsc $(pacman -Qdttq) --noconfirm
