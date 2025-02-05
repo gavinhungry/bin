@@ -6,6 +6,10 @@ clean() {
 
 IFS=$(echo -en "\n\b")
 CPU=$(grep '^model name' /proc/cpuinfo | uniq | clean)
+if [ -z "$CPU" ]; then
+  CPU=$(grep '^cpu model' /proc/cpuinfo | uniq | clean)
+fi
+
 SOCKETS=$(lscpu | grep ^'NUMA node(s):' | clean)
 THREADS=$(lscpu | grep ^'CPU(s):' | clean)
 
