@@ -28,7 +28,7 @@ if [ -n "$STR" ]; then
   echo -n '    GPU'
   color end
   echo -n ': '
-  echo "$STR"
+  echo "$STR" | njoin ', '
 fi
 
 STR=$(mem)
@@ -46,7 +46,7 @@ if [ -n "$STR" ]; then
   echo -n '   DISK'
   color end
   echo -n ': '
-  echo "$STR" | sed ':a;N;$!ba;s/\n/, /g'
+  echo "$STR" | njoin ', '
 fi
 
 STR=$(model)
