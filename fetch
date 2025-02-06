@@ -22,6 +22,15 @@ if [ -n "$STR" ]; then
   echo "$STR"
 fi
 
+STR=$(uname -srm)
+if [ -n "$STR" ]; then
+  color bold black
+  echo -n ' KERNEL'
+  color end
+  echo -n ': '
+  echo "$STR"
+fi
+
 STR=$(cpu)
 if [ -n "$STR" ]; then
   color bold blue
