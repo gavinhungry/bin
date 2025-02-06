@@ -13,6 +13,15 @@ if [ -n "$STR" ]; then
   echo "$STR"
 fi
 
+STR=$(grep ^PRETTY_NAME= /etc/os-release 2> /dev/null | cut -d'"' -f2)
+if [ -n "$STR" ]; then
+  color bold black
+  echo -n '     OS'
+  color end
+  echo -n ': '
+  echo "$STR"
+fi
+
 STR=$(cpu)
 if [ -n "$STR" ]; then
   color bold blue
