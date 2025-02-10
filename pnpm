@@ -1,10 +1,12 @@
 #!/bin/bash
 
-PNPM=/usr/bin/pnpm
+source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
+
+PNPM=$(nwhich pnpm)
 
 case "$1" in
   d|deps) shift; exec $PNPM install --frozen-lockfile ;;
   run) shift; exec $PNPM --silent run "$@" ;;
 esac
 
-exec /usr/bin/pnpm "$@"
+exec $PNPM "$@"
