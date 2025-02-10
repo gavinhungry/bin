@@ -13,10 +13,16 @@ PACKAGES_DIR="$HOME/devel/arch/packages"
 [ -d "$PACKAGES_DIR" ] || mkdir -p "$PACKAGES_DIR"
 
 for PKG in $(nfargs); do
-  _PKG=$(expac -S '%e' $PKG)
-  [ "$_PKG" != '' -a "$_PKG" != '(null)' ] && PKG=$_PKG
+  _PKG=$PKG
 
-  REPO=$(pacman -Si "$PKG" 2> /dev/null | grep ^Repository | awk '{print $NF}')
+  PKGBASE=$(expac -S '%e' $PKG)
+  [ "$PKGBASE" != '' -a "$PKGBASE" != '(null)' ] && PKG=$PKGBASE
+
+  REPO=$(
+    pacman -Si "$PKG" "$_PKG" 2> /dev/null |\
+    grep ^Repository | head -n1 | awk '{print $NF}'
+  )
+
   if [ -z "$REPO" ]; then
     warn "Unknown repo for package $PKG"
     continue
