@@ -26,8 +26,3 @@ else
   sudo paccache -rk1 | awk NF
   sudo paccache -ruk0 | awk NF
 fi
-
-if cmd-exists pnpm; then
-  bannerline 'Updating Node modules'
-  pnpm -g update
-fi
