@@ -1,0 +1,3 @@
+#!/bin/bash
+
+cat /usr/share/licenses/known_spdx_license_identifiers.txt
