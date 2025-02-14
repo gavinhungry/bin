@@ -6,7 +6,7 @@ echo
 
 STR=$(hostname)
 if [ -n "$STR" ]; then
-  color bold black
+  color bold white
   echo -n '   HOST'
   color end
   echo -n ': '
@@ -26,6 +26,15 @@ STR=$(uname -srm)
 if [ -n "$STR" ]; then
   color bold black
   echo -n ' KERNEL'
+  color end
+  echo -n ': '
+  echo "$STR"
+fi
+
+STR=$(model)
+if [ -n "$STR" ]; then
+  color bold cyan
+  echo -n '  MODEL'
   color end
   echo -n ': '
   echo "$STR"
@@ -67,18 +76,9 @@ if [ -n "$STR" ]; then
   echo "$STR" | njoin ', '
 fi
 
-STR=$(model)
-if [ -n "$STR" ]; then
-  color bold cyan
-  echo -n '  MODEL'
-  color end
-  echo -n ': '
-  echo "$STR"
-fi
-
 STR=$(bios)
 if [ -n "$STR" ]; then
-  color bold cyan
+  color bold red
   echo -n '   BIOS'
   color end
   echo -n ': '
