@@ -1,8 +1,6 @@
 #!/bin/bash
 
-for IF in $(ifconfig | grep -e '^\w*:' | cut -d: -f1); do
-  IF_SPEED=$(ethtool $IF 2> /dev/null | grep '^\s*Speed' | awk '{ print $NF }')
-  if [ -n "$IF_SPEED" -a "$IF_SPEED" != 'Unknown!' ]; then
-    echo "${IF}: ${IF_SPEED}"
-  fi
+for IF in $(ip -o link | awk -F': ' '{ print $2 }'); do
+  IF_SPEED=$(ethtool $IF 2> /dev/null | awk '/Speed:/ { print $2 }')
+  [ -n "$IF_SPEED" -a "$IF_SPEED" != 'Unknown!' ] && echo "${IF}: ${IF_SPEED}"
 done
