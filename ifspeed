@@ -1,0 +1,8 @@
+#!/bin/bash
+
+for IF in $(ifconfig | grep -e '^\w*:' | cut -d: -f1); do
+  IF_SPEED=$(ethtool $IF 2> /dev/null | grep '^\s*Speed' | awk '{ print $NF }')
+  if [ -n "$IF_SPEED" ]; then
+    echo "${IF}: ${IF_SPEED}"
+  fi
+done
