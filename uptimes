@@ -1,0 +1,5 @@
+#!/bin/bash
+
+BOOT=$(dateadd now -$(awk '{ print int($1) }' /proc/uptime)s)
+datediff $BOOT now -f '%d days, %H hours and %M minutes' |
+  sed -r 's/\b1 (day|hour|minute)s\b/1 \1/g'
