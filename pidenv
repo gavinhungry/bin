@@ -16,7 +16,7 @@ ENV=$(sudo -u $ENVIRON_OWNER cat $ENVIRON 2> /dev/null | xargs -n1 -0)
 [ -z "$ENV" ] && exit 1
 
 if [ -n "$VAR" ]; then
-  echo "$ENV" | awk -v V="$VAR" -v Z=3 -F= '$1==V {Z=0; print $2} END {exit Z}'
+  echo "$ENV" | awk -v V="$VAR" -v Z=3 -F= '$1==V { Z=0; print $2 } END { exit Z }'
 else
   echo "$ENV"
 fi

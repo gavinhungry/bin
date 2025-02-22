@@ -14,7 +14,7 @@ PUBKEYS=(/etc/ssh/ssh_host_$(arg type '*')_key.pub)
 
 for N in "${!PUBKEYS[@]}"; do
   FINGERPRINT=$(ssh-keygen -lvf "${PUBKEYS[$N]}")
-  echo "$FINGERPRINT" | head -n1 | awk '{print $2" "$NF;}'
+  echo "$FINGERPRINT" | head -n1 | awk '{ print $2" "$NF }'
   if arge visual; then
     echo "$FINGERPRINT" | tail -n+2
     [ $N -lt $((${#PUBKEYS[@]} - 1)) ] && echo

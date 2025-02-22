@@ -8,7 +8,7 @@ sudo -v || exit 1
 sigint
 
 getPkgVer() {
-  pacinfo "$1" 2> /dev/null | grep ^Version | awk '{ print $NF; }'
+  pacinfo "$1" 2> /dev/null | grep ^Version | awk '{ print $NF }'
 }
 
 bannerline -f 'Updating packages'

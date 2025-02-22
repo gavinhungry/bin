@@ -1,6 +1,6 @@
 #!/bin/bash
 
 grep -E '^\s*Host\s+' $HOME/.ssh/config{,.local} 2> /dev/null |
-  awk '{ for (i=2; i<=NF; i++) { print $i; } }' |
+  awk '{ for (i=2; i<=NF; i++) { print $i } }' |
   grep -v '[*|?]' |
   sort -u

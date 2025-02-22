@@ -6,7 +6,6 @@ source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
 [ $# -ge 1 ] || usage 'FILE [FILE ...]'
 
 for ARG in "$@"; do
-
   if [ ! -e "$ARG" ]; then
     warn "$ARG does not exist"
     continue

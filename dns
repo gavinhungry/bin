@@ -10,4 +10,4 @@ KEY=ahosts
 arge 4 && KEY=ahostsv4
 arge 6 && KEY=ahostsv6
 
-getent "$KEY" "$DOMAIN" | awk '{ print $1; }' | uniq
+getent "$KEY" "$DOMAIN" | awk '{ print $1 }' | uniq

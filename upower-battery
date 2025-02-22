@@ -2,6 +2,6 @@
 
 upower --dump |
   grep '\s\(model:\|percentage:\)' |
-  awk '(NR % 2 == 0) || ($1 == "model:") {$1=""; print}' |
-  awk 'NR % 2 == 1 {$1=$1; printf $0 ":"} NR % 2 == 0 {print}' |
+  awk '(NR % 2 == 0) || ($1 == "model:") { $1=""; print }' |
+  awk 'NR % 2 == 1 { $1=$1; printf $0 ":" } NR % 2 == 0 { print }' |
   sort -u

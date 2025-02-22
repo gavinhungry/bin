@@ -11,7 +11,7 @@ arge help && usage '[options]
 
 SERVICES=()
 
-for SERVICE in $(systemctl list-units --type=service --state=running | awk '{print $1}' | grep \.service$); do
+for SERVICE in $(systemctl list-units --type=service --state=running | awk '{ print $1 }' | grep \.service$); do
   systemctl status $SERVICE 2>&1 | grep -q "$SERVICE changed on disk" && SERVICES+=($SERVICE)
 done
 

@@ -20,7 +20,7 @@ for PKG in $(nfargs); do
 
   REPO=$(
     pacman -Si "$PKG" "$_PKG" 2> /dev/null |\
-    grep ^Repository | head -n1 | awk '{print $NF}'
+    grep ^Repository | head -n1 | awk '{ print $NF }'
   )
 
   if [ -z "$REPO" ]; then

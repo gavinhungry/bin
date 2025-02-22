@@ -4,7 +4,7 @@ step() {
   printf "%.1f" $(echo "scale=2; ${1}/1024" | bc)
 }
 
-MEM_KB=$(grep ^MemTotal /proc/meminfo | awk '{print $2}')
+MEM_KB=$(grep ^MemTotal /proc/meminfo | awk '{ print $2 }')
 MEM_MB=$(step $MEM_KB)
 MEM_GB=$(step $MEM_MB)
 MEM_TB=$(step $MEM_GB)
