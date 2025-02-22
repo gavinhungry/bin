@@ -42,7 +42,7 @@ case $1 in
   set) set_viewport_index $2 ;;
   prev)
     if [ -e "$WATCH_FILE" ]; then
-      PREV_VIEWPORT_INDEX=$(cat "$WATCH_FILE" | jq .prevIndex)
+      PREV_VIEWPORT_INDEX=$(jq .prevIndex "$WATCH_FILE")
       [ -n "$PREV_VIEWPORT_INDEX" ] && set_viewport_index $PREV_VIEWPORT_INDEX
     fi
   ;;

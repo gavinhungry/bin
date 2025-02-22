@@ -10,9 +10,7 @@ if ! pidof -q $BROWSER; then
   exit 1
 fi
 
-JSON=$(cat "$CACHE_FILE")
-PLAYING=$(echo "$JSON" | jq -r '.is_playing')
-
+PLAYING=$(jq -r '.is_playing' "$CACHE_FILE")
 [ "$PLAYING" == 'true' ] || exit 1
 
 jq -r '.artist,.title' $CACHE_FILE

@@ -4,7 +4,7 @@ DT=/sys/firmware/devicetree/base
 DMI=/sys/devices/virtual/dmi/id
 
 if [ -d "$DT" ]; then
-  cat "$DT"/model | tr -d '\0'
+  tr -d '\0' < "$DT"/model
   echo
 elif [ -d "$DMI" ]; then
   NAMES=(

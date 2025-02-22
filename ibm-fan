@@ -3,7 +3,7 @@
 source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
 [ ! -e /proc/acpi/ibm/fan ] && exit 1
 
-FAN_SPEED=$(cat /proc/acpi/ibm/fan | grep ^speed: | awk '{print $NF;}')
+FAN_SPEED=$(grep ^speed: /proc/acpi/ibm/fan | awk '{print $NF;}')
 FAN_SPEED_MAX=$(arg speed)
 
 if [ -n "$FAN_SPEED_MAX" ]; then

@@ -3,24 +3,18 @@
 set -eo pipefail
 
 CACHE_FILE=$XDG_CACHE_HOME/youtube-get-title.json
+[ ! -e "$CACHE_FILE" ] && echo '{}' > "$CACHE_FILE"
 
 URL=$1
 [ -z $URL ] && exit 1
 
-JSON=
-[ -e "$CACHE_FILE" ] && JSON=$(cat "$CACHE_FILE")
-[ -z "$JSON" ] && JSON='{}'
-
-TITLE=$(echo "$JSON" | jq -r ".\"$URL\" | select( . != null )")
+TITLE=$(jq -r ".\"$URL\" | select( . != null )" "$CACHE_FILE")
 
 if [ -z "$TITLE" ]; then
   TITLE=$(yt-dlp --get-title $URL | iconv -f utf-8 -t ascii//translit)
 
   if [ -n "$TITLE" ]; then
-    UPDATED_JSON=$(echo "$JSON" | jq ".\"${URL}\" += \"${TITLE}\"")
-    if [ -n "$UPDATED_JSON" ]; then
-      echo "$UPDATED_JSON" > "$CACHE_FILE"
-    fi
+    jq ".\"${URL}\" += \"${TITLE}\"" "$CACHE_FILE" | sponge "$CACHE_FILE"
   fi
 fi
 
