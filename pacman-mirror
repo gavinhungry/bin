@@ -1,0 +1,4 @@
+#!/bin/bash
+
+MIRROR=$(grep -m1 ^Server /etc/pacman.d/mirrorlist | awk '{ print $NF }' | cut -d$ -f1)
+echo ${MIRROR%/}

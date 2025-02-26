@@ -1,0 +1,3 @@
+#!/bin/bash
+
+epoch $(curl --silent "$(pacman-mirror)/lastsync")
