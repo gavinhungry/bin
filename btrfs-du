@@ -1,0 +1,13 @@
+#!/bin/bash
+
+source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
+
+SNAPSHOT=$(fnfarg)
+[ -n "$SNAPSHOT" ] || usage 'SNAPSHOT'
+
+I=1 # total (default)
+arge total     && I=1
+arge exclusive && I=2
+arge shared    && I=3
+
+btrfs filesystem du -s $(pfarg raw) "$SNAPSHOT" | tail -n +2 | awk "{print \$$I}"
