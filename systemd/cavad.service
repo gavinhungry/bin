@@ -1,0 +1,12 @@
+[Unit]
+Description=Cross-platform Audio Visualizer
+Requires=xfce4-session.target
+After=xfce4-session.target
+
+[Service]
+EnvironmentFile=/home/gavin/.config/user-dirs.dirs
+ExecStart=/home/gavin/bin/cavad
+KillSignal=SIGINT
+
+[Install]
+WantedBy=xfce4-session.target

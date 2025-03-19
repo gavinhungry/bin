@@ -1,0 +1,54 @@
+#!/bin/bash
+
+#
+# To integrate with xfce4-panel, this genmon patch is recommended:
+# https://github.com/gavinhungry/patches/blob/main/xfce4-genmon-plugin/xfce4-genmon-plugin_delay-period.patch
+#
+
+#
+# Suggested cava config
+# $XDG_CONFIG_HOME/cava/config
+#
+# See https://github.com/karlstav/cava/issues/440
+#
+# [output]
+#
+# method = raw
+# raw_target = <match path in CAVA_FIFO variable>
+# data_format = ascii
+# ascii_max_range = 7 # number of CHARS - 1
+#
+
+CAVA_CONFIG=${XDG_CONFIG_HOME}/cava/config
+CAVA_FIFO=${XDG_CACHE_HOME}/cava
+
+CHARS=(▁ ▂ ▃ ▄ ▅ ▆ ▇ █) # unicode lower blocks
+DELIM=$'\u2009' # thin space
+
+FRAME=
+
+# timeout on both read and write (<>) (in case cava is not running)
+if [ -p "$CAVA_FIFO" ]; then
+  # drain FIFO and get "latest" frame
+  while read -rt 0.001 _FRAME; do
+    FRAME="$_FRAME"
+  done <> "$CAVA_FIFO"
+fi
+
+# read `bars` from cava config and generate an empty frame
+if [ -z "$FRAME" ]; then
+  BARS=$(grep -oP '^\s*;?\s*bars\s*=\s*\K\d+' $CAVA_CONFIG)
+  FRAME=$(printf "%0.s0;" $(seq 1 $BARS))
+fi
+
+# split frame into bar values
+IFS=';' read -ra VALUES <<< "$FRAME"
+
+# map bars to characters
+for I in "${!VALUES[@]}"; do
+  VALUE=${VALUES[I]}
+  [ $I -ne 0 ] && echo -n "$DELIM"
+  [ -n "$VALUE" ] && echo -n "${CHARS[VALUE]}"
+done
+
+echo

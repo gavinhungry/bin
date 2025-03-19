@@ -1,0 +1,27 @@
+#!/bin/bash
+
+CAVA=/usr/bin/cava
+CAVA_FIFO=${XDG_CACHE_HOME}/cava
+
+restart_cava() {
+  if [ ! -p "$CAVA_FIFO" ]; then
+    rm -f "$CAVA_FIFO"
+    mkfifo "$CAVA_FIFO"
+  fi
+
+  pkill -xf $CAVA
+  $CAVA &
+}
+
+restart_cava
+
+SINK=$(pactl get-default-sink)
+
+# restart cava when default sink changes (bluetooth headphones, etc.)
+pactl subscribe | grep --line-buffered "Event 'change' on server" | while read; do
+  _SINK=$(pactl get-default-sink)
+  [ "$_SINK" == "$SINK" ] && continue
+
+  SINK=$_SINK
+  restart_cava
+done
