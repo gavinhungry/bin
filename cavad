@@ -4,11 +4,6 @@ CAVA=/usr/bin/cava
 CAVA_FIFO=${XDG_CACHE_HOME}/cava
 
 restart_cava() {
-  if [ ! -p "$CAVA_FIFO" ]; then
-    rm -f "$CAVA_FIFO"
-    mkfifo "$CAVA_FIFO"
-  fi
-
   pkill -xf $CAVA
   $CAVA &
 }
