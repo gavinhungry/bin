@@ -5,5 +5,5 @@ clean() {
   echo "${CLEAN#.}"
 }
 
-[ -d "$1" ] && exec tar --zstd -cvf "$(clean "$1").tar.zst" "$1" # create
+[ -d "$1" ] && exec tar -I 'zstd -T0' -cvf "$(clean "$1").tar.zst" "$1" # create
 [ -f "$1" ] && exec tar xvf "$1" # extract
