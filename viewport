@@ -22,7 +22,9 @@ get_current_viewport_index() {
 }
 
 set_viewport_index() {
-  wmctrl -o $(echo "scale=0; $DISPLAY_WIDTH * ($1 - 1)" | bc),0
+  local I=$1
+  [ "$I" -lt 0 ] && I=$(echo "scale=0; $(get_viewport_count) + $I + 1" | bc)
+  wmctrl -o $(echo "scale=0; $DISPLAY_WIDTH * ($I - 1)" | bc),0
 }
 
 case $1 in
