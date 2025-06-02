@@ -31,19 +31,19 @@ if [ -n "$STR" ]; then
   echo "$STR"
 fi
 
-STR=$(model)
+STR=$(cpu)
 if [ -n "$STR" ]; then
-  color bold cyan
-  echo -n '  MODEL'
+  color bold blue
+  echo -n '    CPU'
   color end
   echo -n ': '
   echo "$STR"
 fi
 
-STR=$(cpu)
+STR=$(mem)
 if [ -n "$STR" ]; then
-  color bold blue
-  echo -n '    CPU'
+  color bold yellow
+  echo -n '    MEM'
   color end
   echo -n ': '
   echo "$STR"
@@ -58,22 +58,24 @@ if [ -n "$STR" ]; then
   echo "$STR" | njoin ', '
 fi
 
-STR=$(mem)
+STR=$(disk)
 if [ -n "$STR" ]; then
-  color bold magenta
-  echo -n '    MEM'
+  echo "$STR" | while IFS= read -r DISK; do
+    color bold magenta
+    echo -n '   DISK'
+    color end
+    echo -n ': '
+    echo "$DISK"
+  done
+fi
+
+STR=$(model)
+if [ -n "$STR" ]; then
+  color bold cyan
+  echo -n '  MODEL'
   color end
   echo -n ': '
   echo "$STR"
-fi
-
-STR=$(disk)
-if [ -n "$STR" ]; then
-  color bold yellow
-  echo -n '   DISK'
-  color end
-  echo -n ': '
-  echo "$STR" | njoin ', '
 fi
 
 STR=$(bios)
