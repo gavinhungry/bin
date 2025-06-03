@@ -1,4 +1,4 @@
-#!/bin/sh                                                                       
+#!/bin/bash
 
 echo
 echo -e $(tput sgr0)'\e[30mBLACK\t\t'$(tput bold)'\e[90mBRIGHT_BLACK'
