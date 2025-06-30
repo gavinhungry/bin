@@ -3,7 +3,7 @@
 set -eo pipefail
 
 CMD=${1:-'--fullscreen'}
-FILENAME=${XDG_DESKTOP_DIR}/$(date +"screenshot-%Y%m%d-%H%M%S-%3N.png")
+FILENAME=${HOME}/$(date +"screenshot-%Y%m%d-%H%M%S-%3N.png")
 
 case "$CMD" in
   -f|--fullscreen|-r|--region|-w|--window)
