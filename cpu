@@ -13,7 +13,11 @@ fi
 SOCKETS=$(lscpu | grep ^'NUMA node(s):' | clean)
 THREADS=$(lscpu | grep ^'CPU(s):' | clean)
 
-CPU_LABEL=$(echo "${CPU}" | sed -r 's/\((R|TM)\)//g' | sed -r 's/\sCPU\s/ /g')
+CPU_LABEL=$(echo "${CPU}" \
+  | sed -r 's/\((R|TM)\)//g' \
+  | sed -r 's/\sCPU\s/ /g' \
+  | sed -r 's/\s[0-9]+-Core Processor$//g'
+)
 
 if [ -z "$CPU_LABEL" ]; then
   LSCPU=$(lscpu)
