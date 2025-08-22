@@ -1,0 +1,15 @@
+#!/bin/bash
+
+total=0
+count=0
+for f in /sys/class/hwmon/hwmon*/temp*_label; do
+  if grep -q 'Tccd' "$f"; then
+    valfile="${f%_*}_input"
+    val=$(< "$valfile")
+    total=$((total + val))
+    count=$((count + 1))
+  fi
+done
+
+avg=$((total / count))
+printf "%.0f°C\n" "$(echo "$avg / 1000" | bc -l)"
