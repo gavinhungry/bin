@@ -1,15 +1,16 @@
 #!/bin/bash
 
-total=0
-count=0
-for f in /sys/class/hwmon/hwmon*/temp*_label; do
-  if grep -q 'Tccd' "$f"; then
-    valfile="${f%_*}_input"
-    val=$(< "$valfile")
-    total=$((total + val))
-    count=$((count + 1))
+CCD_TOTAL=0
+CCD_COUNT=0
+
+for CCD in /sys/class/hwmon/hwmon*/temp*_label; do
+  if grep -q 'Tccd' "$CCD"; then
+    CCD_FILE="${CCD%_*}_input"
+    CCD_VAL=$(cat "$CCD_FILE")
+    CCD_TOTAL=$((CCD_TOTAL + CCD_VAL))
+    CCD_COUNT=$((CCD_COUNT + 1))
   fi
 done
 
-avg=$((total / count))
-printf "%.0f°C\n" "$(echo "$avg / 1000" | bc -l)"
+CCD_AVG=$((CCD_TOTAL / CCD_COUNT))
+printf "%.0f°C\n" "$(echo "$CCD_AVG / 1000" | bc -l)"
