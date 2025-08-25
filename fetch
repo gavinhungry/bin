@@ -33,7 +33,7 @@ fi
 
 STR=$(cpu)
 if [ -n "$STR" ]; then
-  color bold red
+  color bold purple
   echo -n '    CPU'
   color end
   echo -n ': '
@@ -42,7 +42,7 @@ fi
 
 STR=$(mem)
 if [ -n "$STR" ]; then
-  color bold blue
+  color bold yellow
   echo -n '    MEM'
   color end
   echo -n ': '
@@ -61,7 +61,7 @@ fi
 STR=$(disk)
 if [ -n "$STR" ]; then
   echo "$STR" | while IFS= read -r DISK; do
-    color bold magenta
+    color bold cyan
     echo -n '   DISK'
     color end
     echo -n ': '
@@ -71,7 +71,7 @@ fi
 
 STR=$(model)
 if [ -n "$STR" ]; then
-  color bold cyan
+  color bold blue
   echo -n '  MODEL'
   color end
   echo -n ': '
@@ -80,7 +80,7 @@ fi
 
 STR=$(bios)
 if [ -n "$STR" ]; then
-  color bold yellow
+  color bold red
   echo -n '   BIOS'
   color end
   echo -n ': '
@@ -89,7 +89,7 @@ fi
 
 STR=$(ucode)
 if [ -n "$STR" ]; then
-  color bold yellow
+  color bold red
   echo -n '  UCODE'
   color end
   echo -n ': '
