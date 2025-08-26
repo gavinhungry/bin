@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 
 const {
-  interval,
-  interval_max,
-  curve,
-  targets
+  INTERVAL,
+  INTERVAL_MAX,
+  CURVE,
+  TARGETS
 } = require(`${process.env.XDG_LOCAL_HOME}/etc/fangd.json`);
 
 const { execSync } = require('child_process');
@@ -12,7 +12,7 @@ const { globSync } = require('glob');
 
 const mean = arr => arr.reduce((memo, num) => memo + num, 0) / arr.length;
 
-targets.forEach(target => {
+TARGETS.forEach(target => {
   const pwmPaths = globSync(target.pwm);
 
   let temps = [];
@@ -21,10 +21,10 @@ targets.forEach(target => {
   const update = () => {
     let temp = Number(execSync(target.command));
     temps.push(temp > 1000 ? temp / 1000 : temp);
-    temps = temps.slice(Math.max(0, temps.length - interval_max));
+    temps = temps.slice(Math.max(0, temps.length - INTERVAL_MAX));
 
     let avg = Math.round(mean(temps));
-    let item = curve.find(item => item.temp <= avg) || curve[curve.length - 1];
+    let item = CURVE.find(item => item.temp <= avg) || CURVE.at(-1);
 
     if (item !== prev) {
       console.debug(`${target.name}: ${item.pwm}`);
@@ -36,7 +36,7 @@ targets.forEach(target => {
       execSync(`echo ${item.pwm} > ${input}`);
     });
 
-    setTimeout(update, interval * 1000);
+    setTimeout(update, INTERVAL * 1000);
   };
 
   update();
