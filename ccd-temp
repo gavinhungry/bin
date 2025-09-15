@@ -3,14 +3,17 @@
 CCD_TOTAL=0
 CCD_COUNT=0
 
-for CCD in /sys/class/hwmon/hwmon*/temp*_label; do
-  if grep -q 'Tccd' "$CCD"; then
-    CCD_FILE="${CCD%_*}_input"
-    CCD_VAL=$(cat "$CCD_FILE")
-    CCD_TOTAL=$((CCD_TOTAL + CCD_VAL))
-    CCD_COUNT=$((CCD_COUNT + 1))
-  fi
+for CCD in $(grep -l ^Tccd /sys/class/hwmon/hwmon*/temp*_label); do
+  CCD_VAL=$(cat "${CCD%_*}_input")
+  CCD_TOTAL=$((CCD_TOTAL + CCD_VAL))
+  CCD_COUNT=$((CCD_COUNT + 1))
 done
 
 CCD_AVG=$((CCD_TOTAL / CCD_COUNT))
+
+if [ "$1" == --raw ]; then
+  echo $CCD_AVG
+  exit
+fi
+
 printf "%.0f°C\n" "$(echo "$CCD_AVG / 1000" | bc -l)"
