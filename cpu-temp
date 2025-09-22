@@ -1,23 +1,17 @@
 #!/bin/bash
 
+set -eo pipefail
 source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
 
-ALL_LABELS=$(find /sys/devices/platform/coretemp.* -name temp*_label)
-[ -n "$ALL_LABELS" ] || exit 1
+K10TEMP_NAME=$(grep -l ^k10temp$ /sys/class/hwmon/hwmon*/name)
+K10TEMP_DIR=$(dirname "$K10TEMP_NAME")
 
-if arge core; then
-  LABELS=$(grep -l '^Core ' $ALL_LABELS) # core max
-else
-  LABELS=$(grep -l '^Package ' $ALL_LABELS | head -n1)
+TCTL=$(grep -l ^Tctl$ $K10TEMP_DIR/temp*_label)
+TCTL_VAL=$(cat "${TCTL%_*}_input")
+
+if arge raw; then
+  echo $TCTL_VAL
+  exit
 fi
 
-TEMP_MAX=0
-
-for LABEL in $LABELS; do
-  INPUT=${LABEL%_label}_input
-  TEMP=$(cat $INPUT)
-  [ "$TEMP" -gt "$TEMP_MAX" ] && TEMP_MAX=$TEMP
-done
-
-TEMP_SCALED=$(echo "scale=0; $TEMP_MAX / 1000" | bc)
-echo "${TEMP_SCALED}°C"
+printf "%.0f°C\n" "$(echo "$TCTL_VAL / 1000" | bc -l)"
