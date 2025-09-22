@@ -1,5 +1,8 @@
 #!/bin/bash
 
+set -eo pipefail
+source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
+
 CCD_TOTAL=0
 CCD_COUNT=0
 
@@ -13,7 +16,7 @@ done
 
 CCD_AVG=$((CCD_TOTAL / CCD_COUNT))
 
-if [ "$1" == --raw ]; then
+if arge raw; then
   echo $CCD_AVG
   exit
 fi
