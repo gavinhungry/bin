@@ -9,6 +9,8 @@ for CCD in $(grep -l ^Tccd /sys/class/hwmon/hwmon*/temp*_label); do
   CCD_COUNT=$((CCD_COUNT + 1))
 done
 
+[ $CCD_COUNT -gt 0 ] || exit 1
+
 CCD_AVG=$((CCD_TOTAL / CCD_COUNT))
 
 if [ "$1" == --raw ]; then
