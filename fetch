@@ -5,7 +5,10 @@ source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
 echo
 
 STR=$(grep ^PRETTY_HOSTNAME= /etc/machine-info 2> /dev/null | cut -d= -f2)
-[ -z "$STR" ] && STR=$(hostname)
+if [ -z "$STR" ]; then
+  STR=$(hostname)
+  STR="${STR^}"
+fi
 
 if [ -n "$STR" ]; then
   color bold white
