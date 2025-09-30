@@ -1,4 +1,0 @@
-#!/bin/bash
-
-# doesn't play nice with nocsd
-LD_PRELOAD= exec /usr/bin/seahorse "$@"
