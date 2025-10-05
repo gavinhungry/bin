@@ -1,0 +1,10 @@
+#!/bin/bash
+
+ARGS=$@
+
+if [ $# -eq 0 ]; then
+  ARGS=(/K)
+  ARGS+=("ver & cd $(wsl-env-var USERPROFILE)")
+fi
+
+exec /mnt/c/Windows/System32/cmd.exe ${ARGS[*]} 2> >(sed "1,3d" >&2)
