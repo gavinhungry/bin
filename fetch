@@ -4,101 +4,46 @@ source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
 
 echo
 
-STR=$(grep ^PRETTY_HOSTNAME= /etc/machine-info 2> /dev/null | cut -d= -f2)
-if [ -z "$STR" ]; then
-  STR=$(hostname)
-  STR="${STR^}"
-fi
+output_fetch() {
+  local COLOR=$1; shift
+  local LABEL=$1; shift
+  local OUTPUT="$@"
 
-if [ -n "$STR" ]; then
-  color bold white
-  echo -n '   HOST'
-  color end
-  echo -n ': '
-  echo "$STR"
-fi
-
-STR=$(grep ^PRETTY_NAME= /etc/os-release 2> /dev/null | cut -d'"' -f2)
-if [ -n "$STR" ]; then
-  color bold black
-  echo -n '     OS'
-  color end
-  echo -n ': '
-  echo "$STR"
-fi
-
-STR=$(uname -srm)
-if [ -n "$STR" ]; then
-  color bold black
-  echo -n ' KERNEL'
-  color end
-  echo -n ': '
-  echo "$STR"
-fi
-
-STR=$(cpu)
-if [ -n "$STR" ]; then
-  color bold purple
-  echo -n '    CPU'
-  color end
-  echo -n ': '
-  echo "$STR"
-fi
-
-STR=$(mem)
-if [ -n "$STR" ]; then
-  color bold yellow
-  echo -n '    MEM'
-  color end
-  echo -n ': '
-  echo "$STR"
-fi
-
-STR=$(gpu)
-if [ -n "$STR" ]; then
-  color bold green
-  echo -n '    GPU'
-  color end
-  echo -n ': '
-  echo "$STR" | njoin ', '
-fi
-
-STR=$(disk)
-if [ -n "$STR" ]; then
-  echo "$STR" | while IFS= read -r DISK; do
-    color bold cyan
-    echo -n '   DISK'
+  if [ -n "$OUTPUT" ]; then
+    color bold $COLOR
+    printf "%7s" $LABEL
     color end
-    echo -n ': '
-    echo "$DISK"
-  done
+    echo -n ' '
+    echo "$OUTPUT"
+  fi
+}
+
+HOST=$(grep ^PRETTY_HOSTNAME= /etc/machine-info 2> /dev/null | cut -d= -f2)
+if [ -z "$HOST" ]; then
+  HOST=$(hostname)
+  HOST="${HOST^}"
 fi
 
-STR=$(model)
-if [ -n "$STR" ]; then
-  color bold blue
-  echo -n '  MODEL'
-  color end
-  echo -n ': '
-  echo "$STR"
-fi
+output_fetch white HOST $HOST
 
-STR=$(bios)
-if [ -n "$STR" ]; then
-  color bold red
-  echo -n '   BIOS'
-  color end
-  echo -n ': '
-  echo "$STR"
-fi
+output_fetch black OS \
+  $(grep ^PRETTY_NAME= /etc/os-release 2> /dev/null | cut -d'"' -f2)
 
-STR=$(ucode)
-if [ -n "$STR" ]; then
-  color bold red
-  echo -n '  UCODE'
-  color end
-  echo -n ': '
-  echo "$STR"
-fi
+output_fetch black KERNEL $(uname -srm)
+
+output_fetch black WSL \
+  $(wsl.exe --version 2> /dev/null | iconv -f UTF-16LE -t UTF-8 | grep '^WSL version:' | awk '{ print $NF; }')
+
+output_fetch purple CPU $(cpu)
+output_fetch yellow MEM $(mem)
+output_fetch green GPU $(gpu)
+
+echo "$(disk)" | while IFS= read -r DISK; do
+  output_fetch cyan DISK "$DISK"
+done
+
+output_fetch blue MODEL $(model)
+output_fetch red BIOS $(bios)
+output_fetch red UCODE $(ucode)
 
 echo
