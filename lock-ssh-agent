@@ -1,3 +1,4 @@
 #!/bin/bash
 
+rm -f $XDG_CACHE_HOME/.ssh-agent
 exec ssh-add -Dq
