@@ -1,13 +1,20 @@
 #!/bin/bash
 
 source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
-
 echo
+
+FETCH_IGNORE__DISK=('Msft Virtual Disk')
+FETCH_IGNORE__GPU=('Microsoft Basic Render Driver')
+FETCH_IGNORE__UCODE=('0xffffffff')
 
 output_fetch() {
   local COLOR=$1; shift
   local LABEL=$1; shift
   local OUTPUT="$@"
+
+  if includes FETCH_IGNORE__$LABEL "$OUTPUT"; then
+    return
+  fi
 
   if [ -n "$OUTPUT" ]; then
     color bold $COLOR
