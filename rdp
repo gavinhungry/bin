@@ -29,7 +29,7 @@ exec xfreerdp \
   /bpp:24 \
   /audio-mode:1 \
   /dynamic-resolution \
-  -toggle-fullscreen \
+  +toggle-fullscreen \
   +window-drag \
   +clipboard \
   /w:"${RDP_WIDTH}" \
