@@ -36,7 +36,11 @@ output_fetch white HOST $HOST
 output_fetch black OS \
   $(grep ^PRETTY_NAME= /etc/os-release 2> /dev/null | cut -d'"' -f2)
 
-output_fetch black KERNEL $(uname -srm)
+KERNEL=$(uname -sr)
+KERNEL_M=$(uname -m)
+[[ $KERNEL == *[.-]"$KERNEL_M" ]] || KERNEL="${KERNEL} ${KERNEL_M}"
+
+output_fetch black KERNEL $KERNEL
 
 output_fetch black WSL \
   $(wsl.exe --version 2> /dev/null | iconv -f UTF-16LE -t UTF-8 | grep '^WSL version:' | awk '{ print $NF; }')
