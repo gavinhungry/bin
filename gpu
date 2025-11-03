@@ -1,12 +1,5 @@
 #!/bin/bash
 
-GLXINFO_GPU=$(glxinfo | grep '^OpenGL renderer' | awk -F': ' '{print $2}' | awk -F'(' '{print $1}')
-
-if [ -n "$GLXINFO_GPU" ]; then
-  echo $GLXINFO_GPU
-  exit
-fi
-
 lspci -mm | grep 'VGA compatible controller\|3D controller\|Graphics' | while read -r VGA ; do
   VENDOR=$(echo $VGA | cut -d'"' -f4 | sed 's/ Corporation//g')
   MODEL_FULL=$(echo $VGA | cut -d'"' -f6)
