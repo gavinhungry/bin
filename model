@@ -7,7 +7,7 @@ if [ -d "$DT" ]; then
   tr -d '\0' < "$DT"/model
   echo
 elif [ -d "$DMI" ]; then
-  VENDOR=$(kat $DMI/board_vendor)
+  VENDOR=$(kat $DMI/sys_vendor || kat $DMI/board_vendor)
 
   NAMES=(
     "$(kat $DMI/board_name)"
