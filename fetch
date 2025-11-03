@@ -46,8 +46,8 @@ output_fetch black WSL \
   $(wsl.exe --version 2> /dev/null | iconv -f UTF-16LE -t UTF-8 | grep '^WSL version:' | awk '{ print $NF; }')
 
 output_fetch purple CPU $(cpu)
-output_fetch yellow MEM $(mem)
 output_fetch green GPU $(gpu)
+output_fetch yellow MEM $(mem)
 
 echo "$(disk)" | while IFS= read -r DISK; do
   output_fetch cyan DISK "$DISK"
