@@ -1,9 +1,6 @@
 #!/bin/bash
 
-
-lsblk -n | grep '\sdisk\s*$' | while read LINE; do
-  DISK=$(echo "$LINE" | awk '{ print $1 }')
-
+for DISK in $(lsblk -rndA --sort name | awk '{ print $1 }'); do
   REMOVABLE=$(cat /sys/class/block/$DISK/removable)
   [ "$REMOVABLE" == 1 ] && continue
 
