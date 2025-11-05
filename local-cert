@@ -2,7 +2,7 @@
 
 source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
 
-NAME=$(arg name local)
+NAME=$(arg name localhost)
 ORG=$(arg org $NAME)
 CERT_NAME=$(arg cert-name $NAME)
 
@@ -50,7 +50,7 @@ CERT_CONFIG_FILE="
 
   [dn]
   O = $ORG
-  CN = $ORG
+  CN = ${CERT_NAME}.${NAME}
 
   [san]
   subjectAltName = @alt_names
