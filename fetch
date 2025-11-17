@@ -42,9 +42,7 @@ KERNEL_M=$(uname -m)
 
 output_fetch black KERNEL $KERNEL
 
-output_fetch black WSL \
-  $(wsl.exe --version 2> /dev/null | iconv -f UTF-16LE -t UTF-8 | grep '^WSL version:' | awk '{ print $NF; }')
-
+output_fetch black WSL $(wsl-ver)
 output_fetch purple CPU $(cpu)
 output_fetch purple NPU $(npu)
 output_fetch green GPU $(gpu)
