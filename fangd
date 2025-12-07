@@ -14,6 +14,7 @@ const mean = arr => arr.reduce((memo, num) => memo + num, 0) / arr.length;
 
 TARGETS.forEach(target => {
   const pwmPaths = globSync(target.pwm);
+  const curve = CURVE[target.curve];
 
   let temps = [];
   let prev = null;
@@ -24,7 +25,7 @@ TARGETS.forEach(target => {
     temps = temps.slice(Math.max(0, temps.length - INTERVAL_MAX));
 
     let avg = Math.round(mean(temps));
-    let item = CURVE.find(item => item.temp <= avg) || CURVE.at(-1);
+    let item = curve.find(item => item.temp <= avg) || curve.at(-1);
 
     if (item !== prev) {
       console.debug(`${target.name}: ${item.pwm}`);
