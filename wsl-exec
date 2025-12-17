@@ -1,3 +1,8 @@
 #!/bin/bash
 
-exec "$@" | iconv -f UTF-16LE -t UTF-8 |  tr -d '\r'
+if [ "$1" == '--utf' ]; then
+  shift
+  exec "$@" | iconv -f UTF-16LE -t UTF-8 | tr -d '\r'
+else
+  exec "$@" | tr -d '\r'
+fi

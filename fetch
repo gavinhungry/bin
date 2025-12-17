@@ -45,6 +45,7 @@ KERNEL_M=$(uname -m)
 
 output_fetch black KERNEL $KERNEL
 
+output_fetch black WIN $(win-ver)
 output_fetch black WSL $(wsl-ver)
 output_fetch purple CPU $(cpu)
 output_fetch purple NPU $(npu)
