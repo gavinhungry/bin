@@ -7,6 +7,7 @@ FETCH_IGNORE__DISK=('Msft Virtual Disk')
 FETCH_IGNORE__GPU=(
   'Microsoft Basic Render Driver'
   'Vendor 1234 Device 1111'
+  'llvmpipe'
 )
 FETCH_IGNORE__UCODE=('0xffffffff')
 
