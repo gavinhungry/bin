@@ -1,0 +1,18 @@
+#!/bin/bash
+
+JSON=$(wsl-exec pwsh.exe -NoProfile -Command "\
+  Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion' |\
+  Select-Object ProductName, DisplayVersion, CurrentBuild, UBR |\
+  ConvertTo-Json -Compress
+")
+
+PRODUCT_NAME=$(echo "$JSON" | jq -r .ProductName)
+DISPLAY_VERSION=$(echo "$JSON" | jq -r .DisplayVersion)
+CURRENT_BUILD=$(echo "$JSON" | jq -r .CurrentBuild)
+UBR=$(echo "$JSON" | jq -r .UBR)
+
+if (( CURRENT_BUILD >= 22000 )); then
+  PRODUCT_NAME=$(echo "$PRODUCT_NAME" | sed -E 's/^Windows 10\b/Windows 11/')
+fi
+
+printf '%s %s (Build %s.%s)\n' "$PRODUCT_NAME" "$DISPLAY_VERSION" "$CURRENT_BUILD" "$UBR"
