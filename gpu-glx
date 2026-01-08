@@ -1,3 +1,5 @@
 #!/bin/bash
 
-glxinfo | grep '^OpenGL renderer' | awk -F': ' '{print $2}' | awk -F'(' '{print $1}'\
+set -eo pipefail
+
+glxinfo 2> /dev/null | grep '^OpenGL renderer' | awk -F': ' '{print $2}' | awk -F'(' '{print $1}'\

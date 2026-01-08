@@ -49,7 +49,7 @@ output_fetch black WIN $(win-ver)
 output_fetch black WSL $(wsl-ver)
 output_fetch purple CPU $(cpu)
 output_fetch purple NPU $(npu)
-output_fetch green GPU $(gpu)
+output_fetch green GPU $(gpu-glx || gpu)
 output_fetch yellow MEM $(mem)
 
 echo "$(disk)" | while IFS= read -r DISK; do
