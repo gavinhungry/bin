@@ -4,7 +4,9 @@ JSON=$(wsl-exec pwsh.exe -NoProfile -Command "\
   Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion' |\
   Select-Object ProductName, DisplayVersion, CurrentBuild, UBR |\
   ConvertTo-Json -Compress
-")
+" 2> /dev/null)
+
+[ -z "$JSON" ] && exit
 
 PRODUCT_NAME=$(echo "$JSON" | jq -r .ProductName)
 DISPLAY_VERSION=$(echo "$JSON" | jq -r .DisplayVersion)
