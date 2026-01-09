@@ -11,6 +11,7 @@ from typing import Optional
 
 import pychromecast
 from pychromecast.socket_client import ConnectionStatusListener
+
 def setup_logging():
   logging.basicConfig(
     level=logging.INFO,
