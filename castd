@@ -1,162 +1,285 @@
 #!/usr/bin/env python
 
-import atexit
+import argparse
+import logging
 import os
+import platform
 import signal
 import socket
 import sys
+from typing import Optional
 
 import pychromecast
 from pychromecast.socket_client import ConnectionStatusListener
+def setup_logging():
+  logging.basicConfig(
+    level=logging.INFO,
+    format='[%(levelname)s] %(message)s',
+    stream=sys.stdout,
+  )
 
-SOCKET_PATH = f'{os.environ['XDG_CACHE_HOME']}/castd.sock'
+  logging.getLogger('pychromecast').setLevel(logging.WARNING)
+
+logger = logging.getLogger('castd')
+
+def fatal(msg, exc=None):
+  logger.error(msg)
+  if exc:
+    logger.error(exc)
+  # hard exit, let supervisor restart cleanly
+  os._exit(1)
+
+def parse_args():
+  parser = argparse.ArgumentParser(
+    description='castd – Chromecast control daemon'
+  )
+
+  parser.add_argument(
+    '--name',
+    required=True,
+    help='Friendly name of the Chromecast device'
+  )
+
+  parser.add_argument(
+    '--socket',
+    choices=['inet', 'unix'],
+    default='inet',
+    help='Socket type to use (default: inet)'
+  )
+
+  return parser.parse_args()
+
+def validate_platform(socket_type):
+  if socket_type == 'unix' and platform.system() == 'Windows':
+    fatal('UNIX sockets are not supported on Windows')
+
+def resolve_unix_socket_path():
+  xdg_cache = os.environ.get('XDG_CACHE_HOME')
+  if xdg_cache:
+    return os.path.join(xdg_cache, 'castd.sock')
+  return '/tmp/castd.sock'
+
+class SocketBackend:
+  def __init__(self):
+    self.server: Optional[socket.socket] = None
+
+  def start(self):
+    raise NotImplementedError
+
+  def cleanup(self):
+    pass
+
+  def close(self):
+    if self.server:
+      self.server.close()
+    self.cleanup()
+
+  def _recv_command(self, client: socket.socket) -> str:
+    data = client.recv(32)
+    return data.decode('utf-8').strip()
+
+  def accept_command(self) -> tuple[Optional[str], Optional[socket.socket]]:
+    try:
+      client, _ = self.server.accept()
+    except socket.timeout:
+      return None, None
+
+    command = self._recv_command(client)
+
+    # burst suppression
+    while True:
+      try:
+        self.server.settimeout(0)
+        extra_client, _ = self.server.accept()
+      except (socket.timeout, BlockingIOError):
+        break
+      else:
+        client.close()
+        client = extra_client
+        command = self._recv_command(client)
+
+    self.server.settimeout(1.0)
+    return command, client
+
+class InetSocketBackend(SocketBackend):
+  def __init__(self, host: str, port: int):
+    super().__init__()
+    self.host = host
+    self.port = port
+
+  def start(self):
+    try:
+      self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+      self.server.bind((self.host, self.port))
+      self.server.listen(4)
+      self.server.settimeout(1.0)
+    except Exception as e:
+      fatal('Failed to start INET socket server', e)
+
+class UnixSocketBackend(SocketBackend):
+  SOCKET_MODE = 0o660
+
+  def __init__(self, path: str):
+    super().__init__()
+    self.path = path
+
+  def start(self):
+    try:
+      if os.path.exists(self.path):
+        os.remove(self.path)
+
+      self.server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+      self.server.bind(self.path)
+      os.chmod(self.path, self.SOCKET_MODE)
+      self.server.listen(4)
+      self.server.settimeout(1.0)
+    except Exception as e:
+      fatal('Failed to start UNIX socket server', e)
+
+  def cleanup(self):
+    try:
+      if os.path.exists(self.path):
+        os.remove(self.path)
+    except Exception:
+      pass
 
 class CastdConnectionStatusListener(ConnectionStatusListener):
   def new_connection_status(self, status):
     if status.status == 'LOST':
-      send_command('quit')
+      fatal('Chromecast connection lost')
 
-def is_server_running():
-  return os.path.exists(SOCKET_PATH)
+def connect_chromecast(name: str):
+  try:
+    casts, browser = pychromecast.get_listed_chromecasts(
+      friendly_names=[name]
+    )
+  except Exception as e:
+    fatal('Error discovering Chromecast', e)
 
-def cleanup():
-  if is_server_running():
-    os.remove(SOCKET_PATH)
+  if not casts:
+    fatal(f'Chromecast not found: {name}')
 
-def cleanup_and_exit(exit_code = 0):
-  cleanup()
-  sys.exit(exit_code)
-
-def cleanup_and_exit_handler(signum, frame):
-  cleanup_and_exit(128 + signum)
-
-def is_playing(media):
-  return media.status.player_state == 'PLAYING'
-
-def is_paused(media):
-  return media.status.player_state == 'PAUSED'
-
-def start_server():
-  cleanup()
-
-  atexit.register(cleanup)
-  signal.signal(signal.SIGINT, cleanup_and_exit_handler)
-  signal.signal(signal.SIGTERM, cleanup_and_exit_handler)
-
-  server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-  server.bind(SOCKET_PATH)
-  server.listen(4)
-
-  [ cast ], browser = pychromecast.get_listed_chromecasts(friendly_names=[os.environ['CASTD_NAME']])
+  cast = casts[0]
   cast.register_connection_listener(CastdConnectionStatusListener())
 
-  cast.wait()
-  browser.stop_discovery()
+  try:
+    cast.wait()
+    browser.stop_discovery()
+  except Exception as e:
+    fatal('Error connecting to Chromecast', e)
 
-  media = cast.media_controller
+  logger.info(f'Connected to Chromecast: {cast.name}')
+  return cast
 
+def is_playing(cast):
+  return cast.media_controller.status.player_state == 'PLAYING'
+
+def is_paused(cast):
+  return cast.media_controller.status.player_state == 'PAUSED'
+
+def handle_command(command: str, cast, client: Optional[socket.socket]):
+  mc = cast.media_controller
+
+  match command:
+    case 'play':
+      if is_paused(cast):
+        mc.play()
+
+    case 'pause':
+      if is_playing(cast):
+        mc.pause()
+
+    case 'playpause':
+      if is_paused(cast):
+        mc.play()
+      elif is_playing(cast):
+        mc.pause()
+
+    case 'stop':
+      if is_playing(cast) or is_paused(cast):
+        mc.stop()
+
+    case 'prev':
+      if is_playing(cast) or is_paused(cast):
+        mc.queue_prev()
+
+    case 'next':
+      if is_playing(cast) or is_paused(cast):
+        mc.queue_next()
+
+    case 'vol-down':
+      cast.volume_down(0.05)
+
+    case 'vol-up':
+      cast.volume_up(0.05)
+
+    case 'mute':
+      if not cast.status.volume_muted:
+        cast.set_volume_muted(True)
+
+    case 'mutetoggle':
+      cast.set_volume_muted(not cast.status.volume_muted)
+
+    case 'unmute':
+      if cast.status.volume_muted:
+        cast.set_volume_muted(False)
+
+    case 'metadata':
+      if is_playing(cast) and client:
+        metadata = '\n'.join(
+          filter(None, [
+            mc.status.artist,
+            mc.status.title
+          ])
+        )
+        client.sendall(metadata.encode('utf-8'))
+
+    case _:
+      logger.warning(f'Unknown command: {command}')
+
+def command_loop(backend: SocketBackend, cast):
   while True:
-    client, _ = server.accept()
-    with client:
-      command = client.recv(16).decode('utf-8').strip()
+    command, client = backend.accept_command()
+    if command is None:
+      continue
 
-      match command:
-        case 'quit':
-          server.close()
-          cleanup_and_exit()
-
-        case 'play':
-          if is_paused(media):
-            media.play()
-
-        case 'pause':
-          if is_playing(media):
-            media.pause()
-
-        case 'playpause':
-          if is_paused(media):
-            media.play()
-          elif is_playing(media):
-            media.pause()
-
-        case 'stop':
-          if is_playing(media) or is_paused(media):
-            media.stop()
-
-        case 'prev':
-          if is_playing(media) or is_paused(media):
-            media.queue_prev()
-
-        case 'next':
-          if is_playing(media) or is_paused(media):
-            media.queue_next()
-
-        case 'vol-down':
-          cast.volume_down(0.05)
-
-        case 'vol-up':
-          cast.volume_up(0.05)
-
-        case 'mute':
-          if not cast.status.volume_muted:
-            cast.set_volume_muted(True)
-
-        case 'mutetoggle':
-          cast.set_volume_muted(not cast.status.volume_muted)
-
-        case 'unmute':
-          if cast.status.volume_muted:
-            cast.set_volume_muted(False)
-
-        case 'metadata':
-          if is_playing(media):
-            metadata = '\n'.join(
-              filter(None, ([
-                media.status.artist,
-                media.status.title
-              ]))
-            )
-
-            client.sendall(metadata.encode('utf-8'))
-
-def send_command(command):
-  client = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-  client.connect(SOCKET_PATH)
-
-  client.sendall(command.encode('utf-8'))
-  response = client.recv(1024).decode('utf-8')
-  client.close()
-
-  if (command == 'metadata' and not response):
-    sys.exit(3)
-
-  print(response)
+    try:
+      handle_command(command, cast, client)
+    except Exception as e:
+      fatal('Error handling command', e)
+    finally:
+      if client:
+        client.close()
 
 def main():
-  command = sys.argv[1] if len(sys.argv) > 1 else None
+  setup_logging()
+  args = parse_args()
 
-  if command == None:
-    if is_server_running():
-      sys.exit(0)
+  validate_platform(args.socket)
 
-    pid = os.fork()
+  logger.info('Starting castd')
+  logger.info(f'Chromecast name: {args.name}')
 
-    if pid == 0:
-      start_server()
-      sys.exit(0)
+  if args.socket == 'inet':
+    backend = InetSocketBackend('127.0.0.1', 8765)
+    logger.info(f'Listening on {backend.host}:{backend.port}')
+  else:
+    path = resolve_unix_socket_path()
+    backend = UnixSocketBackend(path)
+    logger.info(f'Listening on Unix socket: {path}')
 
+  def shutdown_handler(signum, frame):
+    logger.info('Shutting down')
+    backend.close()
     sys.exit(0)
 
-  if command == 'quit':
-    if is_server_running():
-      send_command('quit')
+  signal.signal(signal.SIGINT, shutdown_handler)
+  signal.signal(signal.SIGTERM, shutdown_handler)
 
-    sys.exit(0)
+  backend.start()
+  cast = connect_chromecast(args.name)
 
-  if not is_server_running():
-    sys.exit(1)
-
-  send_command(command)
+  command_loop(backend, cast)
 
 if __name__ == '__main__':
   main()
