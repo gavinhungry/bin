@@ -12,6 +12,9 @@ from typing import Optional
 import pychromecast
 from pychromecast.socket_client import ConnectionStatusListener
 
+INET_PORT=8765
+VOLUME_DELTA=0.03
+
 def setup_logging():
   logging.basicConfig(
     level=logging.INFO,
@@ -209,10 +212,10 @@ def handle_command(command: str, cast, client: Optional[socket.socket]):
         mc.queue_next()
 
     case 'vol-down':
-      cast.volume_down(0.05)
+      cast.volume_down(VOLUME_DELTA)
 
     case 'vol-up':
-      cast.volume_up(0.05)
+      cast.volume_up(VOLUME_DELTA)
 
     case 'mute':
       if not cast.status.volume_muted:
@@ -262,7 +265,7 @@ def main():
   logger.info(f'Chromecast name: {args.name}')
 
   if args.socket == 'inet':
-    backend = InetSocketBackend('127.0.0.1', 8765)
+    backend = InetSocketBackend('127.0.0.1', INET_PORT)
     logger.info(f'Listening on {backend.host}:{backend.port}')
   else:
     path = resolve_unix_socket_path()
