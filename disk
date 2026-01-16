@@ -1,5 +1,15 @@
 #!/bin/bash
 
+PKNAME=$(lsblk -no PKNAME $(findmnt -n -o SOURCE /) 2> /dev/null)
+if [[ "$PKNAME" == mmcblk* ]]; then
+  MMC_CID=$(mmc cid read "/sys/block/$PKNAME/device" 2> /dev/null)
+
+  VENDOR=$(echo "$MMC_CID" | awk -F"'" '/^manufacturer:/ { print $2 }')
+  MODEL=$(echo "$MMC_CID" | awk -F"'" '/^product:/ { print $2 }')
+
+  echo "$VENDOR $MODEL"
+fi
+
 for DISK in $(lsblk -rndA --sort name | awk '{ print $1 }'); do
   REMOVABLE=$(cat /sys/class/block/$DISK/removable)
   [ "$REMOVABLE" == 1 ] && continue
