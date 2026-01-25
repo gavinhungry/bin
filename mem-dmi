@@ -1,0 +1,33 @@
+#!/bin/bash
+
+dmi_prop() {
+  /usr/bin/grep -m${2:--1} "^\s*$1:" | /usr/bin/sed 's/^[^:]*: //g'
+}
+
+num_lines() {
+  echo "$@" | wc -l
+}
+
+DMI_MEM_OUTPUT=$(/usr/bin/dmidecode -t memory)
+DMI_MAP_OUTPUT=$(/usr/bin/dmidecode -t 19)
+
+MEM_SIZE=$(echo "$DMI_MAP_OUTPUT" | dmi_prop 'Range Size')
+
+if [ $(num_lines "$MEM_SIZE") -gt 1 ]; then
+  MEM_SIZE=$(echo "$DMI_MEM_OUTPUT" | dmi_prop 'Size')
+fi
+
+if [ $(num_lines "$MEM_SIZE") -gt 1 ]; then
+  MEM_SIZE=$(echo "$MEM_SIZE" | awk 'NF {T += $1; U = $2} END {print T, U}')
+fi
+
+MEM_TYPE=$(echo "$DMI_MEM_OUTPUT" | dmi_prop 'Type' 1)
+MEM_SPEED=$(echo "$DMI_MEM_OUTPUT" | dmi_prop 'Configured Memory Speed' 1)
+MEM_ECC=$(echo "$DMI_MEM_OUTPUT" | dmi_prop 'Error Correction Type' 1)
+
+OUTPUT="$MEM_SIZE"
+[ "$MEM_TYPE" != 'RAM' ] && OUTPUT+=" $MEM_TYPE"
+[ "$MEM_SPEED" != 'Unknown' ] && OUTPUT+=" $MEM_SPEED"
+[ "$MEM_ECC" != 'None' ] && OUTPUT+=" ($MEM_ECC)"
+
+echo "$OUTPUT"
