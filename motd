@@ -12,13 +12,21 @@ indent() {
 }
 
 print_motd_file() {
-  local _FILE_PATH=$(console_file_path $1)
-  [ -f "$1" ] && echo -e "\n$(indent "$(cat $_FILE_PATH)")"
+  local FILE_PATH=$1
+  local FALLBACK_STR="$2"
+
+  ! ispty && FILE_PATH=${FILE_PATH}.console
+
+  if [ -f "$FILE_PATH" ]; then
+    echo -e "\n$(indent "$(cat $FILE_PATH)")"
+  elif [ -n "$FALLBACK_STR" ]; then
+    echo -e "\n$(indent "$(echo $FALLBACK_STR)")"
+  fi
 }
 
 print_motd_banner() {
   echo -en "\e[1;$(prompt-color $(pfarg color))m"
-  print_motd_file $MOTD_BANNER_FILE
+  print_motd_file $MOTD_BANNER_FILE "Welcome to $(hostname-pretty)"
   print_motd_file $MOTD_TAGLINE_FILE
   echo -en '\e[0m'
 }
@@ -33,10 +41,10 @@ print_motd_warning() {
 
 print_motd_banner
 echo
-echo " up $(uptimes)"
-echo
 echo " $(uname -sr)"
 [ -n "$SSH_TTY" ] && echo " $(sshd -V 2>&1 | grep -im1 ssh)"
+echo
+echo " up $(uptimes)"
 print_motd_body
 arge warning && print_motd_warning
 echo
