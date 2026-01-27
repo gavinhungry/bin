@@ -1,0 +1,6 @@
+#!/bin/bash
+
+_HOSTNAME=$(grep ^PRETTY_HOSTNAME= /etc/machine-info 2> /dev/null | cut -d= -f2)
+[ -z "$_HOSTNAME" ] && _HOSTNAME="${HOSTNAME^}"
+
+echo "$_HOSTNAME"
