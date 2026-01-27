@@ -36,21 +36,13 @@ output_fetch() {
   fi
 }
 
-HOST=$(grep ^PRETTY_HOSTNAME= /etc/machine-info 2> /dev/null | cut -d= -f2)
-if [ -z "$HOST" ]; then
-  HOST=$(hostname)
-  HOST="${HOST^}"
-fi
-
-output_fetch white HOST $HOST
-
+output_fetch white HOST $(hostname-pretty)
 output_fetch black OS \
   $(grep ^PRETTY_NAME= /etc/os-release 2> /dev/null | cut -d'"' -f2)
 
 KERNEL=$(uname -sr)
 KERNEL_M=$(uname -m)
 [[ $KERNEL == *[.-]"$KERNEL_M" ]] || KERNEL="${KERNEL} ${KERNEL_M}"
-
 output_fetch black KERNEL $KERNEL
 
 output_fetch black WIN $(win-ver)
