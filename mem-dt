@@ -1,0 +1,24 @@
+#!/bin/bash
+
+REG_FILE="/sys/firmware/devicetree/base/memory/reg"
+[ -f "$REG_FILE" ] || exit 1
+
+total_bytes=0
+
+while read -r entry; do
+  [[ "$entry" =~ ^0+$ ]] && continue
+
+  size_hex="${entry:16:16}"
+  size=$((16#$size_hex))
+  total_bytes=$((total_bytes + size))
+done < <(xxd -p "$REG_FILE" | tr -d '\n' | fold -w32)
+
+awk -v bytes="$total_bytes" 'BEGIN {
+  split("B KiB MiB GiB TiB", units)
+  i = 1
+  while (bytes >= 1024 && i < 5) {
+    bytes /= 1024
+    i++
+  }
+  printf "%.0f %s\n", bytes, units[i]
+}'
