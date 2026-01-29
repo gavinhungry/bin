@@ -1,0 +1,40 @@
+#!/bin/bash
+
+set -eo pipefail
+
+source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
+
+([ $# -eq 0 ] || arge help) && usage '[options] DOMAIN [DOMAIN...]
+  -h, --help        this message
+'
+
+DB_PATH="${HOME}/.firefox/favicons.sqlite"
+[ -f "${DB_PATH}" ] || die 'Database not found'
+
+SQL="BEGIN;"
+
+for DOMAIN in "$@"; do
+  SQL+="
+    DELETE FROM moz_icons_to_pages
+      WHERE page_id IN (
+        SELECT id FROM moz_pages_w_icons
+        WHERE page_url LIKE '%${DOMAIN}%'
+      );
+
+    DELETE FROM moz_pages_w_icons
+      WHERE page_url LIKE '%${DOMAIN}%';
+  "
+done
+
+# remove orphaned icons
+SQL+="
+  DELETE FROM moz_icons
+    WHERE id NOT IN (
+      SELECT icon_id FROM moz_icons_to_pages
+    );
+
+  COMMIT;
+  VACUUM;
+"
+
+sqlite3 "${DB_PATH}" "${SQL}"
