@@ -1,5 +1,7 @@
 #!/bin/bash
 
+mem-dt && exit
+
 step() {
   printf "%.1f" "$(echo "scale=2; ${1}/1024" | bc)"
 }
@@ -28,11 +30,11 @@ MEM_GB=$(step "$MEM_MB")
 MEM_TB=$(step "$MEM_GB")
 
 if (( $(echo "$MEM_TB >= 1" | bc) )); then
-  echo "$(printf "%s" "$MEM_TB" | fmt) TB"
+  echo "$(printf "%s" "$MEM_TB" | fmt) TiB"
 elif (( $(echo "$MEM_GB >= 1" | bc) )); then
-  echo "$(printf "%s" "$MEM_GB" | fmt) GB"
+  echo "$(printf "%s" "$MEM_GB" | fmt) GiB"
 elif (( $(echo "$MEM_MB >= 1" | bc) )); then
-  echo "$(printf "%s" "$MEM_MB" | fmt) MB"
+  echo "$(printf "%s" "$MEM_MB" | fmt) MiB"
 else
-  echo "$MEM_KB KB"
+  echo "$MEM_KB KiB"
 fi
