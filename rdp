@@ -27,7 +27,7 @@ RDP_HEIGHT=${RDP_GEOMETRY#*x}
 
 exec xfreerdp \
   /title:"$RDP_WIN_TITLE" \
-  /gfx:AVC444 \
+  /gfx:AVC420 \
   /bpp:24 \
   /audio-mode:1 \
   /dynamic-resolution \
