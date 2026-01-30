@@ -68,6 +68,24 @@ const ACTION = {
     cache.prev = hash;
 
     writeJsonToCacheFile(`yt-music-metadata.json`, data);
+  },
+
+  /*
+   * Record Plex Music metadata for external use
+   */
+  plex_music_metadata: (res, data, cache) => {
+    if (data.beforeunload) {
+      data = null;
+    }
+
+    let hash = objectHash(data);
+    if (hash === cache.prev) {
+      return;
+    }
+
+    cache.prev = hash;
+
+    writeJsonToCacheFile(`plex-music-metadata.json`, data);
   }
 };
 

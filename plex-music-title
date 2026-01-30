@@ -1,0 +1,16 @@
+#!/bin/bash
+
+set -eo pipefail
+
+CACHE_FILE=$XDG_CACHE_HOME/plex-music-metadata.json
+[ ! -e "$CACHE_FILE" ] && exit 1
+
+if ! pidof -q $BROWSER; then
+  rm -f $CACHE_FILE
+  exit 1
+fi
+
+PLAYING=$(jq -r '.is_playing' "$CACHE_FILE")
+[ "$PLAYING" == 'true' ] || exit 1
+
+jq -r '.artist,.title' $CACHE_FILE
