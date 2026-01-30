@@ -50,7 +50,7 @@ output_fetch black WSL $(wsl-ver)
 output_fetch purple CPU $(cpu)
 output_fetch green GPU $(gpu)
 output_fetch green NPU $(npu)
-output_fetch yellow MEM $(mem)
+output_fetch yellow RAM $(mem)
 
 echo "$(disk)" | while IFS= read -r DISK; do
   output_fetch cyan DISK "$DISK"
