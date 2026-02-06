@@ -1,0 +1,9 @@
+#!/bin/bash
+
+set -e
+
+SPLIT_RE='[][(){}<>,;:+*/=-]'
+
+diff --color=always -u \
+  <(sed "s/${SPLIT_RE}/&\n/g" "$1") \
+  <(sed "s/${SPLIT_RE}/&\n/g" "$2")
