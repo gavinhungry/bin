@@ -1,13 +1,35 @@
 #!/bin/bash
 
+source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
+
 for DIR in /proc/*/; do
   [ ! -e $DIR/comm ] && continue
+  PID=$(basename $DIR)
 
   COMM=$(cat $DIR/comm)
   [ -z "$COMM" ] && continue
 
-  EXE=$(basename "$(readlink -q $DIR/exe)")
   LINK=$(basename "$(readlink -fq $(which $COMM 2> /dev/null) 2> /dev/null)")
+  CMDLINE=$(basename "$(head -z -n1 $DIR/cmdline | tr -d '\0')" 2> /dev/null)
+  EXE=$(basename "$(readlink -q $DIR/exe)")
 
-  [ "$EXE" == "$COMM (deleted)" -o "$EXE" == "$LINK (deleted)" ] && echo $COMM
+  if [[
+    "$EXE" == "$COMM (deleted)" ||
+    "$EXE" == "$LINK (deleted)" ||
+    "$EXE" == "$CMDLINE (deleted)"
+   ]]; then
+    _EXE=${EXE% (deleted)}
+
+    if arge pids-only; then
+      echo $PID
+      continue
+    fi
+
+    if arge cmds-only; then
+      echo $_EXE
+      continue
+    fi
+
+    printf "%-10s %s\n" "$PID" "$_EXE"
+  fi
 done
