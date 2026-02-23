@@ -18,7 +18,7 @@ def on_click(icon):
     for window_id in window_ids:
       pylon.activate_window_by_id(window_id, True)
   else:
-    subprocess.Popen(['one', '/usr/bin/yubico-authenticator'])
+    subprocess.Popen(['one', 'yubico-authenticator'])
 
 icon = Gtk.StatusIcon()
 icon.set_tooltip_text('Yubico Authenticator')
