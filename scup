@@ -1,18 +1,35 @@
 #!/bin/bash
 
 set -eo pipefail
+shopt -s nullglob
+
 source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
 
-arge help && usage '[options]
-
-  -d, --dry-run     do not restart services
-  -h, --help        this message
-'
-
+SCUP_DIR="/run/scup"
 SERVICES=()
 
-for SERVICE in $(systemctl list-units --type=service --state=running | awk '{ print $1 }' | grep \.service$); do
-  systemctl status $SERVICE 2>&1 | grep -q "$SERVICE changed on disk" && SERVICES+=($SERVICE)
+[ -d "$SCUP_DIR" ] || exit
+
+for MARKER in "$SCUP_DIR"/*.service; do
+  SERVICE=$(basename "$MARKER")
+
+  if systemctl is-active --quiet "$SERVICE"; then
+    MARKER_TIME=$(stat -c %Y "$MARKER")
+    START_TIME_STR=$(systemctl show -p ActiveEnterTimestamp --value "$SERVICE" 2>/dev/null || true)
+
+    if [[ -n "$START_TIME_STR" && "$START_TIME_STR" != "n/a" ]]; then
+      SERVICE_TIME=$(date -d "$START_TIME_STR" +%s 2>/dev/null || echo 0)
+
+      if [[ "$SERVICE_TIME" -gt "$MARKER_TIME" ]]; then
+        arge dry-run || sudo rm "$MARKER"
+        continue
+      fi
+    fi
+
+    SERVICES+=("$SERVICE")
+  else
+    arge dry-run || sudo rm "$MARKER"
+  fi
 done
 
 [ ${#SERVICES[@]} -gt 0 ] || exit 0
@@ -20,6 +37,9 @@ done
 arge dry-run || systemctl daemon-reload
 
 for SERVICE in "${SERVICES[@]}"; do
-  echo $SERVICE
-  arge dry-run || systemctl restart $SERVICE
+  echo "$SERVICE"
+  if ! arge dry-run; then
+    systemctl restart "$SERVICE"
+    sudo rm "$SCUP_DIR/$SERVICE"
+  fi
 done
