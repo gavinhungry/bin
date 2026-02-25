@@ -1,11 +1,7 @@
 #!/usr/bin/env node
 
 const finnhub = require('finnhub');
-
-const API_KEY = process.env.FINNHUB_API_KEY;
-finnhub.ApiClient.instance.authentications.api_key.apiKey = API_KEY;
-
-let finnhubClient = new finnhub.DefaultApi();
+const finnhubClient = new finnhub.DefaultApi(process.env.FINNHUB_API_KEY);
 
 let getQuote = symbol => {
   return new Promise((resolve, reject) => {
