@@ -13,7 +13,6 @@ Scripts
 
 | Script                 | Description                                                       |
 | ---------------------- | ----------------------------------------------------------------- |
-| `arch-update`          | Update Arch Linux packages and clean pacman cache                 |
 | `arp-ip`               | Resolve a MAC address to an IP address via ARP                    |
 | `asound-id`            | Get ALSA sound card ID by name                                    |
 | `audio-title`          | Display currently playing audio title from various sources        |
@@ -125,6 +124,7 @@ Scripts
 | `nvme-temp`            | Show NVMe drive temperature                                       |
 | `one`                  | Run a program only if it is not already running                   |
 | `open`                 | Open files or URLs with xdg-open                                  |
+| `os-update`            | Run system update functions defined in ~/.os-update               |
 | `pacman-dev-upgrade`   | Upgrade VCS (git/hg/svn/bzr) packages                             |
 | `pacman-lastsync`      | Show the last pacman mirror sync time                             |
 | `pacman-mirror`        | Print the first configured pacman mirror URL                      |
@@ -157,7 +157,7 @@ Scripts
 | `samefile`             | Find all hard links to a file                                     |
 | `scan`                 | Scan a document from a flatbed scanner                            |
 | `screen`               | GNU Screen wrapper with named session support                     |
-| `scup`                 | Restart systemd services whose unit files changed on disk         |
+| `scup`                 | Restart active services with pending markers in /run/scup         |
 | `shot`                 | Take a screenshot and copy it to the clipboard                    |
 | `signal`               | Launch Signal Desktop with tray icon                              |
 | `spdx`                 | List known SPDX license identifiers                               |
