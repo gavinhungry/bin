@@ -90,7 +90,7 @@ const ACTION = {
 };
 
 const api = new express();
-api.use(bodyParser());
+api.use(bodyParser.json());
 
 api.post('/', async (req, res) => {
   if (req.headers.authorization !== API_KEY) {
