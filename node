@@ -1,9 +1,13 @@
 #!/bin/bash
 
-NODE=/usr/bin/node
+source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
+
+NODE=$(nwhich node)
+
 NODE_FLAGS=(
   --experimental-fetch
 )
+
 NODE_REPL_FLAGS=(
   --experimental-repl-await
 )

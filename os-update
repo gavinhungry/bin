@@ -1,0 +1,98 @@
+#!/bin/bash
+
+set -eo pipefail
+source "$(dirname "${BASH_SOURCE[0]}")"/.abash/abash.sh
+
+sudo -v || exit 1
+sigint
+
+update_pacman_packages() {
+  bannerline -f 'Updating pacman packages'
+
+  pacman -Syu --noconfirm
+}
+
+remove_unused_pacman_deps() {
+  if pacman -Qdttq &> /dev/null; then
+    bannerline 'Removing unrequired dependencies'
+    pacman -Rsc $(pacman -Qdttq) --noconfirm
+  fi
+}
+
+clean_pacman_cache() {
+  bannerline 'Cleaning pacman cache'
+
+  checksu paccache -rk1 | awk NF
+  checksu paccache -ruk0 | awk NF
+}
+
+clean_pacman_cache_all() {
+  bannerline 'Cleaning pacman cache'
+
+  checksu paccache -rk0 | awk NF
+}
+
+update_apt_packages() {
+  bannerline -f 'Updating apt packages'
+
+  checksu apt update
+  checksu apt full-upgrade
+  checksu apt autoremove
+}
+
+update_dnf_packages () {
+  bannerline -f 'Updating dnf packages'
+
+  checksu dnf upgrade --refresh
+}
+
+update_node() {
+  bannerline 'Updating Node'
+
+  local MACH=$(uname -m)
+  local ARCH=
+
+  [ "$MACH" = 'x86_64' ] && ARCH=x64
+  [ "$MACH" = 'aarch64' ] && ARCH=arm64
+  [ -z "$ARCH" ] && return
+
+  local NODE_CURRENT=$(node --version 2> /dev/null)
+  local NODE_LATEST=$(curl -s https://nodejs.org/dist/index.json | jq -r '.[0].version')
+
+  if [ "$NODE_CURRENT" != "$NODE_LATEST" ]; then
+    echo "Updating to $NODE_LATEST"
+
+    checksu rm -fr /opt/node-v*-linux-${ARCH}
+
+    wget -qO- "https://nodejs.org/dist/${NODE_LATEST}/node-${NODE_LATEST}-linux-${ARCH}.tar.xz" |\
+      checksu tar -xJC /opt/
+
+    checksu ln -sf /opt/node-${NODE_LATEST}-linux-${ARCH}/bin/node /usr/local/bin/node
+  fi
+}
+
+update_pnpm() {
+  bannerline 'Updating pnpm'
+
+  pnpm self-update
+
+  sed -i 's/ in PRINT_EXECUTION_TIME_IN_COMMANDS)/ in {})/' \
+    ${XDG_LOCAL_HOME:-${HOME}/.local}/share/pnpm/global/5/.pnpm/pnpm@*/node_modules/pnpm/dist/pnpm.cjs
+}
+
+update_node_modules() {
+  bannerline 'Updating Node modules'
+
+  pnpm -g update
+}
+
+# ---
+
+while IFS= read -r fn || [[ -n "$fn" ]]; do
+  if (
+    declare -F "$fn" > /dev/null &&
+    grep -q "^${fn}()" "${BASH_SOURCE[0]}"
+  ); then
+    "$fn"
+  fi
+done < "$HOME/.os-update"
