@@ -3,6 +3,7 @@
 source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
 
 MAN=/usr/bin/man
+export GROFF_NO_SGR=1
 
 [ $# -gt 0 ] || exec $MAN
 istty || exec $MAN "$@"
