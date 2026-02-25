@@ -40,7 +40,7 @@ update_apt_packages() {
   checksu apt autoremove
 }
 
-update_dnf_packages () {
+update_dnf_packages() {
   bannerline -f 'Updating dnf packages'
 
   checksu dnf upgrade --refresh
