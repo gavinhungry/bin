@@ -43,7 +43,8 @@ update_apt_packages() {
 update_dnf_packages() {
   bannerline -f 'Updating dnf packages'
 
-  checksu dnf upgrade --refresh
+  checksu dnf upgrade --refresh --assumeyes
+  checksu dnf autoremove --assumeyes
 }
 
 update_node() {
