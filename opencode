@@ -1,0 +1,5 @@
+#!/bin/bash
+
+export EDITOR="drain-stdin $EDITOR"
+
+exec /usr/bin/opencode "$@"
