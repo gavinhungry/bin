@@ -60,16 +60,48 @@ update_node() {
   local NODE_CURRENT=$(node --version 2> /dev/null)
   local NODE_LATEST=$(curl -s https://nodejs.org/dist/index.json | jq -r '.[0].version')
 
-  if [ "$NODE_CURRENT" != "$NODE_LATEST" ]; then
-    echo "Updating to $NODE_LATEST"
-
-    checksu rm -fr /opt/node-v*-linux-${ARCH}
-
-    wget -qO- "https://nodejs.org/dist/${NODE_LATEST}/node-${NODE_LATEST}-linux-${ARCH}.tar.xz" |\
-      checksu tar -xJC /opt/
-
-    checksu ln -sf /opt/node-${NODE_LATEST}-linux-${ARCH}/bin/node /usr/local/bin/node
+  if [ "$NODE_CURRENT" = "$NODE_LATEST" ]; then
+    echo "The latest version (${NODE_LATEST#v}) is already installed"
+    return
   fi
+
+  echo "Updating to $NODE_LATEST"
+  checksu rm -fr /opt/node-v*-linux-${ARCH}
+
+  wget -qO- "https://nodejs.org/dist/${NODE_LATEST}/node-${NODE_LATEST}-linux-${ARCH}.tar.xz" |\
+    checksu tar -xJC /opt/
+
+  checksu ln -sf /opt/node-${NODE_LATEST}-linux-${ARCH}/bin/node /usr/local/bin/node
+}
+
+update_bun() {
+  bannerline 'Updating Bun'
+
+  local MACH=$(uname -m)
+  local ARCH=
+
+  [ "$MACH" = 'x86_64' ] && ARCH=x64
+  [ "$MACH" = 'aarch64' ] && ARCH=aarch64
+  [ -z "$ARCH" ] && return
+
+  local BUN_CURRENT=$(bun --version 2> /dev/null)
+  local BUN_LATEST=$(curl -s https://api.github.com/repos/oven-sh/bun/releases/latest | jq -r '.tag_name' | sed -E 's/^bun-v?//')
+
+  if [ "$BUN_CURRENT" = "$BUN_LATEST" ]; then
+    echo "The latest version (${BUN_LATEST}) is already installed"
+    return
+  fi
+
+  echo "Updating to $BUN_LATEST"
+  checksu rm -fr /opt/bun-v*-linux-${ARCH}
+
+  local TMP=$(mktemp)
+
+  wget -qO "$TMP" "https://github.com/oven-sh/bun/releases/download/bun-v${BUN_LATEST}/bun-linux-${ARCH}.zip"
+  checksu unzip -oqd /opt/ "$TMP"
+  rm -f "$TMP"
+
+  checksu ln -sf /opt/bun-linux-${ARCH}/bun /usr/local/bin/bun
 }
 
 update_pnpm() {
@@ -81,8 +113,8 @@ update_pnpm() {
     ${XDG_LOCAL_HOME:-${HOME}/.local}/share/pnpm/global/5/.pnpm/pnpm@*/node_modules/pnpm/dist/pnpm.cjs
 }
 
-update_node_modules() {
-  bannerline 'Updating Node modules'
+update_npm_packages() {
+  bannerline 'Updating npm packages'
 
   pnpm -g update
 }
