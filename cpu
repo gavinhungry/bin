@@ -14,10 +14,10 @@ SOCKETS=$(lscpu | grep ^'NUMA node(s):' | clean)
 THREADS=$(lscpu | grep ^'CPU(s):' | clean)
 
 CPU_LABEL=$(echo "${CPU}" \
-  | sed -r 's/\((R|TM)\)//g' \
-  | sed -r 's/\sCPU\s/ /g' \
-  | sed -r 's/\s[0-9]+-Core Processor$//g' \
-  | sed -r 's/\sw\/\s.*//g'
+  | sed -E 's/\((R|TM)\)//g' \
+  | sed -E 's/\sCPU\s/ /g' \
+  | sed -E 's/\s[0-9]+-Core Processor$//g' \
+  | sed -E 's/\sw\/\s.*//g'
 )
 
 if [ -z "$CPU_LABEL" ]; then

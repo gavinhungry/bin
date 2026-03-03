@@ -23,7 +23,7 @@ disable() {
 
 update_list() {
   PLUGINS=$(echo -e "$@" | tr '\n' ';')
-  sed -r "s/^(${ACTIVE_PLUGINS_KEY}\s*=\s*).*/\1${PLUGINS}/" $CONFIG_FILE -i
+  sed -E "s/^(${ACTIVE_PLUGINS_KEY}\s*=\s*).*/\1${PLUGINS}/" $CONFIG_FILE -i
 }
 
 case $1 in
