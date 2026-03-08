@@ -1,0 +1,4 @@
+#!/bin/bash
+
+SRCINFO=$(makepkg --printsrcinfo)
+[ $? -eq 0 ] && echo "$SRCINFO" > .SRCINFO
