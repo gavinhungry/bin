@@ -12,9 +12,29 @@ SERVICES=()
 
 for MARKER in "$SCUP_DIR"/*.service; do
   SERVICE=$(basename "$MARKER")
+  MARKER_TIME=$(stat -c %Y "$MARKER")
+
+  if [[ "$SERVICE" == *@.service ]]; then
+    PREFIX="${SERVICE%%@.service}"
+    for INSTANCE in $(systemctl list-units --type=service --state=active --no-legend "${PREFIX}@*.service" 2>/dev/null | awk '{print $1}'); do
+      START_TIME_STR=$(systemctl show -p ActiveEnterTimestamp --value "$INSTANCE" 2>/dev/null || true)
+      if [[ -n "$START_TIME_STR" && "$START_TIME_STR" != "n/a" ]]; then
+        SERVICE_TIME=$(date -d "$START_TIME_STR" +%s 2>/dev/null || echo 0)
+        [[ "$SERVICE_TIME" -gt "$MARKER_TIME" ]] && continue
+      fi
+
+      SERVICES+=("$INSTANCE")
+    done
+    arge dry-run || sudo rm "$MARKER"
+    continue
+  fi
+
+  if ! systemctl is-enabled --quiet "$SERVICE" 2>/dev/null; then
+    arge dry-run || sudo rm "$MARKER"
+    continue
+  fi
 
   if systemctl is-active --quiet "$SERVICE"; then
-    MARKER_TIME=$(stat -c %Y "$MARKER")
     START_TIME_STR=$(systemctl show -p ActiveEnterTimestamp --value "$SERVICE" 2>/dev/null || true)
 
     if [[ -n "$START_TIME_STR" && "$START_TIME_STR" != "n/a" ]]; then
@@ -39,7 +59,7 @@ arge dry-run || systemctl daemon-reload
 for SERVICE in "${SERVICES[@]}"; do
   echo "$SERVICE"
   if ! arge dry-run; then
-    systemctl restart "$SERVICE"
-    sudo rm "$SCUP_DIR/$SERVICE"
+    systemctl try-restart "$SERVICE"
+    sudo rm -f "$SCUP_DIR/$SERVICE"
   fi
 done
