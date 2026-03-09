@@ -1,5 +1,6 @@
 #!/bin/bash
 
+[ "$(id -u)" -eq 0 ] && exit 1
 source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
 
 PNPM=$(nwhich pnpm)
