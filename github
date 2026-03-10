@@ -4,11 +4,19 @@ BASE_URL=$(git remote get-url origin | sed 's/^github:/https:\/\/github.com\//')
 [ -n "$BASE_URL" ] || exit 1
 
 get_branch_suffix() {
-  BRANCH=$(git br)
-  if [ -n "$BRANCH" -a "$BRANCH" != "main" -a "$BRANCH" != "master" ]; then
-    echo ${1}/${BRANCH}
+  BRANCH=$(git rev-parse --abbrev-ref HEAD 2> /dev/null)
+  if [[ -n "$BRANCH" && "$BRANCH" != "main" && "$BRANCH" != "master" ]]; then
+    echo "${1}/${BRANCH}"
   elif [ "${2:-1}" != 0 ]; then
     echo $1
+  fi
+}
+
+open_url() {
+  if [ -n "$SSH_TTY" ]; then
+    echo "$1"
+  else
+    ($BROWSER "$1" &> /dev/null &)
   fi
 }
 
@@ -17,7 +25,7 @@ open_page() {
   [ -n "$3" ] && PAGE_NAME=$2
 
   URL=$(echo "${BASE_URL}/$PAGE_NAME/$3" | sed 's/\/*$//')
-  ($BROWSER "$URL" &> /dev/null &)
+  open_url "$URL"
   exit
 }
 
