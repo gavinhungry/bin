@@ -108,6 +108,7 @@ update_pnpm() {
   bannerline 'Updating pnpm'
 
   pnpm self-update
+  pnpm -g update pnpm
 
   sed -i 's/ in PRINT_EXECUTION_TIME_IN_COMMANDS)/ in {})/' \
     ${XDG_LOCAL_HOME:-${HOME}/.local}/share/pnpm/global/5/.pnpm/pnpm@*/node_modules/pnpm/dist/pnpm.cjs
