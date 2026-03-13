@@ -30,6 +30,7 @@ for MARKER in "$SCUP_DIR"/*.service; do
   fi
 
   if ! systemctl is-enabled --quiet "$SERVICE" 2>/dev/null; then
+    echo "$(color bold yellow)Removing disabled service marker$(color end) ($SERVICE)"
     arge dry-run || sudo rm "$MARKER"
     continue
   fi
@@ -41,6 +42,7 @@ for MARKER in "$SCUP_DIR"/*.service; do
       SERVICE_TIME=$(date -d "$START_TIME_STR" +%s 2>/dev/null || echo 0)
 
       if [[ "$SERVICE_TIME" -gt "$MARKER_TIME" ]]; then
+        echo "$(color bold yellow)Removing stale service marker$(color end) ($SERVICE)"
         arge dry-run || sudo rm "$MARKER"
         continue
       fi
@@ -48,18 +50,19 @@ for MARKER in "$SCUP_DIR"/*.service; do
 
     SERVICES+=("$SERVICE")
   else
+    echo "$(color bold yellow)Removing stopped service marker$(color end) ($SERVICE)"
     arge dry-run || sudo rm "$MARKER"
   fi
 done
 
 [ ${#SERVICES[@]} -gt 0 ] || exit 0
 
-arge dry-run || systemctl daemon-reload
+arge dry-run || sudo systemctl daemon-reload
 
 for SERVICE in "${SERVICES[@]}"; do
-  echo "$SERVICE"
+  echo "$(color bold green)Restarting service$(color end) ($SERVICE)"
   if ! arge dry-run; then
-    systemctl try-restart "$SERVICE"
+    sudo systemctl try-restart "$SERVICE"
     sudo rm -f "$SCUP_DIR/$SERVICE"
   fi
 done
