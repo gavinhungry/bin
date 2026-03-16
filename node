@@ -4,13 +4,8 @@ source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
 
 NODE=$(nwhich node)
 
-NODE_FLAGS=(
-  --experimental-fetch
-)
-
-NODE_REPL_FLAGS=(
-  --experimental-repl-await
-)
+NODE_FLAGS=()
+NODE_REPL_FLAGS=()
 
 # ignore unsupported flags
 if ! echo 'process.exit(0);' | $NODE ${NODE_FLAGS[@]} &> /dev/null; then
