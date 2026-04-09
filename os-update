@@ -69,7 +69,7 @@ update_node() {
   checksu rm -fr /opt/node-v*-linux-${ARCH}
 
   wget -qO- "https://nodejs.org/dist/${NODE_LATEST}/node-${NODE_LATEST}-linux-${ARCH}.tar.xz" |\
-    checksu tar -xJC /opt/
+    checksu tar --no-same-owner -xJC /opt/
 
   checksu ln -sf /opt/node-${NODE_LATEST}-linux-${ARCH}/bin/node /usr/local/bin/node
 }
