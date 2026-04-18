@@ -1,5 +1,8 @@
 #!/bin/bash
 
+source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
+
 export EDITOR="drain-stdin $EDITOR"
 
-exec /usr/bin/opencode "$@"
+OPENCODE=$(nwhich opencode)
+exec $OPENCODE "$@"
