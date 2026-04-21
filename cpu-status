@@ -7,6 +7,4 @@ arge ccd &&
   TEMP_CMD=cpu-temp
 
 OUTPUT="$(cpu-util || echo ?) • $($TEMP_CMD || echo ?)"
-OUTPUT=$(enpad "$OUTPUT" $(arg padding 0))
-
-echo "$OUTPUT"
+echo $(enpad "$OUTPUT" $(arg padding 0))
