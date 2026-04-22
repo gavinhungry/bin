@@ -1,7 +1,31 @@
 #!/bin/bash
 
-awk '/MemTotal/ {total=$2} /MemAvailable/ {avail=$2} END {
-  used=(total-avail)/1024
-  if(used>=1024) printf "%.1f GiB\n", used/1024
-  else printf "%.1f MiB\n", used
-}' /proc/meminfo
+source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
+
+THRESHOLD=$(arg threshold)
+
+read OUTPUT USED_GIB < <(awk '
+  /MemTotal/     { total = $2 }
+  /MemAvailable/ { avail = $2 }
+  END {
+    used_mib = (total - avail) / 1024
+    used_gib = used_mib / 1024
+
+    if (used_mib >= 1024)
+      printf "%.1f_GiB %.4f\n", used_gib, used_gib
+    else
+      printf "%.1f_MiB %.4f\n", used_mib, used_gib
+  }
+' /proc/meminfo)
+
+OUTPUT=${OUTPUT/_/ }
+
+if [ -n "$THRESHOLD" ]; then
+  if awk -v u="$USED_GIB" -v t="$THRESHOLD" 'BEGIN { exit !(u >= t) }'; then
+    DOT='● '
+  else
+    DOT='○ '
+  fi
+fi
+
+echo "${DOT}$(enpad "$OUTPUT" $(arg width 0))"

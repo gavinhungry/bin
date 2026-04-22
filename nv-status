@@ -2,5 +2,17 @@
 
 source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
 
-OUTPUT="$(nv-util || echo ?) • $(nv-temp || echo ?)"
-echo $(enpad "$OUTPUT" $(arg padding 0))
+UTIL=$(nv-util || echo ?)
+THRESHOLD=$(arg threshold)
+USAGE=${UTIL%\%}
+
+if [ -n "$THRESHOLD" ]; then
+  if [[ "$USAGE" =~ ^[0-9]+$ ]] && [ "$USAGE" -ge "$THRESHOLD" ]; then
+    DOT='● '
+  else
+    DOT='○ '
+  fi
+fi
+
+OUTPUT="${UTIL} • $(nv-temp || echo ?)"
+echo "${DOT}$(enpad "$OUTPUT" $(arg width 0))"
