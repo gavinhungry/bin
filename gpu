@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
+
 lspci -mm | grep 'VGA compatible controller\|3D controller\|Graphics' | while read -r VGA ; do
   VENDOR=$(echo $VGA | cut -d'"' -f4 | sed 's/ Corporation//g')
   MODEL_FULL=$(echo $VGA | cut -d'"' -f6)
@@ -7,7 +9,14 @@ lspci -mm | grep 'VGA compatible controller\|3D controller\|Graphics' | while re
   MODEL_NUM=$(echo $MODEL_FULL | cut -d'[' -f1)
 
   if [ "$MODEL_FULL" != "$MODEL_NUM" ]; then
-    echo "$VENDOR ${MODEL_NAME% } (${MODEL_NUM% })"
+    OUTPUT="$VENDOR ${MODEL_NAME% }"
+
+    if arge model; then
+      OUTPUT+=" (${MODEL_NUM% })"
+    fi
+
+    echo "$OUTPUT"
+
     continue
   fi
 

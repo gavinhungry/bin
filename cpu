@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
+
 clean() {
   tr -s " " | cut -d":" -f2- | cut -d@ -f1 | xargs
 }
@@ -30,5 +32,10 @@ fi
 
 OUTPUT=""
 [ "${SOCKETS:-1}" -ne 1 ] && OUTPUT+="$SOCKETS x "
-OUTPUT+="$CPU_LABEL ($THREADS)"
+OUTPUT+="$CPU_LABEL"
+
+if arge threads; then
+  OUTPUT+=" ($THREADS)"
+fi
+
 echo $OUTPUT
