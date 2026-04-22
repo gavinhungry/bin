@@ -18,7 +18,7 @@ get_cpu_time() {
   echo "$CPU_TIME_TOTAL $CPU_TIME_IDLE"
 }
 
-CPU_TIME_A=($(get_cpu_time)); sleep 1
+CPU_TIME_A=($(get_cpu_time)); sleep 0.1
 CPU_TIME_B=($(get_cpu_time));
 
 CPU_TIME_A_TOTAL=${CPU_TIME_A[0]}
