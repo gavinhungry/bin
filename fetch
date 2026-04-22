@@ -48,7 +48,7 @@ output_fetch black KERNEL $KERNEL
 output_fetch black WIN $(win-ver)
 output_fetch black WSL $(wsl-ver)
 output_fetch purple CPU $(cpu --threads)
-output_fetch yellow RAM $(mem)
+output_fetch yellow RAM $(mem --type)
 output_fetch green GPU $(gpu --model)
 output_fetch green NPU $(npu)
 

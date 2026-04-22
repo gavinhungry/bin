@@ -26,8 +26,11 @@ MEM_SPEED=$(echo "$DMI_MEM_OUTPUT" | dmi_prop 'Configured Memory Speed' 1)
 MEM_ECC=$(echo "$DMI_MEM_OUTPUT" | dmi_prop 'Error Correction Type' 1)
 
 OUTPUT="$MEM_SIZE"
-[ "$MEM_TYPE" != 'RAM' ] && OUTPUT+=" $MEM_TYPE"
-[ "$MEM_SPEED" != 'Unknown' ] && OUTPUT+=" $MEM_SPEED"
-[ "$MEM_ECC" != 'None' ] && OUTPUT+=" ($MEM_ECC)"
+
+if [ "$1" == '-t' -o "$1" == '--type' ]; then
+  [ "$MEM_TYPE" != 'RAM' ] && OUTPUT+=" $MEM_TYPE"
+  [ "$MEM_SPEED" != 'Unknown' ] && OUTPUT+=" $MEM_SPEED"
+  [ "$MEM_ECC" != 'None' ] && OUTPUT+=" ($MEM_ECC)"
+fi
 
 echo "$OUTPUT"
