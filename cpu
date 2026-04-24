@@ -13,7 +13,6 @@ if [ -z "$CPU" ]; then
 fi
 
 SOCKETS=$(lscpu | grep ^'NUMA node(s):' | clean)
-THREADS=$(lscpu | grep ^'CPU(s):' | clean)
 
 CPU_LABEL=$(echo "${CPU}" \
   | sed -E 's/\((R|TM)\)//g' \
@@ -34,8 +33,6 @@ OUTPUT=""
 [ "${SOCKETS:-1}" -ne 1 ] && OUTPUT+="$SOCKETS x "
 OUTPUT+="$CPU_LABEL"
 
-if arge threads; then
-  OUTPUT+=" ($THREADS)"
-fi
+arge threads && OUTPUT+=" ($(nproc))"
 
 echo $OUTPUT
