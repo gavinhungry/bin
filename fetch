@@ -18,6 +18,8 @@ FETCH_IGNORE__GPU=(
 FETCH_IGNORE__BIOS=('0.0.0')
 FETCH_IGNORE__UCODE=('0xffffffff')
 
+FETCH_VM_MODELS=('KVM' 'QEMU')
+
 output_fetch() {
   local COLOR=$1; shift
   local LABEL=$1; shift
@@ -57,7 +59,10 @@ echo "$(disk)" | while IFS= read -r DISK; do
 done
 
 output_fetch blue MODEL $(model)
-output_fetch red BIOS $(bios)
-output_fetch red UCODE $(ucode)
+
+if ! includesw FETCH_VM_MODELS "$(model)"; then
+  output_fetch red BIOS $(bios)
+  output_fetch red UCODE $(ucode)
+fi
 
 echo
