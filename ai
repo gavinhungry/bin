@@ -11,4 +11,13 @@ ARGS=()
 arge think   && ARGS+=(--hidethinking) || ARGS+=(--think=false)
 arge verbose && ARGS+=(--verbose)
 
+if arge edit; then
+  TMP=$(mktemp --suffix=.md)
+  trap 'rm -f "$TMP"' EXIT
+  $EDITOR "$TMP"
+  [ -s "$TMP" ] || exit 0
+
+  exec ollama run "$MODEL" "${ARGS[@]}" < "$TMP"
+fi
+
 exec ollama run "$MODEL" "${ARGS[@]}"
