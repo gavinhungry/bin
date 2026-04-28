@@ -13,6 +13,7 @@ Scripts
 
 | Script                 | Description                                                       |
 | ---------------------- | ----------------------------------------------------------------- |
+| `ai`                   | Run an Ollama model interactively or with input from $EDITOR      |
 | `arp-ip`               | Resolve a MAC address to an IP address via ARP                    |
 | `asound-id`            | Get ALSA sound card ID by name                                    |
 | `audio-title`          | Display currently playing audio title from various sources        |
@@ -49,6 +50,7 @@ Scripts
 | `dns`                  | Resolve a domain name to IP addresses                             |
 | `dnxhr`                | Transcode a video file to DNxHR HQ format                         |
 | `doh-check`            | Check if DNS-over-HTTPS is active                                 |
+| `drain-stdin`          | Drain pending stdin input before exec'ing a command               |
 | `echopass`             | Prompt for a password and echo it to stdout                       |
 | `ediff`                | Open two files in Emacs ediff                                     |
 | `edit`                 | Open a file in the preferred editor                               |
@@ -65,6 +67,7 @@ Scripts
 | `forp`                 | Run a command in parallel over line-delimited arguments           |
 | `fx-remove-favicons`   | Remove favicons for specified domains from the Firefox database   |
 | `gecos`                | Print GECOS field for a user from /etc/passwd                     |
+| `genmon`               | Wrap a command's output as Xfce genmon XML with tooltip           |
 | `gif`                  | Convert a video file to an animated GIF                           |
 | `git-sign-all`         | GPG re-sign all commits in a Git repository                       |
 | `github`               | Open GitHub pages for the current repository in a browser         |
@@ -104,8 +107,10 @@ Scripts
 | `mem`                  | Print total system memory                                         |
 | `mem-dmi`              | Print memory details from DMI/SMBIOS                              |
 | `mem-dt`               | Print total memory from device tree                               |
+| `mem-util`             | Show used memory with optional threshold indicator                |
 | `mime`                 | Print the MIME type of a file                                     |
 | `mindiff`              | Diff two files with token-level granularity                       |
+| `mksrcinfo`            | Generate .SRCINFO from PKGBUILD via makepkg                       |
 | `model`                | Print the system model/product name                               |
 | `modparam`             | Show parameters for a loaded kernel module                        |
 | `modtaint`             | List tainted kernel modules                                       |
@@ -124,6 +129,7 @@ Scripts
 | `nvme-temp`            | Show NVMe drive temperature                                       |
 | `one`                  | Run a program only if it is not already running                   |
 | `open`                 | Open files or URLs with xdg-open                                  |
+| `opencode`             | Wrap opencode to drain stdin from $EDITOR before launching        |
 | `os-update`            | Run system update functions defined in ~/.os-update               |
 | `pacman-dev-upgrade`   | Upgrade VCS (git/hg/svn/bzr) packages                             |
 | `pacman-lastsync`      | Show the last pacman mirror sync time                             |
