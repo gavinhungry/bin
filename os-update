@@ -117,7 +117,7 @@ update_pnpm() {
 update_npm_packages() {
   bannerline 'Updating npm packages'
 
-  pnpm -g update
+  pnpm -g update --latest
 }
 
 # ---
