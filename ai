@@ -8,7 +8,7 @@ MODEL=${MODEL:-$OLLAMA_DEFAULT_MODEL}
 [ -n "$MODEL" ] || die 'no model specified and OLLAMA_DEFAULT_MODEL is unset'
 
 ARGS=()
-arge think   && ARGS+=(--hidethinking) || ARGS+=(--think=false)
+arge think && ARGS+=(--hidethinking) || ARGS+=(--think=false)
 arge verbose && ARGS+=(--verbose)
 
 if arge edit; then
