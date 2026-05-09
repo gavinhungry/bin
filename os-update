@@ -47,9 +47,7 @@ update_dnf_packages() {
   checksu dnf autoremove --assumeyes
 }
 
-update_node() {
-  bannerline 'Updating Node'
-
+__update_node() {
   local MACH=$(uname -m)
   local ARCH=
 
@@ -57,8 +55,17 @@ update_node() {
   [ "$MACH" = 'aarch64' ] && ARCH=arm64
   [ -z "$ARCH" ] && return
 
+  local INDEX
+  INDEX=$(curl -s https://nodejs.org/dist/index.json)
+
+  local NODE_LATEST
+  if [ "$1" = '--lts' ]; then
+    NODE_LATEST=$(echo "$INDEX" | jq -r '[.[] | select(.lts != false)] | .[0].version')
+  else
+    NODE_LATEST=$(echo "$INDEX" | jq -r '.[0].version')
+  fi
+
   local NODE_CURRENT=$(node --version 2> /dev/null)
-  local NODE_LATEST=$(curl -s https://nodejs.org/dist/index.json | jq -r '.[0].version')
 
   if [ "$NODE_CURRENT" = "$NODE_LATEST" ]; then
     echo "The latest version (${NODE_LATEST#v}) is already installed"
@@ -72,6 +79,18 @@ update_node() {
     checksu tar --no-same-owner -xJC /opt/
 
   checksu ln -sf /opt/node-${NODE_LATEST}-linux-${ARCH}/bin/node /usr/local/bin/node
+}
+
+update_node() {
+  bannerline 'Updating Node'
+
+  update_node
+}
+
+update_node_lts() {
+  bannerline 'Updating Node (LTS)'
+
+  update_node --lts
 }
 
 update_bun() {
@@ -108,10 +127,6 @@ update_pnpm() {
   bannerline 'Updating pnpm'
 
   pnpm self-update
-  pnpm -g update pnpm
-
-  sed -i 's/ in PRINT_EXECUTION_TIME_IN_COMMANDS)/ in {})/' \
-    ${XDG_LOCAL_HOME:-${HOME}/.local}/share/pnpm/global/5/.pnpm/pnpm@*/node_modules/pnpm/dist/pnpm.cjs
 }
 
 update_npm_packages() {
