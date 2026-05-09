@@ -139,6 +139,7 @@ update_npm_packages() {
 
 while IFS= read -r fn || [[ -n "$fn" ]]; do
   if (
+    [[ "$fn" != _* ]] &&
     declare -F "$fn" > /dev/null &&
     grep -q "^${fn}()" "${BASH_SOURCE[0]}"
   ); then
