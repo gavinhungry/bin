@@ -84,13 +84,13 @@ __update_node() {
 update_node() {
   bannerline 'Updating Node'
 
-  update_node
+  __update_node
 }
 
 update_node_lts() {
   bannerline 'Updating Node (LTS)'
 
-  update_node --lts
+  __update_node --lts
 }
 
 update_bun() {
