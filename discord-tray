@@ -13,7 +13,7 @@ import threading
 import sys
 
 APP_NAME = 'Discord'
-APP_PATH = '/opt/discord/Discord'
+APP_PATH = '/usr/bin/discord'
 ICON_NAME = 'discord-tray'
 
 #
