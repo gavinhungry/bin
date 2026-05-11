@@ -4,6 +4,7 @@
 source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
 
 PNPM=$(nwhich pnpm)
+[ -x "$PNPM" ] || die 'pnpm not installed'
 
 case "$1" in
   d|deps) shift; exec $PNPM install --frozen-lockfile ;;
