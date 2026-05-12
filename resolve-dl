@@ -1,0 +1,40 @@
+#!/usr/bin/env node
+
+const { parseArgs } = require('node:util');
+const cheerio = require('cheerio');
+const open = require('open');
+
+const { values } = parseArgs({
+  options: {
+    studio: { type: 'boolean', short: 's' },
+    beta:   { type: 'boolean', short: 'b' },
+  },
+  strict: false,
+});
+
+const IS_STUDIO = values.studio;
+const IS_BETA   = values.beta;
+
+fetch('https://www.blackmagicdesign.com/support/partial/downloads')
+  .then(res => res.text())
+  .then(cheerio.load)
+  .then($dom => {
+    let selector = 'article[software-download][name^="DaVinci Resolve"]';
+    selector += IS_STUDIO ? '[name*="Studio"]' : ':not([name*="Studio"])';
+    selector += IS_BETA ? '[name*="Beta"]' : ':not([name*="Beta"])';
+
+    const $el = $dom(selector).first();
+    const version = $el.attr('name');
+    const href = $el.find('a.download.linux').attr('href');
+    return { version, href };
+  })
+  .then(({ version, href }) => {
+    if (!href) {
+      console.error(`No ${IS_BETA ? 'beta' : 'stable'} version found`);
+      process.exit(1);
+    }
+
+    console.log(version);
+    return `https://www.blackmagicdesign.com${href}`;
+  })
+  .then(open.default);
