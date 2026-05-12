@@ -132,7 +132,18 @@ update_pnpm() {
 update_npm_packages() {
   bannerline 'Updating npm packages'
 
+  local PNPM_CONFIG_LOGLEVEL=error
+  export PNPM_CONFIG_LOGLEVEL
+
+  (pnpm -g outdated --json 2> /dev/null || true) |
+  jq -r 'to_entries[] | .key + " " + .value.current + " " + .value.latest' |
+  while read -r pkg current latest; do
+    echo "$(color bold)$pkg$(color end) $current => $latest"
+  done
+
+  echo
   pnpm -g update --latest
+  pnpm store prune
 }
 
 # ---
