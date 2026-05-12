@@ -1,4 +1,4 @@
 #!/bin/bash
 
 EPOCH=${1/#/@}; shift
-exec date -ud ${EPOCH:-now} "$@"
+exec date -ud ${EPOCH:-now} "${@:-+%Y-%m-%d %H:%M:%S %Z}"
