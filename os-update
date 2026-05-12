@@ -6,6 +6,8 @@ source "$(dirname "${BASH_SOURCE[0]}")"/.abash/abash.sh
 sudo -v || exit 1
 sigint
 
+export PNPM_CONFIG_LOGLEVEL=error
+
 update_pacman_packages() {
   bannerline -f 'Updating pacman packages'
 
@@ -36,8 +38,8 @@ update_apt_packages() {
   bannerline -f 'Updating apt packages'
 
   checksu apt update
-  checksu apt full-upgrade
-  checksu apt autoremove
+  checksu apt full-upgrade --assume-yes
+  checksu apt autoremove --assume-yes
 }
 
 update_dnf_packages() {
@@ -131,9 +133,6 @@ update_pnpm() {
 
 update_npm_packages() {
   bannerline 'Updating npm packages'
-
-  local PNPM_CONFIG_LOGLEVEL=error
-  export PNPM_CONFIG_LOGLEVEL
 
   (pnpm -g outdated --json 2> /dev/null || true) |
   jq -r 'to_entries[] | .key + " " + .value.current + " " + .value.latest' |
