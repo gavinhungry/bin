@@ -140,9 +140,10 @@ update_npm_packages() {
     echo "$(color bold)$pkg$(color end) $current => $latest"
   done
 
-  echo
   pnpm -g update --latest
   pnpm store prune
+
+  echo
 }
 
 # ---
