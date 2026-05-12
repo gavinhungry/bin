@@ -154,6 +154,7 @@ Scripts
 | `razer`                | Query Razer device properties via OpenRazer                       |
 | `razer-battery`        | Show Razer device battery levels                                  |
 | `rdp`                  | Connect to an RDP host using a saved profile                      |
+| `resolve-dl`           | Open the DaVinci Resolve Linux download page for the latest build |
 | `rgb`                  | Convert a hex color to RGB decimal values                         |
 | `rhythmbox`            | Launch Rhythmbox with dconf settings preloaded                    |
 | `rhythmbox-seek`       | Seek forward or backward in Rhythmbox                             |
