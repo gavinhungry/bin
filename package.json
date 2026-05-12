@@ -1,0 +1,11 @@
+{
+  "dependencies": {
+    "body-parser": "2.x.x",
+    "cheerio": "1.x.x",
+    "express": "5.x.x",
+    "glob": "13.x.x",
+    "imgur": "2.x.x",
+    "object-hash": "3.x.x",
+    "open": "11.x.x"
+  }
+}
