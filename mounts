@@ -1,0 +1,103 @@
+#!/bin/bash
+
+source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
+
+COLS=$(cols)
+istty && COLOR=1 || COLOR=0
+
+mount "$@" | awk -v COLS="$COLS" -v COLOR="$COLOR" '
+  BEGIN {
+    GUTTER  = "  "
+    OPT_MIN = 50    # min OPTIONS width before squeezing MOUNTPOINT
+    MP_MIN  = 10    # MOUNTPOINT floor
+
+    if (COLOR) {
+      YELLOW  = "\033[33m"
+      GREEN   = "\033[32m"
+      CYAN    = "\033[36m"
+      MAGENTA = "\033[35m"
+      RESET   = "\033[0m"
+    }
+  }
+
+  # parse: "<device> on <mountpoint> type <fstype> (<options>)"
+  match($0, /^(.*) on (.*) type (\S+) \((.*)\)$/, m) {
+    n++
+    dev[n] = m[1]; mp[n] = m[2]; ty[n] = m[3]; op[n] = m[4]
+
+    if (length(m[1]) > dw) dw = length(m[1])
+    if (length(m[2]) > mw) mw = length(m[2])
+    if (length(m[3]) > tw) tw = length(m[3])
+  }
+
+  END {
+    if (n == 0) exit
+
+    # OPTIONS gets the leftover. if too tight, steal from MOUNTPOINT (down to MP_MIN).
+    ow = COLS - (dw + mw + tw + 3 * length(GUTTER))
+    if (ow < OPT_MIN) {
+      give = mw - MP_MIN
+      if (give < 0)            give = 0
+      if (give > OPT_MIN - ow) give = OPT_MIN - ow
+      mw -= give
+      ow += give
+    }
+    if (ow < 1) ow = 1
+
+    # tag every row with its group + color, then stable-sort by group
+    for (i = 1; i <= n; i++) {
+      grp[i] = groupof(dev[i], ty[i])
+      col[i] = colorof(grp[i])
+      key[i] = grp[i] "\t" sprintf("%08d", i)
+    }
+    ssort(n)
+
+    for (i = 1; i <= n; i++)
+      printrow(dev[i], ty[i], trunc(mp[i], mw), trunc(op[i], ow), col[i])
+  }
+
+  # group: 0=other, 1=proc/sys/dev, 2=fuse, 3=tmpfs, 4=real fs
+  function groupof(d, t) {
+    if (d ~ /^\/dev\//)                                          return 4
+    if (t == "tmpfs")                                            return 3
+    if (t ~ /^fuse/)                                             return 2
+    if (t == "proc" || t == "sysfs" || t == "devtmpfs" ||
+        t == "devpts")                                           return 1
+    return 0
+  }
+
+  function colorof(g) {
+    if (g == 4) return GREEN
+    if (g == 3) return MAGENTA
+    if (g == 2) return CYAN
+    if (g == 1) return YELLOW
+    return ""
+  }
+
+  # truncate with ellipsis if too wide
+  function trunc(s, w) {
+    return length(s) > w ? substr(s, 1, w - 1) "\xe2\x80\xa6" : s
+  }
+
+  # print one row; color (if any) wraps each field, gutters stay uncolored
+  function printrow(d, t, m, o, c,    r) {
+    r = c ? RESET : ""
+    printf "%s%-*s%s%s", c, dw, d, r, GUTTER
+    printf "%s%-*s%s%s", c, tw, t, r, GUTTER
+    printf "%s%-*s%s%s", c, mw, m, r, GUTTER
+    printf "%s%s%s\n",   c, o, r
+  }
+
+  # stable insertion sort by key[], moving the parallel arrays
+  function ssort(n,    i, j, t) {
+    for (i = 2; i <= n; i++)
+      for (j = i; j > 1 && key[j-1] > key[j]; j--) {
+        t = dev[j-1]; dev[j-1] = dev[j]; dev[j] = t
+        t = mp[j-1];  mp[j-1]  = mp[j];  mp[j]  = t
+        t = ty[j-1];  ty[j-1]  = ty[j];  ty[j]  = t
+        t = op[j-1];  op[j-1]  = op[j];  op[j]  = t
+        t = col[j-1]; col[j-1] = col[j]; col[j] = t
+        t = key[j-1]; key[j-1] = key[j]; key[j] = t
+      }
+  }
+'
