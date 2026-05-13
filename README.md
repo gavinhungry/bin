@@ -130,7 +130,6 @@ Scripts
 | `one`                  | Run a program only if it is not already running                   |
 | `open`                 | Open files or URLs with xdg-open                                  |
 | `opencode`             | Wrap opencode to drain stdin from $EDITOR before launching        |
-| `os-update`            | Run system update functions defined in ~/.os-update               |
 | `pacman-dev-upgrade`   | Upgrade VCS (git/hg/svn/bzr) packages                             |
 | `pacman-lastsync`      | Show the last pacman mirror sync time                             |
 | `pacman-mirror`        | Print the first configured pacman mirror URL                      |
@@ -180,6 +179,7 @@ Scripts
 | `steam`                | Launch Steam with MangoHud and NVIDIA Proton settings             |
 | `stock`                | Look up a stock quote by ticker symbol                            |
 | `surveil`              | Watch files and re-run a command on changes                       |
+| `sys-update`           | Run system update functions defined in ~/.sys-update              |
 | `systemctl`            | systemctl wrapper that auto-elevates with sudo                    |
 | `tap`                  | Watch a script file and re-run it on changes                      |
 | `tarball`              | Create or extract a zstd-compressed tarball                       |

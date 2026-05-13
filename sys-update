@@ -156,4 +156,4 @@ while IFS= read -r fn || [[ -n "$fn" ]]; do
   ); then
     "$fn"
   fi
-done < "$HOME/.os-update"
+done < "$HOME/.sys-update"
