@@ -39,8 +39,7 @@ output_fetch() {
 }
 
 output_fetch white HOST $(hostname-pretty)
-output_fetch black OS \
-  $(grep ^PRETTY_NAME= /etc/os-release 2> /dev/null | cut -d'"' -f2)
+output_fetch black OS $(os-name)
 
 KERNEL=$(uname -sr)
 KERNEL_M=$(uname -m)
