@@ -1,0 +1,13 @@
+#!/bin/bash
+
+unset PRETTY_NAME NAME DEBIAN_VERSION_FULL VERSION_CODENAME
+. /etc/os-release
+
+OUT="$PRETTY_NAME"
+
+if [ -n "$DEBIAN_VERSION_FULL" ]; then
+  OUT="$NAME $DEBIAN_VERSION_FULL"
+  [ -n "$VERSION_CODENAME" ] && OUT+=" ($VERSION_CODENAME)"
+fi
+
+echo "$OUT"
