@@ -4,5 +4,12 @@ source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
 
 export EDITOR="drain-stdin $EDITOR"
 
-OPENCODE=$(nwhich opencode)
+OPENCODE_DIR=$(
+  pnpm -g list --long --json |
+  jq -r '.[0].dependencies["opencode-linux-x64"].path'
+)
+
+[ -d "$OPENCODE_DIR" ] || die 'opencode not installed'
+
+OPENCODE="$OPENCODE_DIR"/bin/opencode
 exec $OPENCODE "$@"
