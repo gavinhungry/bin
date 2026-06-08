@@ -1,0 +1,161 @@
+#!/usr/bin/env bash
+#
+# pacman-dnf - translate a pacman command into its dnf/rpm equivalent.
+#
+# This does NOT execute anything. It just prints the command you should
+# run, to help train your brain on dnf (verified against dnf5 / rpm).
+#
+# Usage: pacman-dnf <pacman-args...>
+#   e.g. pacman-dnf -Qi kernel  ->  dnf info --installed kernel
+#
+set -euo pipefail
+
+prog=${0##*/}
+
+usage() {
+  cat <<EOF
+$prog - show the dnf/rpm command equivalent to a pacman command
+
+Usage: $prog <pacman-args...>
+
+Examples:
+  $prog -S firefox        # dnf install firefox
+  $prog -Syu              # dnf upgrade
+  $prog -Qi kernel        # dnf info --installed kernel
+  $prog -Qo /usr/bin/ls   # rpm -qf /usr/bin/ls
+EOF
+}
+
+if [[ $# -eq 0 ]]; then
+  usage >&2
+  exit 2
+fi
+
+# The first argument carries the operation + its sub-option letters bundled
+# together, pacman-style (e.g. -Qi, -Syu, -Rns). Split it into the leading
+# operation letter and the trailing modifier letters. Everything after $1 is
+# treated as targets (package names, files, search terms) and passed through.
+op_arg=$1
+shift
+targets=("$@")
+
+if [[ $op_arg != -* || $op_arg == -- ]]; then
+  echo "$prog: expected a pacman operation flag (e.g. -S, -Q, -R), got '$op_arg'" >&2
+  exit 2
+fi
+
+# Strip the leading dash, take the first letter as the operation, the rest as
+# modifiers. Keep the original modifier order for user-facing messages, and a
+# sorted copy for matching so -Rns and -Rsn behave the same.
+letters=${op_arg#-}
+op=${letters:0:1}
+mods=${letters:1}
+mods_orig=$mods
+if [[ -n $mods ]]; then
+  mods=$(printf '%s' "$mods" | grep -o . | sort | tr -d '\n')
+fi
+
+# Render the trailing targets as a space-prefixed, shell-safe string.
+tgt() {
+  local out="" t q
+  for t in "${targets[@]}"; do
+    printf -v q ' %q' "$t"
+    out+=$q
+  done
+  printf '%s' "$out"
+}
+
+# Emit a "no direct equivalent" note. $1 = reason, $2 = optional suggestion.
+note() {
+  printf '# no direct equivalent: %s\n' "$1"
+  if [[ -n ${2:-} ]]; then
+    printf '# closest: %s\n' "$2"
+  fi
+}
+
+case $op in
+S)
+  case $mods in
+  "")    printf 'dnf install%s\n' "$(tgt)" ;;
+  s)     printf 'dnf search%s\n' "$(tgt)" ;;
+  i)     printf 'dnf info --available%s\n' "$(tgt)" ;;
+  ii)    printf 'dnf repoquery --info%s\n' "$(tgt)" ;;
+  u)     printf 'dnf upgrade%s\n' "$(tgt)" ;;
+  y)     printf 'dnf makecache\n' ;;
+  uy)    printf 'dnf upgrade\n' ;;        # -Syu (modifiers sorted to 'uy')
+  w)     printf 'dnf download%s\n' "$(tgt)" ;;
+  g)
+    if [[ ${#targets[@]} -gt 0 ]]; then
+      printf 'dnf group info%s\n' "$(tgt)"
+    else
+      printf 'dnf group list\n'
+    fi
+    ;;
+  c)     printf 'dnf clean packages\n' ;;
+  cc)    printf 'dnf clean all\n' ;;
+  *)     note "pacman -S$mods_orig" "dnf install$(tgt)" ;;
+  esac
+  ;;
+R)
+  case $mods in
+  "")  printf 'dnf remove%s\n' "$(tgt)" ;;
+  s)   printf 'dnf remove%s\n' "$(tgt)" ;;   # dnf prunes unused deps by default
+  ns)
+    printf 'dnf remove%s\n' "$(tgt)"
+    printf '# note: dnf has no config-file purge; remove leftover configs manually\n'
+    ;;
+  *)   note "pacman -R$mods_orig" "dnf remove$(tgt)" ;;
+  esac
+  ;;
+Q)
+  case $mods in
+  "")  printf 'dnf list --installed\n' ;;
+  i)   printf 'dnf info --installed%s\n' "$(tgt)" ;;
+  l)   printf 'rpm -ql%s\n' "$(tgt)" ;;
+  o)   printf 'rpm -qf%s\n' "$(tgt)" ;;
+  s)
+    if [[ ${#targets[@]} -gt 0 ]]; then
+      qs_terms=""
+      for t in "${targets[@]}"; do qs_terms+=" \"*$t*\""; done
+      printf 'dnf list --installed%s\n' "$qs_terms"
+    else
+      printf 'dnf list --installed\n'
+    fi
+    ;;
+  e)   printf 'dnf repoquery --userinstalled\n' ;;
+  dt)  printf 'dnf repoquery --unneeded\n' ;;
+  m)   printf 'dnf repoquery --extras\n' ;;
+  c)   printf 'rpm -q --changelog%s\n' "$(tgt)" ;;
+  k)   note "pacman -Qk (verify package files)" "rpm -V$(tgt)" ;;
+  *)   note "pacman -Q$mods_orig" ;;
+  esac
+  ;;
+F)
+  case $mods in
+  ""|s) printf 'dnf provides%s\n' "$(tgt)" ;;
+  l)    printf 'dnf repoquery --list%s\n' "$(tgt)" ;;
+  y)    printf 'dnf makecache\n' ;;
+  *)    note "pacman -F$mods_orig" "dnf provides$(tgt)" ;;
+  esac
+  ;;
+U)
+  printf 'dnf install%s\n' "$(tgt)" ;;  # local .rpm install
+D)
+  note "pacman -D (database operations)" ;;
+T)
+  note "pacman -T (dependency test)" ;;
+V|-)
+  if [[ $op_arg == --help || $op_arg == -h ]]; then
+    usage
+  elif [[ $op_arg == --version ]]; then
+    printf '%s (pacman->dnf translator)\n' "$prog"
+  else
+    echo "$prog: unrecognized operation '$op_arg'" >&2
+    exit 2
+  fi
+  ;;
+*)
+  echo "$prog: unrecognized pacman operation '-$op'" >&2
+  exit 2
+  ;;
+esac
