@@ -115,6 +115,7 @@ Scripts
 | `modparam`             | Show parameters for a loaded kernel module                        |
 | `modtaint`             | List tainted kernel modules                                       |
 | `motd`                 | Display message of the day with system info                       |
+| `mounts`               | Display system mounts in a formatted, colorized table             |
 | `murder`               | Kill all processes owned by a user                                |
 | `next-window`          | Focus the next window matching the active window class            |
 | `nicely`               | Run a command with low CPU and I/O priority                       |
@@ -130,7 +131,9 @@ Scripts
 | `one`                  | Run a program only if it is not already running                   |
 | `open`                 | Open files or URLs with xdg-open                                  |
 | `opencode`             | Wrap opencode to drain stdin from $EDITOR before launching        |
+| `os-name`              | Print the OS pretty name from /etc/os-release                     |
 | `pacman-dev-upgrade`   | Upgrade VCS (git/hg/svn/bzr) packages                             |
+| `pacman-dnf`           | Translate a pacman command to its dnf/rpm equivalent              |
 | `pacman-lastsync`      | Show the last pacman mirror sync time                             |
 | `pacman-mirror`        | Print the first configured pacman mirror URL                      |
 | `pause`                | Run a command, then wait for a keypress                           |
@@ -212,6 +215,7 @@ Scripts
 | `wsl-is-rdp`           | Check if the WSL session is over RDP                              |
 | `wsl-lock`             | Lock the Windows workstation from WSL                             |
 | `wsl-ver`              | Print the WSL version                                             |
+| `wsl-wt`               | Open a Windows Terminal profile from WSL with optional elevation  |
 | `wx`                   | Show current weather conditions                                   |
 | `x86-64-level`         | Print the x86-64 microarchitecture level (v1–v4)                  |
 | `xbindkeys`            | Launch xbindkeys with optional local config                       |
