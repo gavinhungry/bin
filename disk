@@ -18,7 +18,28 @@ for DISK in $(lsblk -rndA --sort name | awk '{ print $1 }'); do
   MODEL=$(cat /sys/class/block/$DISK/device/model 2> /dev/null | xargs)
   [ "$MODEL" == 'MassStorageClass' ] && continue
 
-  [ -z "$MODEL" ] && continue
-  [ -n "$VENDOR" -a "$VENDOR" != "ATA" ] && echo -n "$VENDOR "
-  echo "$MODEL"
+  if [ ! -z "$MODEL" -a "$VENDOR $MODEL" != 'SYNOLOGY Storage' ]; then
+    [ -n "$VENDOR" -a "$VENDOR" != "ATA" ] && echo -n "$VENDOR "
+    echo "$MODEL"
+    continue
+  fi
+
+  # Virtio
+  PCI=$(readlink -f /sys/class/block/$DISK/device \
+    | grep -oP '[\da-f]{4}:[\da-f]{2}:[\da-f]{2}\.[\da-f]' \
+    | tail -1)
+  [ -z "$PCI" ] && continue
+
+  MODEL=$(lspci -s "$PCI" -mm \
+    | grep -oP '"[^"]*"' \
+    | tr -d '"' \
+    | sed 's/\s*\[[a-f0-9]*\]$//g' \
+    | sed -n '3p' \
+    | paste -sd' ')
+  [[ "$MODEL" != *Virtio* ]] && continue
+
+  SIZE_GB=$(( $(cat /sys/class/block/$DISK/size) * 512 / 1024 / 1024 / 1024 ))
+
+  [[ "$VENDOR" != 0x* ]] && echo -n "$VENDOR "
+  echo "$MODEL ${SIZE_GB} GiB"
 done
