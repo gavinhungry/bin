@@ -1,0 +1,34 @@
+#!/bin/bash
+
+source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
+
+([ $# -eq 0 ] || arge help || ! arge profile) &&
+usage '--profile <PROFILE_NAME> <options>
+  -p, --profile    Windows Terminal profile name
+  -e, --elevate    Run as administrator
+  -a, --admin      Alias for --elevate
+  -h, --help       this message
+'
+
+USERPROFILE_DIR=$(wsl-env-var USERPROFILE)
+
+WINPATH=$(wslpath -w "$PWD")
+if [[ "$WINPATH" == '\\wsl.localhost\'* ]]; then
+  WINPATH="$USERPROFILE_DIR"
+fi
+
+PROFILE_NAME=$(arg profile)
+
+#
+# Start-Process wt.exe -ArgumentList @(
+#   "--profile", "`"$($args[0])`"",
+#   "--startingDirectory", "`"$($args[1])`""
+# ) -Verb RunAs
+#
+if (arge elevate || arge admin); then
+  exec powershell.exe \
+    -File "${USERPROFILE_DIR}\Scripts\Open-Elevated-Wt.ps1" \
+    "$PROFILE_NAME" "$WINPATH"
+fi
+
+exec wt.exe -w0 new-tab --profile "$PROFILE_NAME" --startingDirectory "$WINPATH"
