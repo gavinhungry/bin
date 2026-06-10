@@ -1,0 +1,33 @@
+#!/bin/bash
+
+source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
+
+DNF=/usr/bin/dnf
+
+NEEDS_SUDO=(
+  autoremove
+  builddep
+  copr
+  config-manager
+  distro-sync
+  downgrade
+  group
+  install
+  mark
+  module
+  offline
+  reinstall
+  remove
+  replay
+  reposync
+  swap
+  system-upgrade
+  upgrade
+  versionlock
+)
+
+if includes NEEDS_SUDO "$1"; then
+  exec sudo $DNF "$@"
+fi
+
+exec $DNF "$@"
