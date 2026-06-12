@@ -1,0 +1,10 @@
+#!/bin/bash
+
+exec > /tmp/wsl-mount-drvfs.log 2>&1
+
+for TARGET in $(findmnt --fstab -t drvfs -O uid=$(id -u) -no TARGET); do
+  if [ -d "$TARGET" ] && ! mountpoint -q "$TARGET"; then
+    echo Mounting "$TARGET"
+    sudo mount "$TARGET"
+  fi
+done
