@@ -17,7 +17,7 @@ for ARG in "$@"; do
   fi
 
   if [[ $TERM == xterm* ]] || [ $TERM = 'screen' ]; then
-    exec ${EDITOR_X11:-subl} "$ARG" &> /dev/null &
+    exec ${EDITOR_GUI:-subl} "$ARG" &> /dev/null &
   else
     exec ${EDITOR:-emacs} "$ARG"
   fi
