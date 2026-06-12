@@ -1,0 +1,7 @@
+#!/bin/bash
+
+FILE=$1
+ARGS=""
+
+[ -z "$FILE" ] && exec clip.exe
+exec clip.exe < "$FILE"
