@@ -1,0 +1,9 @@
+#!/bin/bash
+
+ARGS=()
+
+for ARG in "$@"; do
+  [[ -e "$ARG" ]] && ARGS+=("$(wslpath -w "$ARG")") || ARGS+=("$ARG")
+done
+
+exec '/mnt/c/Program Files/Sublime Text/sublime_text.exe' "${ARGS[@]}" &
