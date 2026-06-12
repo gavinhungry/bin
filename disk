@@ -1,13 +1,24 @@
 #!/bin/bash
 
-PKNAME=$(lsblk -no PKNAME $(findmnt -n -o SOURCE /) 2> /dev/null)
+with_size() {
+  local DISK=$1
+  local VENDOR=$2
+  local MODEL=$3
+
+  local SIZE_GB=$(( $(cat /sys/class/block/$DISK/size) * 512 / 1024 / 1024 / 1024 ))
+
+  [[ -n "$VENDOR" && "$VENDOR" != 0x* ]] && echo -n "$VENDOR "
+  echo "$MODEL ${SIZE_GB} GiB"
+}
+
+PKNAME=$(lsblk -no PKNAME $(findmnt -n -o SOURCE / --nofsroot) 2> /dev/null)
 if [[ "$PKNAME" == mmcblk* ]]; then
   MMC_CID=$(mmc cid read "/sys/block/$PKNAME/device" 2> /dev/null)
 
   VENDOR=$(echo "$MMC_CID" | awk -F"'" '/^manufacturer:/ { print $2 }')
   MODEL=$(echo "$MMC_CID" | awk -F"'" '/^product:/ { print $2 }')
 
-  echo "$VENDOR $MODEL"
+  with_size "$PKNAME" "$VENDOR" "$MODEL"
 fi
 
 for DISK in $(lsblk -rndA --sort name | awk '{ print $1 }'); do
@@ -38,8 +49,5 @@ for DISK in $(lsblk -rndA --sort name | awk '{ print $1 }'); do
     | paste -sd' ')
   [[ "$MODEL" != *Virtio* ]] && continue
 
-  SIZE_GB=$(( $(cat /sys/class/block/$DISK/size) * 512 / 1024 / 1024 / 1024 ))
-
-  [[ "$VENDOR" != 0x* ]] && echo -n "$VENDOR "
-  echo "$MODEL ${SIZE_GB} GiB"
+  with_size "$DISK" "$VENDOR" "$MODEL"
 done
