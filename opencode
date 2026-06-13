@@ -19,6 +19,12 @@ fi
 
 export EDITOR="drain-stdin $EDITOR"
 
+# optionally symlink ${XDG_DATA_HOME}/opencode to ${OPENCODE_CACHE_DIR}
+OPENCODE_CACHE_DIR=${XDG_CACHE_HOME}/.opencode
+if [ ! -d "$OPENCODE_CACHE_DIR" ]; then
+  mkdir -m 700 "$OPENCODE_CACHE_DIR"
+fi
+
 OPENCODE_DIR=$(
   pnpm -g list --long --json |
   jq -r '.[0].dependencies["opencode-linux-x64"].path'
