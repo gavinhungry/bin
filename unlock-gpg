@@ -1,0 +1,3 @@
+#!/bin/bash
+
+echo | gpg --clear-sign --default-key "${1:-$GPGKEY}" &> /dev/null
