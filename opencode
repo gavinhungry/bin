@@ -25,12 +25,12 @@ if [ ! -d "$OPENCODE_CACHE_DIR" ]; then
   mkdir -m 700 "$OPENCODE_CACHE_DIR"
 fi
 
-OPENCODE_DIR=$(
+OPENCODE_INSTALL_DIR=$(
   pnpm -g list --long --json |
   jq -r '.[0].dependencies["opencode-linux-x64"].path'
 )
 
-[ -d "$OPENCODE_DIR" ] || die 'opencode not installed'
+[ -d "$OPENCODE_INSTALL_DIR" ] || die 'opencode not installed'
 
-OPENCODE="$OPENCODE_DIR"/bin/opencode
+OPENCODE="$OPENCODE_INSTALL_DIR"/bin/opencode
 exec $OPENCODE "$@"
