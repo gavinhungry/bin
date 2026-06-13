@@ -20,10 +20,10 @@ for MARKER in "$SCUP_DIR"/*.service; do
     continue
   fi
 
-  START_TIME_STR=$(systemctl show -p ActiveEnterTimestamp --value "$SERVICE" 2>/dev/null || true)
+  START_TIME_STR=$(systemctl show -p ActiveEnterTimestamp --value "$SERVICE" 2> /dev/null || true)
 
   if [[ -n "$START_TIME_STR" && "$START_TIME_STR" != "n/a" ]]; then
-    SERVICE_TIME=$(date -d "$START_TIME_STR" +%s 2>/dev/null || echo 0)
+    SERVICE_TIME=$(date -d "$START_TIME_STR" +%s 2> /dev/null || echo 0)
 
     if [[ "$SERVICE_TIME" -gt "$MARKER_TIME" ]]; then
       echo "$(color bold yellow)Removing stale service marker$(color end) ($SERVICE)"
