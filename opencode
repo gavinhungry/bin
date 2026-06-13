@@ -2,6 +2,21 @@
 
 source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
 
+load_api_key() {
+  local VAR_NAME=$1
+  local API_KEY
+
+  if API_KEY=$(pass "opencode/${VAR_NAME}" 2> /dev/null); then
+    export "$VAR_NAME"="$API_KEY"
+  fi
+}
+
+if unlock-pass; then
+  load_api_key ANTHROPIC_API_KEY
+  load_api_key GOOGLE_GENERATIVE_AI_API_KEY
+  load_api_key OPENAI_API_KEY
+fi
+
 export EDITOR="drain-stdin $EDITOR"
 
 OPENCODE_DIR=$(
