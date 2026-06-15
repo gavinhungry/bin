@@ -1,9 +1,12 @@
 #!/bin/bash
 
 case "$PINENTRY_USER_DATA" in
-  gtk2) exec /usr/bin/pinentry-gtk-2 "$@" ;;
-  gtk|gtk3) exec /usr/bin/pinentry-gnome3 "$@" ;;
-  qt) exec /usr/bin/pinentry-qt "$@" ;;
-  none) exit 1 ;;
-  *) exec /usr/bin/pinentry-curses "$@" ;;
+  curses|gnome3|gtk|qt|qt5|tty)
+    PINENTRY="/usr/bin/pinentry-${PINENTRY_USER_DATA}"
+    if [ -x "$PINENTRY" ]; then
+      exec "$PINENTRY" "$@"
+    fi
+  ;;
 esac
+
+exec /usr/bin/pinentry-curses "$@"
