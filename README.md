@@ -94,7 +94,7 @@ Scripts
 | `local-cert`           | Generate a local CA and signed TLS certificate                          |
 | `lock-1password`       | Lock 1Password                                                          |
 | `lock-all`             | Lock all credential stores (1Password, GPG, keyring, SSH)               |
-| `lock-gpg`             | Reload the GPG agent to clear cached passphrases                        |
+| `lock-gpg`             | Kill and reload the GPG agent to clear cached passphrases               |
 | `lock-keyring`         | Lock the GNOME keyring                                                  |
 | `lock-ssh-agent`       | Remove all keys from the SSH agent                                      |
 | `lock-ssh-sockets`     | Remove SSH control master sockets                                       |
@@ -132,7 +132,7 @@ Scripts
 | `nvme-temp`            | Show NVMe drive temperature                                             |
 | `one`                  | Run a program only if it is not already running                         |
 | `open`                 | Open files or URLs with xdg-open                                        |
-| `opencode`             | Wrap opencode to drain stdin from $EDITOR before launching              |
+| `opencode`             | Wrap opencode with API key loading from pass and stdin drain            |
 | `os-name`              | Print the OS pretty name from /etc/os-release                           |
 | `pacman-dev-upgrade`   | Upgrade VCS (git/hg/svn/bzr) packages                                   |
 | `pacman-dnf`           | Translate a pacman command to its dnf/rpm equivalent                    |
