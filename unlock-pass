@@ -6,4 +6,4 @@ PASS_GPG_ID_FILE="${PASSWORD_STORE_DIR:-${HOME}/.password-store}"/.gpg-id
 PASS_GPG_ID=$(cat "$PASS_GPG_ID_FILE")
 [ -n "$PASS_GPG_ID" ] || exit 2
 
-exec unlock-gpg "$PASS_GPG_ID"
+PINENTRY_USER_DATA=tty exec unlock-gpg "$PASS_GPG_ID"
