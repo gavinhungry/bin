@@ -141,7 +141,7 @@ update_npm_packages() {
   done
 
   pnpm -g update --latest
-  pnpm store prune
+  (cd $HOME && pnpm store prune)
 
   echo
 }
