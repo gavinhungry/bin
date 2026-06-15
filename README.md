@@ -123,6 +123,8 @@ Scripts
 | `node`                 | Node.js wrapper with custom REPL and flags                              |
 | `node-debug`           | Run Node.js with the debugger attached                                  |
 | `notes`                | Open the notes file in the preferred editor                             |
+| `nocsd`                | Run a GTK application with client-side decorations disabled             |
+| `nocsd-theme`          | Run a GTK application with CSD disabled and the Adwaita dark theme      |
 | `notify-sound`         | Play a notification sound                                               |
 | `npu`                  | Print NPU model from lspci                                              |
 | `nv-status`            | Show NVIDIA GPU utilization and temperature                             |
@@ -198,6 +200,8 @@ Scripts
 | `try`                  | Retry a command until it succeeds                                       |
 | `ucode`                | Print the CPU microcode revision                                        |
 | `uneject`              | Close ejected optical/disk trays                                        |
+| `unlock-gpg`           | Unlock a GPG key by performing a dummy sign operation                   |
+| `unlock-pass`          | Unlock the GPG key used by the password store                           |
 | `update-check`         | Check for available Arch Linux package updates                          |
 | `upower-battery`       | Show battery levels from UPower                                         |
 | `uptimes`              | Print system uptime in human-readable format                            |
