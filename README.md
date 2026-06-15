@@ -72,7 +72,6 @@ Scripts
 | `gif`                  | Convert a video file to an animated GIF                                 |
 | `git-sign-all`         | GPG re-sign all commits in a Git repository                             |
 | `github`               | Open GitHub pages for the current repository in a browser               |
-| `gpass`                | Run pass with GTK pinentry                                              |
 | `gpg`                  | GPG wrapper that sets GNUPGHOME for the configured key                  |
 | `gpu`                  | Print GPU model from lspci                                              |
 | `gpu-glx`              | Print the OpenGL renderer string                                        |

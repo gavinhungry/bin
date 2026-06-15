@@ -1,3 +1,0 @@
-#!/bin/bash
-
-PINENTRY_USER_DATA=gtk exec /usr/bin/pass "$@"
