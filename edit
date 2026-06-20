@@ -16,7 +16,11 @@ for ARG in "$@"; do
     continue
   fi
 
-  if [[ $TERM == xterm* ]] || [ $TERM = 'screen' ]; then
+  if (
+    [[ $TERM == xterm* ]] ||
+    [ $TERM = 'screen' ] ||
+    [ -n "$XDG_CURRENT_DESKTOP" ]
+  ); then
     exec ${EDITOR_GUI:-subl} "$ARG" &> /dev/null &
   else
     exec ${EDITOR:-emacs} "$ARG"
