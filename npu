@@ -2,7 +2,7 @@
 
 source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
 
-DEVICE_ID=$(lspci -m | grep 'Neural Processing Unit\|Co-processor' | awk '{ print $1; }')
+DEVICE_ID=$(lspci -m | grep -E "\b(NPU|Neural|AI Processor)\b" | awk '{ print $1; }')
 [ -z "$DEVICE_ID" ] && exit 1
 
 lspci -vm -s "$DEVICE_ID" |
