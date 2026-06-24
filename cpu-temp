@@ -3,10 +3,11 @@
 set -eo pipefail
 source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
 
-K10TEMP_NAME=$(grep -l ^k10temp$ /sys/class/hwmon/hwmon*/name)
-K10TEMP_DIR=$(dirname "$K10TEMP_NAME")
+HWMON_NAME_PATH=$(grep -l "^${HWMON_CPU_TEMP_NAME}$" /sys/class/hwmon/hwmon*/name)
+HWMON_DIR=$(dirname "$HWMON_NAME_PATH")
 
-TCTL=$(grep -l ^Tctl$ $K10TEMP_DIR/temp*_label)
+TCTL=$(grep -l ^Tctl$ $HWMON_DIR/temp*_label 2> /dev/null || true)
+TCTL=${TCTL:-$HWMON_DIR/temp1}
 TCTL_VAL=$(cat "${TCTL%_*}_input")
 
 if arge raw; then
