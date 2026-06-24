@@ -1,3 +1,10 @@
 #!/bin/bash
 
-lspci -mm | grep 'Co-processor' | cut -d'"' -f6 | cut -d'[' -f1
+source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
+
+DEVICE_ID=$(lspci -m | grep 'Neural Processing Unit\|Co-processor' | awk '{ print $1; }')
+[ -z "$DEVICE_ID" ] && exit 1
+
+lspci -vm -s "$DEVICE_ID" |
+  grep ^Vendor: -A1 | grep ^Device: |
+  cut -d':' -f2 | cut -d'[' -f1 | trim
