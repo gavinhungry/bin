@@ -41,6 +41,8 @@ print_motd_warning() {
 
 print_motd_banner
 echo
+arge banner && exit
+
 echo " $(uname -sr)"
 [ -n "$SSH_TTY" ] && echo " $(sshd -V 2>&1 | grep -im1 ssh)"
 echo
