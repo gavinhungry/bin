@@ -1,0 +1,5 @@
+#!/bin/bash
+
+export IRSSI_LIBERA_SASL_PASSWORD=$(pass irssi/LIBERA_SASL_PASSWORD)
+
+exec /usr/bin/irssi "$@"
