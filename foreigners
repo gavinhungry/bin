@@ -1,0 +1,160 @@
+#!/usr/bin/env python
+
+import json
+import subprocess
+import sys
+import urllib.error
+import urllib.parse
+import urllib.request
+
+# ---------------------------------------------------------------------------
+# Color setup (disabled when stdout is not a tty)
+# ---------------------------------------------------------------------------
+if sys.stdout.isatty():
+  C = {
+    'reset':     '\x1b[0m',
+    'bold':      '\x1b[1m',
+    'dim':       '\x1b[2m',
+    'underline': '\x1b[4m',
+    'yellow':    '\x1b[33m',
+    'cyan':      '\x1b[36m',
+    'green':     '\x1b[32m',
+    'red':       '\x1b[31m',
+    'blue':      '\x1b[34m',
+    'purple':    '\x1b[35m',
+    'gray':      '\x1b[90m',
+  }
+else:
+  C = {k: '' for k in ('reset','bold','dim','underline','yellow','cyan','green','red','blue','purple','gray')}
+
+def c(keys, text):
+  prefix = ''.join(C[k] for k in keys.split())
+  return f"{prefix}{text}{C['reset']}" if prefix else text
+
+# ---------------------------------------------------------------------------
+# Fetch foreign package names
+# ---------------------------------------------------------------------------
+result = subprocess.run(['pacman', '-Qm'], capture_output=True, text=True)
+foreign = result.stdout.split()[::2]  # alternating: name version name version ...
+
+if not foreign:
+  print('No foreign packages found.')
+  sys.exit(0)
+
+# ---------------------------------------------------------------------------
+# Fetch current AUR maintainer for each foreign package
+# maintainers[name] -> maintainer login, or None if orphaned
+# Packages absent from this dict were not found on AUR at all (e.g. local
+# packages), or the lookup failed (e.g. offline).
+# ---------------------------------------------------------------------------
+maintainers = {}
+try:
+  chunk_size = 100
+  for i in range(0, len(foreign), chunk_size):
+    chunk = foreign[i:i + chunk_size]
+    qs = '&'.join(
+      f"arg[]={urllib.parse.quote(name)}" for name in chunk
+    )
+    url = f"https://aur.archlinux.org/rpc/?v=5&type=info&{qs}"
+    with urllib.request.urlopen(url, timeout=10) as resp:
+      data = json.load(resp)
+    for entry in data.get('results', []):
+      maintainers[entry['Name']] = entry.get('Maintainer')
+except (urllib.error.URLError, TimeoutError, ValueError):
+  pass  # offline or AUR unreachable — fall back to '?' for all packages
+
+# ---------------------------------------------------------------------------
+# Batch-fetch all package info
+# ---------------------------------------------------------------------------
+result = subprocess.run(['pacman', '-Qi'] + foreign, capture_output=True, text=True)
+
+# ---------------------------------------------------------------------------
+# Parse into a list of package dicts
+# Split on blank lines — each block is one package
+# ---------------------------------------------------------------------------
+packages = []
+
+for block in result.stdout.split('\n\n'):
+  pkg = {}
+  for line in block.splitlines():
+    if ' : ' not in line:
+      continue
+    key, _, val = line.partition(' : ')
+    key = key.strip()
+    val = val.strip()
+    if key == 'Name':
+      pkg['name'] = val
+    elif key == 'Version':
+      pkg['version'] = val
+    elif key == 'Install Reason':
+      pkg['reason'] = 'explicit' if 'Explicitly' in val else 'dep'
+    elif key == 'Required By':
+      pkg['required_by'] = None if val == 'None' else val
+  if 'name' in pkg:
+    if pkg['name'] not in maintainers:
+      pkg['maintainer'] = 'not-in-aur'
+    elif maintainers[pkg['name']] is None:
+      pkg['maintainer'] = 'orphan'
+    else:
+      pkg['maintainer'] = maintainers[pkg['name']]
+    packages.append(pkg)
+
+def sort_key(pkg):
+  return pkg['name']
+
+packages.sort(key=sort_key)
+
+# ---------------------------------------------------------------------------
+# Compute column widths from plain text
+# ---------------------------------------------------------------------------
+w_name       = max(len(p['name'])       for p in packages)
+w_version    = max(len(p['version'])    for p in packages)
+w_maintainer = max(len(p['maintainer']) for p in packages)
+w_reason     = len('explicit')  # longest possible value
+
+# Enforce header minimums and add padding
+w_name       = max(w_name,       len('PACKAGE'))     + 2
+w_version    = max(w_version,    len('VERSION'))     + 2
+w_maintainer = max(w_maintainer, len('MAINTAINER'))  + 2
+w_reason     = max(w_reason,     len('REASON'))      + 2
+
+# ---------------------------------------------------------------------------
+# Print
+# ---------------------------------------------------------------------------
+def row(name, version, maintainer, reason, required_by, *, header=False):
+  if header:
+    cn  = c('bold', name)
+    cv  = c('bold', version)
+    cm  = c('bold', maintainer)
+    cr  = c('bold', reason)
+    crb = c('bold', required_by)
+  else:
+    cn  = c('bold blue', name)
+    cv  = c('dim', version)
+    if maintainer == 'orphan':
+      cm = c('bold red', maintainer)
+    elif maintainer == 'not-in-aur':
+      cm = c('bold yellow', maintainer)
+    else:
+      cm = c('dim', maintainer)
+    cr  = c('bold purple', reason) if reason == 'explicit' else c('bold cyan', reason)
+    crb = c('gray', required_by) if required_by == 'none' else c('bold green', required_by)
+
+  print(
+    f"{cn}{' ' * (w_name       - len(name))}"
+    f"{cv}{' ' * (w_version    - len(version))}"
+    f"{cm}{' ' * (w_maintainer - len(maintainer))}"
+    f"{cr}{' ' * (w_reason     - len(reason))}"
+    f"{crb}"
+  )
+
+row('PACKAGE', 'VERSION', 'MAINTAINER', 'REASON', 'REQUIRED BY', header=True)
+
+for pkg in packages:
+  row(
+    pkg['name'],
+    pkg['version'],
+    pkg['maintainer'],
+    pkg['reason'],
+    pkg['required_by'] or 'none',
+  )
