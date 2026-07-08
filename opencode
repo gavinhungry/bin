@@ -85,6 +85,10 @@ done
 
 EDITOR_BIND_ARGS=()
 if [ "$EDITOR" == emacs ]; then
+  if [ -d '/usr/libexec/emacs' ]; then
+    EDITOR_BIND_ARGS+=(--ro-bind /usr/libexec/emacs /usr/libexec/emacs)
+  fi
+
   EDITOR_BIND_ARGS+=(--ro-bind /usr/share/emacs /usr/share/emacs)
   EDITOR_BIND_ARGS+=(--ro-bind "$HOME/.emacs" "$HOME/.emacs")
   EDITOR_BIND_ARGS+=(--ro-bind "$HOME/.emacs.d" "$HOME/.emacs.d")
@@ -105,10 +109,13 @@ exec /usr/bin/bwrap \
   --proc /proc \
   --dev /dev \
   --ro-bind /bin /bin \
-  --ro-bind /bin /usr/bin \
+  --ro-bind /usr/bin /usr/bin \
   --ro-bind /usr/share/terminfo /usr/share/terminfo \
-  --ro-bind /lib /usr/lib \
+  --ro-bind /lib /lib \
+  --ro-bind /usr/lib /usr/lib \
   --ro-bind /lib64 /lib64 \
+  --ro-bind /usr/lib64 /usr/lib64 \
+  --ro-bind /etc/alternatives /etc/alternatives \
   --ro-bind /etc/resolv.conf /etc/resolv.conf \
   --ro-bind /etc/ssl /etc/ssl \
   --ro-bind "$OPENCODE_INSTALL_DIR" /opt/opencode \
