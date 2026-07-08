@@ -2,7 +2,13 @@
 
 source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
 
+#
 # workspace directory
+#
+# This is primarily a footgun-prevention mechanism, and not security
+# enforcement. Allow workspaces either within `WORKSPACE_BASE_DIR`, even if it
+# is just an explicitly-created symlink to an external directory.
+#
 
 WORKSPACE_BASE_DIR=${WORKSPACE_BASE_DIR:-$XDG_DEVEL_HOME}
 
@@ -20,7 +26,12 @@ else
   die "Workspace directory must be within $WORKSPACE_BASE_DIR"
 fi
 
+#
 # opencode
+#
+# Find standlone opencode x86 binary installed globally with pnpm. This avoids
+# the postinstall script required by the platform-agnostic opencode-ai package.
+#
 
 OPENCODE_INSTALL_DIR=$(
   pnpm -g list --long --json |
@@ -29,7 +40,12 @@ OPENCODE_INSTALL_DIR=$(
 
 [ -d "$OPENCODE_INSTALL_DIR" ] || die 'opencode not installed'
 
+#
 # API keys
+#
+# Load API keys from pass, apply to environment variables and add `--setenv`
+# args to pass to bwrap.
+#
 
 load_api_key() {
   local VAR_NAME=$1
@@ -59,7 +75,11 @@ for VAR_NAME in "${API_KEY_VAR_NAMES[@]}"; do
   fi
 done
 
+#
 # editor
+#
+# Construct bwrap bind args for editor-specific user configurations
+#
 
 EDITOR_BIND_ARGS=()
 if [ "$EDITOR" == emacs ]; then
@@ -68,7 +88,15 @@ if [ "$EDITOR" == emacs ]; then
   EDITOR_BIND_ARGS+=(--ro-bind "$HOME/.emacs.d" "$HOME/.emacs.d")
 fi
 
+#
 # bwrap
+#
+# Execute bwrap and launch opencode.
+#
+# The opencode binary itself is executed within an interactive bash shell, with
+# arguments to this script passed directly. This is a workaround for:
+# https://github.com/anomalyco/opencode/issues/9860
+#
 
 exec /usr/bin/bwrap \
   --unshare-pid \
