@@ -2,6 +2,35 @@
 
 source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
 
+# workspace directory
+
+WORKSPACE_BASE_DIR=${WORKSPACE_BASE_DIR:-$XDG_DEVEL_HOME}
+
+[ -n "$WORKSPACE_BASE_DIR" ] || die 'WORKSPACE_BASE_DIR not set'
+[ -d "$WORKSPACE_BASE_DIR" ] || die 'WORKSPACE_BASE_DIR does not exist'
+
+unset WORKSPACE_DIR
+
+if [[
+  "$PWD" == "$WORKSPACE_BASE_DIR" ||
+  "$PWD" == "$WORKSPACE_BASE_DIR"/*
+]]; then
+  WORKSPACE_DIR="$PWD"
+else
+  die "Workspace directory must be within $WORKSPACE_BASE_DIR"
+fi
+
+# opencode
+
+OPENCODE_INSTALL_DIR=$(
+  pnpm -g list --long --json |
+  jq -r '.[0].dependencies["opencode-linux-x64"].path'
+)
+
+[ -d "$OPENCODE_INSTALL_DIR" ] || die 'opencode not installed'
+
+# API keys
+
 load_api_key() {
   local VAR_NAME=$1
   local API_KEY
@@ -11,26 +40,67 @@ load_api_key() {
   fi
 }
 
-if unlock-pass; then
-  load_api_key ANTHROPIC_API_KEY
-  load_api_key GOOGLE_GENERATIVE_AI_API_KEY
-  load_api_key OPENAI_API_KEY
-fi
-
-export EDITOR="drain-stdin $EDITOR"
-
-# optionally symlink ${XDG_DATA_HOME}/opencode to ${OPENCODE_CACHE_DIR}
-OPENCODE_CACHE_DIR=${XDG_CACHE_HOME}/.opencode
-if [ ! -d "$OPENCODE_CACHE_DIR" ]; then
-  mkdir -m 700 "$OPENCODE_CACHE_DIR"
-fi
-
-OPENCODE_INSTALL_DIR=$(
-  pnpm -g list --long --json |
-  jq -r '.[0].dependencies["opencode-linux-x64"].path'
+API_KEY_VAR_NAMES=(
+  ANTHROPIC_API_KEY
+  GOOGLE_GENERATIVE_AI_API_KEY
+  OPENAI_API_KEY
 )
 
-[ -d "$OPENCODE_INSTALL_DIR" ] || die 'opencode not installed'
+if unlock-pass; then
+  for VAR_NAME in "${API_KEY_VAR_NAMES[@]}"; do
+    load_api_key "$VAR_NAME"
+  done
+fi
 
-OPENCODE="$OPENCODE_INSTALL_DIR"/bin/opencode
-exec $OPENCODE "$@"
+API_KEY_ARGS=()
+for VAR_NAME in "${API_KEY_VAR_NAMES[@]}"; do
+  if [ -n "${!VAR_NAME:-}" ]; then
+    API_KEY_ARGS+=(--setenv "$VAR_NAME" "${!VAR_NAME}")
+  fi
+done
+
+# editor
+
+EDITOR_BIND_ARGS=()
+if [ "$EDITOR" == emacs ]; then
+  EDITOR_BIND_ARGS+=(--ro-bind /usr/share/emacs /usr/share/emacs)
+  EDITOR_BIND_ARGS+=(--ro-bind "$HOME/.emacs" "$HOME/.emacs")
+  EDITOR_BIND_ARGS+=(--ro-bind "$HOME/.emacs.d" "$HOME/.emacs.d")
+fi
+
+# bwrap
+
+exec /usr/bin/bwrap \
+  --unshare-pid \
+  --proc /proc \
+  --dev /dev \
+  --ro-bind /bin /bin \
+  --ro-bind /bin /usr/bin \
+  --ro-bind /usr/share/terminfo /usr/share/terminfo \
+  --ro-bind /lib /usr/lib \
+  --ro-bind /lib64 /lib64 \
+  --ro-bind /etc/resolv.conf /etc/resolv.conf \
+  --ro-bind /etc/ssl /etc/ssl \
+  --ro-bind "$OPENCODE_INSTALL_DIR" /opt/opencode \
+  "${EDITOR_BIND_ARGS[@]}" \
+  --bind "$XDG_LOCAL_HOME"/opt/opencode/config "$XDG_CONFIG_HOME"/opencode \
+  --bind "$XDG_LOCAL_HOME"/opt/opencode/data "$XDG_DATA_HOME"/opencode \
+  --bind "$XDG_LOCAL_HOME"/opt/opencode/state "$XDG_STATE_HOME"/opencode \
+  --bind "$WORKSPACE_DIR" "$WORKSPACE_DIR" \
+  --tmpfs /tmp \
+  --tmpfs "$XDG_CACHE_HOME" \
+  --dir "$HOME" \
+  --chdir "$WORKSPACE_DIR" \
+  --clearenv \
+  --setenv PATH /usr/bin \
+  --setenv HOME "$HOME" \
+  --setenv PWD "$WORKSPACE_DIR" \
+  --setenv EDITOR "$EDITOR" \
+  --setenv TERM "$TERM" \
+  --setenv XDG_CONFIG_HOME "$XDG_CONFIG_HOME" \
+  --setenv XDG_DATA_HOME "$XDG_DATA_HOME" \
+  --setenv XDG_STATE_HOME "$XDG_STATE_HOME" \
+  --setenv XDG_CACHE_HOME "$XDG_CACHE_HOME" \
+  --setenv OPENCODE_DISABLE_MOUSE 'true' \
+  "${API_KEY_ARGS[@]}" \
+/bin/bash -ic 'exec /opt/opencode/bin/opencode "$@"' /bin/bash "$@"
