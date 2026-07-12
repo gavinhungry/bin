@@ -72,7 +72,7 @@ fi
 
 API_KEY_ARGS=()
 for VAR_NAME in "${API_KEY_VAR_NAMES[@]}"; do
-  if [ -n "${!VAR_NAME:-}" ]; then
+  if [ -n "${!VAR_NAME}" ]; then
     API_KEY_ARGS+=(--setenv "$VAR_NAME" "${!VAR_NAME}")
   fi
 done
@@ -94,6 +94,19 @@ if [ "$EDITOR" == emacs ]; then
   EDITOR_BIND_ARGS+=(--ro-bind "$HOME/.emacs.d" "$HOME/.emacs.d")
 fi
 
+OPENCODE_SANDBOX_EXT_DIR=$(mktemp -d -p "$XDG_CACHE_HOME" opencode-ext-XXXX-$$)
+
+OPENCODE_SANDBOX_CLIPBOARD_FILE="$OPENCODE_SANDBOX_EXT_DIR"/clipboard
+touch "$OPENCODE_SANDBOX_CLIPBOARD_FILE"
+surveil --path "$OPENCODE_SANDBOX_CLIPBOARD_FILE" clip 2> /dev/null &
+
+ext_dir_cleanup() {
+  # removing the directory containing the clipboard file will also kill surveil
+  rm -fr "$OPENCODE_SANDBOX_EXT_DIR"
+}
+
+trap ext_dir_cleanup EXIT
+
 #
 # bwrap
 #
@@ -103,8 +116,11 @@ fi
 # arguments to this script passed directly. This is a workaround for:
 # https://github.com/anomalyco/opencode/issues/9860
 #
+# `xclip` wrapper can be as simple as:
+# cat > "$OPENCODE_SANDBOX_CLIPBOARD_FILE"
+#
 
-exec /usr/bin/bwrap \
+/usr/bin/bwrap \
   --unshare-pid \
   --proc /proc \
   --dev /dev \
@@ -119,14 +135,15 @@ exec /usr/bin/bwrap \
   --ro-bind /etc/resolv.conf /etc/resolv.conf \
   --ro-bind /etc/ssl /etc/ssl \
   --ro-bind "$OPENCODE_INSTALL_DIR" /opt/opencode \
-  "${EDITOR_BIND_ARGS[@]}" \
+  --dir "$HOME" \
+  --tmpfs /tmp \
+  --tmpfs "$XDG_CACHE_HOME" \
+  --bind "$OPENCODE_SANDBOX_EXT_DIR" "$OPENCODE_SANDBOX_EXT_DIR" \
+  --bind "$XDG_LOCAL_HOME"/opt/opencode/bin/xclip /usr/bin/xclip \
   --bind "$XDG_LOCAL_HOME"/opt/opencode/config "$XDG_CONFIG_HOME"/opencode \
   --bind "$XDG_LOCAL_HOME"/opt/opencode/data "$XDG_DATA_HOME"/opencode \
   --bind "$XDG_LOCAL_HOME"/opt/opencode/state "$XDG_STATE_HOME"/opencode \
   --bind "$WORKSPACE_DIR" "$WORKSPACE_DIR" \
-  --tmpfs /tmp \
-  --tmpfs "$XDG_CACHE_HOME" \
-  --dir "$HOME" \
   --chdir "$WORKSPACE_DIR" \
   --clearenv \
   --setenv PATH /usr/bin \
@@ -138,6 +155,10 @@ exec /usr/bin/bwrap \
   --setenv XDG_DATA_HOME "$XDG_DATA_HOME" \
   --setenv XDG_STATE_HOME "$XDG_STATE_HOME" \
   --setenv XDG_CACHE_HOME "$XDG_CACHE_HOME" \
-  --setenv OPENCODE_DISABLE_MOUSE 'true' \
+  --setenv OPENCODE_SANDBOX_EXT_DIR "$OPENCODE_SANDBOX_EXT_DIR" \
+  --setenv OPENCODE_SANDBOX_CLIPBOARD_FILE "$OPENCODE_SANDBOX_CLIPBOARD_FILE" \
+  --setenv OPENCODE_EXPERIMENTAL_DISABLE_COPY_ON_SELECT 'true' \
   "${API_KEY_ARGS[@]}" \
+  "${EDITOR_BIND_ARGS[@]}" \
 /bin/bash -ic 'exec /opt/opencode/bin/opencode "$@"' /bin/bash "$@"
+
