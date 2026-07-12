@@ -1,19 +1,61 @@
 #!/bin/bash
 
-set -eo pipefail
 source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
 
-[ $# -ge 1 ] || usage 'FILES "COMMAND"'
+PATH_MODE=0
+if [ "$1" == '-p' -o "$1" == '--path' ]; then
+  PATH_MODE=1
+  shift
+fi
 
-FILES=${@:1:$(($#-1))}
-COMMAND=${@: -1}
+FILES=("${@:1:$#-1}")
+COMMAND="${@: -1}"
 
-for FILE in $FILES; do
-  [ -r $FILE ] || die "cannot read surveillance target: $FILE"
-done
+_clean_files() {
+  for i in "${!FILES[@]}"; do
+    if [ ! -e "${FILES[i]}" ]; then
+      warn "could not read file: ${FILES[i]}"
+      unset 'FILES[i]'
+    fi
+  done
 
-eval $COMMAND
+  FILES=("${FILES[@]}")
 
-while true; do
-  inotifywait -qqe modify,attrib $FILES && sync $FILES && eval $COMMAND || xsleep 1
-done
+  if [ ${#FILES[@]} -eq 0 ]; then
+    die 'no files to watch'
+  fi
+}
+
+_command() {
+  _clean_files
+
+  if [ "$PATH_MODE" -eq 1 ]; then
+    for FILE in "$@"; do
+      [ ! -f "$FILE" ] && continue
+      eval "$COMMAND" "$(printf '%q' "$FILE")"
+    done
+  else
+    [ ! -f "${FILES[0]}" ] && return
+    eval "$COMMAND"
+  fi
+}
+
+_command "${FILES[@]}"
+
+while read -r CHANGED; do
+  [ -z "$CHANGED" ] && continue
+  BATCH=("$CHANGED")
+
+  while read -r -t 0.01 NEXT; do
+    [ -z "$NEXT" ] && continue
+    SEEN=0
+
+    for FILE in "${BATCH[@]}"; do
+      [ "$FILE" == "$NEXT" ] && SEEN=1 && break
+    done
+
+    [ "$SEEN" -eq 0 ] && BATCH+=("$NEXT")
+  done
+
+  _command "${BATCH[@]}"
+done < <(inotifywait -me modify,attrib --format '%w' "${FILES[@]}" 2> /dev/null)
