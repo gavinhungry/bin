@@ -160,5 +160,7 @@ trap ext_dir_cleanup EXIT
   --setenv OPENCODE_EXPERIMENTAL_DISABLE_COPY_ON_SELECT 'true' \
   "${API_KEY_ARGS[@]}" \
   "${EDITOR_BIND_ARGS[@]}" \
-/bin/bash -ic 'exec /opt/opencode/bin/opencode "$@"' /bin/bash "$@"
-
+/bin/bash -ic '
+  /opt/opencode/bin/opencode "$@"
+  while IFS= read -r -t 0.1 -n 1 _; do :; done
+' /bin/bash "$@"
