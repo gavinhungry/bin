@@ -94,6 +94,15 @@ if [ "$EDITOR" == emacs ]; then
   EDITOR_BIND_ARGS+=(--ro-bind "$HOME/.emacs.d" "$HOME/.emacs.d")
 fi
 
+#
+# external dir
+#
+# https://opencode.ai/docs/troubleshooting/#copypaste-not-working-on-linux
+#
+# `xclip` wrapper can be as simple as:
+# cat > "$OPENCODE_SANDBOX_CLIPBOARD_FILE"
+#
+
 OPENCODE_SANDBOX_EXT_DIR=$(mktemp -d -p "$XDG_CACHE_HOME" opencode-ext-XXXX-$$)
 
 OPENCODE_SANDBOX_CLIPBOARD_FILE="$OPENCODE_SANDBOX_EXT_DIR"/clipboard
@@ -116,9 +125,6 @@ trap ext_dir_cleanup EXIT
 # arguments to this script passed directly. This is a workaround for:
 # https://github.com/anomalyco/opencode/issues/9860
 #
-# `xclip` wrapper can be as simple as:
-# cat > "$OPENCODE_SANDBOX_CLIPBOARD_FILE"
-#
 
 /usr/bin/bwrap \
   --unshare-pid \
@@ -138,20 +144,21 @@ trap ext_dir_cleanup EXIT
   --dir "$HOME" \
   --tmpfs /tmp \
   --tmpfs "$XDG_CACHE_HOME" \
+  --ro-bind "$XDG_LOCAL_HOME"/opt/opencode/bin "$XDG_LOCAL_HOME"/bin \
   --bind "$OPENCODE_SANDBOX_EXT_DIR" "$OPENCODE_SANDBOX_EXT_DIR" \
-  --bind "$XDG_LOCAL_HOME"/opt/opencode/bin/xclip /usr/bin/xclip \
   --bind "$XDG_LOCAL_HOME"/opt/opencode/config "$XDG_CONFIG_HOME"/opencode \
   --bind "$XDG_LOCAL_HOME"/opt/opencode/data "$XDG_DATA_HOME"/opencode \
   --bind "$XDG_LOCAL_HOME"/opt/opencode/state "$XDG_STATE_HOME"/opencode \
   --bind "$WORKSPACE_DIR" "$WORKSPACE_DIR" \
   --chdir "$WORKSPACE_DIR" \
   --clearenv \
-  --setenv PATH /usr/bin \
   --setenv HOME "$HOME" \
+  --setenv PATH "$XDG_LOCAL_HOME"/bin:/usr/bin \
   --setenv PWD "$WORKSPACE_DIR" \
-  --setenv EDITOR "$EDITOR" \
   --setenv TERM "$TERM" \
+  --setenv EDITOR "drain-stdin $EDITOR" \
   --setenv XDG_CONFIG_HOME "$XDG_CONFIG_HOME" \
+  --setenv XDG_LOCAL_HOME "$XDG_LOCAL_HOME" \
   --setenv XDG_DATA_HOME "$XDG_DATA_HOME" \
   --setenv XDG_STATE_HOME "$XDG_STATE_HOME" \
   --setenv XDG_CACHE_HOME "$XDG_CACHE_HOME" \
@@ -162,5 +169,5 @@ trap ext_dir_cleanup EXIT
   "${EDITOR_BIND_ARGS[@]}" \
 /bin/bash -ic '
   /opt/opencode/bin/opencode "$@"
-  while IFS= read -r -t 0.1 -n 1 _; do :; done
+  drain-stdin
 ' /bin/bash "$@"
