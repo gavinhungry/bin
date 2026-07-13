@@ -24,7 +24,7 @@ if [[
   WORKSPACE_DIR="$PWD"
 else
   if ! arge help && ! arge version; then
-    warn "Workspace dir should be within WORKSPACE_BASE_DIR"
+    warn "Workspace should be within $WORKSPACE_BASE_DIR"
   fi
 fi
 
