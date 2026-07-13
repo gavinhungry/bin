@@ -14,7 +14,7 @@ arge verbose && ARGS+=(--verbose)
 if arge edit; then
   TMP=$(mktemp --suffix=.md)
   trap 'rm -f "$TMP"' EXIT
-  $EDITOR "$TMP"
+  edit "$TMP"
   [ -s "$TMP" ] || exit 0
 
   exec ollama run "$MODEL" "${ARGS[@]}" < "$TMP"
