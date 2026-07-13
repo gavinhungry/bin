@@ -1,0 +1,10 @@
+#!/bin/bash
+
+for EXT in oga wav mp3; do
+  SOUND_FILE="$HOME/.sounds/$1.$EXT"
+  if [ -f "$SOUND_FILE" ]; then
+    exec /usr/bin/playsound "$SOUND_FILE" &> /dev/null
+  fi
+done
+
+exit 1
