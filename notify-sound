@@ -2,4 +2,4 @@
 
 [ "$(pidof -x $0)" != "$$" ] && exit
 
-/usr/bin/playsound $HOME/.sounds/notify.oga &> /dev/null
+exec sound notify
