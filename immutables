@@ -1,6 +1,5 @@
 #!/bin/bash
 
-find ${@:-.} -exec lsattr {} + 2> /dev/null \
-  | grep '^[^ ]*i' \
-  | cut -d' ' -f2- \
-  | sort -u
+find ${@:-.} -xdev -exec lsattr -d {} + 2> /dev/null \
+  | awk '$1 ~ /i/ {print $2}' \
+  | sort
