@@ -2,4 +2,4 @@
 
 find ${@:-.} -xdev -exec lsattr -d {} + 2> /dev/null \
   | awk '$1 ~ /i/ {print $2}' \
-  | sort
+  | sort -u
