@@ -1,0 +1,100 @@
+#!/usr/bin/env python
+
+from argparse import ArgumentParser
+import configparser
+import os
+import re
+import subprocess
+import sys
+import tempfile
+
+parser = ArgumentParser()
+
+source = parser.add_mutually_exclusive_group(required=True)
+source.add_argument("-f", "--file", metavar="FILE")
+source.add_argument("-m", "--mime", metavar="MIME_TYPE")
+
+action = parser.add_mutually_exclusive_group(required=True)
+action.add_argument("-a", "--add", metavar="DESKTOPS")
+action.add_argument("-r", "--remove", metavar="DESKTOPS")
+action.add_argument("-l", "--list", action="store_true")
+
+args = parser.parse_args()
+
+if args.file:
+  result = subprocess.run(
+    ["xdg-mime", "query", "filetype", args.file],
+    stdout=subprocess.PIPE,
+    text=True,
+  )
+
+  if result.returncode:
+    sys.exit(result.returncode)
+
+  mime = result.stdout.strip()
+  if not mime:
+    parser.error(f"could not determine MIME type of {args.file}")
+else:
+  mime = args.mime
+
+if args.list:
+  result = subprocess.run(
+    ["gio", "mime", mime],
+    stdout=subprocess.PIPE,
+    text=True
+  )
+
+  if result.returncode:
+    sys.exit(result.returncode)
+
+  default_match = re.search(
+    r"^Default application for .*: (\S+\.desktop)$",
+    result.stdout,
+    re.MULTILINE,
+  )
+
+  default = default_match.group(1) if default_match else None
+  desktop_files = sorted(
+    set(re.findall(r"(?<!\S)(\S+\.desktop)(?!\S)", result.stdout)) - {default}
+  )
+
+  if default:
+    print(default)
+  if desktop_files:
+    print(*desktop_files, sep="\n")
+  sys.exit()
+
+desktop_files = list(dict.fromkeys(x.strip() for x in (args.add or args.remove).split(",")))
+if not all(desktop_files) or any("/" in desktop for desktop in desktop_files):
+  parser.error("use desktop-file IDs, not paths")
+
+config_home = os.environ.get("XDG_CONFIG_HOME")
+path = os.path.join(config_home, "mimeapps.list")
+os.makedirs(config_home, exist_ok=True)
+
+cfg = configparser.ConfigParser(
+  interpolation=None,
+  delimiters=("=",),
+  strict=False,
+)
+
+cfg.optionxform = str
+cfg.read(path, encoding="utf-8")
+
+section = "Added Associations" if args.add else "Removed Associations"
+if not cfg.has_section(section):
+  cfg.add_section(section)
+
+existing = [x for x in cfg.get(section, mime, fallback="").split(";") if x]
+
+for desktop in desktop_files:
+  if desktop not in existing:
+    existing.append(desktop)
+
+cfg.set(section, mime, ";".join(existing) + ";")
+
+fd, tmp = tempfile.mkstemp(dir=config_home, prefix=".mimeapps.", text=True)
+with os.fdopen(fd, "w", encoding="utf-8") as f:
+  cfg.write(f)
+
+os.replace(tmp, path)
