@@ -3,6 +3,8 @@
 import warnings
 warnings.filterwarnings('ignore')
 
+import os
+
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
@@ -12,8 +14,7 @@ import subprocess
 import threading
 import sys
 
-APP_NAME = 'Discord'
-APP_PATH = '/usr/bin/discord'
+APP_PATH = os.path.join(os.getenv('XDG_CONFIG_HOME'), 'discord', 'Discord')
 ICON_NAME = 'discord-tray'
 
 #
@@ -50,7 +51,7 @@ def on_click(icon):
 #
 def on_context(icon, button, time):
   quit = Gtk.MenuItem()
-  quit.set_label('Quit ' + APP_NAME)
+  quit.set_label('Quit Discord')
   quit.connect('activate', quit_app)
 
   menu = Gtk.Menu()
@@ -66,7 +67,7 @@ if is_running(APP_PATH):
   sys.exit()
 
 icon = Gtk.StatusIcon()
-icon.set_tooltip_text(APP_NAME)
+icon.set_tooltip_text('Discord')
 icon.set_from_icon_name(ICON_NAME)
 icon.connect('activate', on_click)
 icon.connect('popup-menu', on_context)
