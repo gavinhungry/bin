@@ -64,7 +64,7 @@ Scripts
 | `fangd`                | Fan speed control daemon driven by temperature curves                   |
 | `fetch`                | Display system information summary (CPU, RAM, GPU, etc.)                |
 | `font-touch`           | Force GTK font reload by toggling the font setting                      |
-| `foreign-pkgs`         | List installed foreign packages not in the AUR                          |
+| `foreigners`           | List installed foreign packages with AUR maintainer                     |
 | `forp`                 | Run a command in parallel over line-delimited arguments                 |
 | `fx-remove-favicons`   | Remove favicons for specified domains from the Firefox database         |
 | `gecos`                | Print GECOS field for a user from /etc/passwd                           |
@@ -85,6 +85,7 @@ Scripts
 | `ifspeed`              | Show link speed for all network interfaces                              |
 | `imgur`                | Upload an image to Imgur                                                |
 | `immutables`           | Find files with the immutable attribute set                             |
+| `irssi`                | Launch Irssi with SASL password from pass                               |
 | `kat`                  | Cat a file, suppressing errors                                          |
 | `keep`                 | Restart a program if it exits, with crash detection                     |
 | `kernel`               | Show the latest upstream Linux kernel version                           |
@@ -109,6 +110,7 @@ Scripts
 | `mem-dt`               | Print total memory from device tree                                     |
 | `mem-util`             | Show used memory with optional threshold indicator                      |
 | `mime`                 | Print the MIME type of a file                                           |
+| `mime-assoc`           | List, add or remove MIME type desktop application associations          |
 | `mindiff`              | Diff two files with token-level granularity                             |
 | `mksrcinfo`            | Generate .SRCINFO from PKGBUILD via makepkg                             |
 | `model`                | Print the system model/product name                                     |
@@ -138,6 +140,7 @@ Scripts
 | `pacman-dnf`           | Translate a pacman command to its dnf/rpm equivalent                    |
 | `pacman-lastsync`      | Show the last pacman mirror sync time                                   |
 | `pacman-mirror`        | Print the first configured pacman mirror URL                            |
+| `pass`                 | Run pass with terminal pinentry                                         |
 | `pause`                | Run a command, then wait for a keypress                                 |
 | `pdf`                  | Merge multiple PDFs into one                                            |
 | `pick-color`           | Open a color picker dialog                                              |
@@ -171,6 +174,7 @@ Scripts
 | `scup`                 | Restart active services with pending markers in /run/scup               |
 | `shot`                 | Take a screenshot and copy it to the clipboard                          |
 | `signal`               | Launch Signal Desktop with tray icon                                    |
+| `sound`                | Play a named sound from ~/.sounds                                       |
 | `spdx`                 | List known SPDX license identifiers                                     |
 | `sscert`               | Generate a self-signed SSL certificate                                  |
 | `ssh-aliases`          | List SSH host aliases from config                                       |
@@ -211,6 +215,7 @@ Scripts
 | `viewport`             | Manage X11 virtual desktop viewports                                    |
 | `volume`               | Adjust PulseAudio playback volume                                       |
 | `vulns`                | Show CPU vulnerability mitigations                                      |
+| `whichr`               | Find the first command match outside the home directory                 |
 | `win-ver`              | Print the Windows version (from WSL)                                    |
 | `wsl-clip`             | Copy stdin or a file to the Windows clipboard from WSL                  |
 | `wsl-cmd`              | Open a Windows cmd.exe shell from WSL                                   |
