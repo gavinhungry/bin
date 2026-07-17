@@ -1,0 +1,3 @@
+#!/bin/bash
+
+which -a "$1" | grep -v "^${HOME}" | head -n1
