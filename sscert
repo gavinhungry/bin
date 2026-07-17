@@ -9,7 +9,7 @@ OPENSSL=/usr/bin/openssl
 
 NAME=$1
 KEYSIZE=$2
-TMP=$(tmpdir $NAME)
+TMP=$(mktemp -d)
 
 [ -f ${NAME}.key ] && die "${NAME}.key already exists"
 [ -f ${NAME}.crt ] && die "${NAME}.crt already exists"
@@ -20,4 +20,4 @@ cp ${TMP}/${NAME}.key ${TMP}/${NAME}.key.orig
 ${OPENSSL} rsa -in ${TMP}/${NAME}.key.orig -out ${NAME}.key
 ${OPENSSL} x509 -req -days 3650 -in ${TMP}/${NAME}.csr -signkey ${NAME}.key -out ${NAME}.crt
 
-tmpdirclean
+rm -fr "$TMP"

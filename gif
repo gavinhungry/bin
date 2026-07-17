@@ -11,7 +11,7 @@ set -e
 FPS=$(arg fps 24)
 WIDTH=$(arg width 480)
 
-TMP=$(tmpdir)
+TMP=$(mktemp -d)
 PALETTE=$TMP/palette-$1-$$.png
 
 ffpb -i "$1" -vf fps=$FPS,palettegen "$PALETTE"
@@ -19,4 +19,4 @@ ffpb -threads 0 -i "$1" -i "$PALETTE" -filter_complex \
   "fps=$FPS,scale=$WIDTH:-1:flags=lanczos[x];[x][1:v]paletteuse" \
   "${1%.*}.gif"
 
-tmpdirclean
+rm -fr "$TMP"
