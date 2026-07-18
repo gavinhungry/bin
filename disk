@@ -5,10 +5,23 @@ with_size() {
   local VENDOR=$2
   local MODEL=$3
 
-  local SIZE_GB=$(( $(cat /sys/class/block/$DISK/size) * 512 / 1024 / 1024 / 1024 ))
+  local SIZE_BYTES=$(( $(cat /sys/class/block/$DISK/size) * 512 ))
+  local SIZE_MIB=$(( SIZE_BYTES / 1024 / 1024 ))
+
+  local SIZE SUFFIX
+  if (( SIZE_MIB >= 1024 * 1024 )); then
+    SIZE=$(( SIZE_MIB / 1024 / 1024 ))
+    SUFFIX="TiB"
+  elif (( SIZE_MIB >= 1024 )); then
+    SIZE=$(( SIZE_MIB / 1024 ))
+    SUFFIX="GiB"
+  else
+    SIZE=$SIZE_MIB
+    SUFFIX="MiB"
+  fi
 
   [[ -n "$VENDOR" && "$VENDOR" != 0x* ]] && echo -n "$VENDOR "
-  echo "$MODEL ${SIZE_GB} GiB"
+  echo "$MODEL ${SIZE} ${SUFFIX}"
 }
 
 PKNAME=$(lsblk -no PKNAME $(findmnt -n -o SOURCE / --nofsroot) 2> /dev/null)
