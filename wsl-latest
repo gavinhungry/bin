@@ -1,0 +1,8 @@
+#!/bin/bash
+
+source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
+
+arge pre-release && PRE_RELEASE=true || PRE_RELEASE=false
+
+JSON=$(curl -s 'https://api.github.com/repos/microsoft/WSL/releases')
+echo "$JSON" | jq -r --argjson pre "$PRE_RELEASE" '[.[] | select(.prerelease == $pre)][0].tag_name'
