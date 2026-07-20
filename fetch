@@ -48,8 +48,8 @@ KERNEL_M=$(uname -m)
 [[ $KERNEL == *[.-]"$KERNEL_M" ]] || KERNEL="${KERNEL} ${KERNEL_M}"
 output_fetch black KERNEL $KERNEL
 
-output_fetch black WIN $(win-ver)
-output_fetch black WSL $(wsl-ver)
+output_fetch blue WIN $(win-ver)
+output_fetch blue WSL $(wsl-ver)
 output_fetch purple CPU $(cpu --threads)
 output_fetch yellow RAM $(mem --type)
 output_fetch green GPU $(gpu --model)
