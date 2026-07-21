@@ -1,6 +1,6 @@
 #!/bin/bash
 
-JSON=$(wsl-exec pwsh.exe -NoProfile -Command "\
+JSON=$(wsl-pwsh -NoProfile -Command "\
   Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion' |\
   Select-Object ProductName, DisplayVersion, CurrentBuild, UBR |\
   ConvertTo-Json -Compress

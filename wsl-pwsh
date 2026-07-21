@@ -1,0 +1,8 @@
+#!/bin/bash
+
+LOCALAPPDATA=$(wsl-env-var LOCALAPPDATA)
+LOCALAPPDATA_WSL=$(wslpath "$LOCALAPPDATA")
+
+[ -d "$LOCALAPPDATA_WSL" ] || exit 1
+
+exec "$LOCALAPPDATA_WSL"/Microsoft/WindowsApps/pwsh.exe "$@"
