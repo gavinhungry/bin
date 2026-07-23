@@ -3,7 +3,7 @@
 source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
 
 format_color() {
-  ispty && echo "1;2;3$1" || echo "1;9$1"
+  ispty && echo "2;3$1" || echo "9$1"
 }
 
 # root
@@ -13,9 +13,9 @@ if [ "$(id -u)" -eq 0 ]; then
 fi
 
 # local user
-if (! arge color && [ -z "$SSH_TTY" ]) || [ -z "$PROMPT_FG_COLOR" ]; then
-  ispty && echo '1;97' || echo '37'
+if (! arge color && [ -z "$SSH_TTY" ]) || [ -z "$TERM_FG_COLOR" ]; then
+  ispty && echo '97' || echo '37'
   exit
 fi
 
-format_color $PROMPT_FG_COLOR
+format_color $TERM_FG_COLOR
