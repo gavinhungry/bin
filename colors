@@ -1,12 +1,12 @@
 #!/bin/bash
 
 echo
-echo -e $(tput sgr0)'\e[30mBLACK\t\t'$(tput bold)'\e[90mBRIGHT_BLACK'
-echo -e $(tput sgr0)'\e[31mRED\t\t'$(tput bold)'\e[91mBRIGHT_RED'
-echo -e $(tput sgr0)'\e[32mGREEN\t\t'$(tput bold)'\e[92mBRIGHT_GREEN'
-echo -e $(tput sgr0)'\e[33mYELLOW\t\t'$(tput bold)'\e[93mBRIGHT_YELLOW'
-echo -e $(tput sgr0)'\e[34mBLUE\t\t'$(tput bold)'\e[94mBRIGHT_BLUE'
-echo -e $(tput sgr0)'\e[35mMAGENTA\t\t'$(tput bold)'\e[95mBRIGHT_MAGENTA'
-echo -e $(tput sgr0)'\e[36mCYAN\t\t'$(tput bold)'\e[96mBRIGHT_CYAN'
-echo -e $(tput sgr0)'\e[37mWHITE\t\t'$(tput bold)'\e[97mBRIGHT_WHITE'
+echo -e $(tput sgr0)'0\t\e[30mBLACK\t\t'$(tput bold)'\e[90mBRIGHT_BLACK'
+echo -e $(tput sgr0)'1\t\e[31mRED\t\t'$(tput bold)'\e[91mBRIGHT_RED'
+echo -e $(tput sgr0)'2\t\e[32mGREEN\t\t'$(tput bold)'\e[92mBRIGHT_GREEN'
+echo -e $(tput sgr0)'3\t\e[33mYELLOW\t\t'$(tput bold)'\e[93mBRIGHT_YELLOW'
+echo -e $(tput sgr0)'4\t\e[34mBLUE\t\t'$(tput bold)'\e[94mBRIGHT_BLUE'
+echo -e $(tput sgr0)'5\t\e[35mMAGENTA\t\t'$(tput bold)'\e[95mBRIGHT_MAGENTA'
+echo -e $(tput sgr0)'6\t\e[36mCYAN\t\t'$(tput bold)'\e[96mBRIGHT_CYAN'
+echo -e $(tput sgr0)'7\t\e[37mWHITE\t\t'$(tput bold)'\e[97mBRIGHT_WHITE'
 echo -e $(tput sgr0)'\e[00m'
