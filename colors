@@ -1,12 +1,44 @@
 #!/bin/bash
 
+RESET=$(tput sgr0)
+WIDTH=12
+
+COLORS=(BLACK RED GREEN YELLOW BLUE MAGENTA CYAN WHITE)
+
+cell() {
+  local ESC='0' COLOR=$1 NAME=$2 STYLE=$3
+
+  case "$STYLE" in
+    DIM) ESC='2' ;;
+    BOLD_DIM) ESC='1;2' ;;
+    BOLD) ESC='1' ;;
+    NORMAL) ESC='0' ;;
+  esac
+
+  local _STYLE="$STYLE"
+  local LABEL="${STYLE}_${NAME}"
+
+  if [ "$STYLE" == 'NORMAL' ]; then
+    _STYLE=''
+    LABEL="$NAME"
+  fi
+
+  local _WIDTH=$((WIDTH + ${#_STYLE}))
+  printf '\e[%s;%sm%-*s%s' "$ESC" "$COLOR" "$_WIDTH" "$LABEL" "$RESET"
+}
+
 echo
-echo -e $(tput sgr0)'0\t\e[30mBLACK\t\t'$(tput bold)'\e[90mBRIGHT_BLACK'
-echo -e $(tput sgr0)'1\t\e[31mRED\t\t'$(tput bold)'\e[91mBRIGHT_RED'
-echo -e $(tput sgr0)'2\t\e[32mGREEN\t\t'$(tput bold)'\e[92mBRIGHT_GREEN'
-echo -e $(tput sgr0)'3\t\e[33mYELLOW\t\t'$(tput bold)'\e[93mBRIGHT_YELLOW'
-echo -e $(tput sgr0)'4\t\e[34mBLUE\t\t'$(tput bold)'\e[94mBRIGHT_BLUE'
-echo -e $(tput sgr0)'5\t\e[35mMAGENTA\t\t'$(tput bold)'\e[95mBRIGHT_MAGENTA'
-echo -e $(tput sgr0)'6\t\e[36mCYAN\t\t'$(tput bold)'\e[96mBRIGHT_CYAN'
-echo -e $(tput sgr0)'7\t\e[37mWHITE\t\t'$(tput bold)'\e[97mBRIGHT_WHITE'
-echo -e $(tput sgr0)'\e[00m'
+
+for I in "${!COLORS[@]}"; do
+  COLOR=$((30 + I))
+  NAME=${COLORS[I]}
+
+  printf '%-4s' "$I"
+  cell "$COLOR" "$NAME" DIM
+  cell "$COLOR" "$NAME" BOLD_DIM
+  cell "$COLOR" "$NAME" NORMAL
+  cell "$COLOR" "$NAME" BOLD
+  printf '\n'
+done
+
+printf '%s\n' "$RESET"
