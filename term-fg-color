@@ -6,6 +6,11 @@ format_color() {
   ispty && echo "2;3$1" || echo "9$1"
 }
 
+if arge motd; then
+  format_color ${MOTD_FG_COLOR:-${TERM_FG_COLOR}}
+  exit
+fi
+
 # root
 if [ "$(id -u)" -eq 0 ]; then
   echo $(format_color 1)
@@ -13,7 +18,7 @@ if [ "$(id -u)" -eq 0 ]; then
 fi
 
 # local user
-if (! arge color && [ -z "$SSH_TTY" ]) || [ -z "$TERM_FG_COLOR" ]; then
+if [ -z "$SSH_TTY" ] || [ -z "$TERM_FG_COLOR" ]; then
   ispty && echo '97' || echo '37'
   exit
 fi

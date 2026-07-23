@@ -25,8 +25,8 @@ print_motd_file() {
 }
 
 print_motd_banner() {
-  echo -en "\e[1;$(term-fg-color $(pfarg color))m"
-  print_motd_file $MOTD_BANNER_FILE "Welcome to $(hostname-pretty)"
+  echo -en "\e[1;$(term-fg-color --motd)m"
+  print_motd_file $MOTD_BANNER_FILE "$(hostname-pretty)"
   print_motd_file $MOTD_TAGLINE_FILE
   echo -en '\e[0m'
 }
