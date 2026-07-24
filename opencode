@@ -144,11 +144,12 @@ trap ext_dir_cleanup EXIT
   --dir "$HOME" \
   --tmpfs /tmp \
   --tmpfs "$XDG_CACHE_HOME" \
-  --ro-bind "$XDG_LOCAL_HOME"/opt/opencode/bin "$XDG_LOCAL_HOME"/bin \
   --bind "$OPENCODE_SANDBOX_EXT_DIR" "$OPENCODE_SANDBOX_EXT_DIR" \
+  --bind "$XDG_LOCAL_HOME"/opt/opencode/cache "$XDG_CACHE_HOME"/opencode \
   --bind "$XDG_LOCAL_HOME"/opt/opencode/config "$XDG_CONFIG_HOME"/opencode \
   --bind "$XDG_LOCAL_HOME"/opt/opencode/data "$XDG_DATA_HOME"/opencode \
   --bind "$XDG_LOCAL_HOME"/opt/opencode/state "$XDG_STATE_HOME"/opencode \
+  --ro-bind "$XDG_LOCAL_HOME"/opt/opencode/bin "$XDG_LOCAL_HOME"/bin \
   --bind "$WORKSPACE_DIR" "$WORKSPACE_DIR" \
   --chdir "$WORKSPACE_DIR" \
   --clearenv \
