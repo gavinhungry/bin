@@ -1,0 +1,43 @@
+#!/bin/bash
+
+source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
+
+unset LOCATE_EXCLUDE
+
+# '[^/]*' is not needed with --basename, but passed to highlight
+BAK_REGEX="[^/]*(~$|#.*#$)"
+PAC_REGEX='[^/]*\.pac(new|save|orig)$'
+
+list_re() {
+  locate --basename --regex "$1" "${@:2}"
+}
+
+list_bak() {
+  LOCATE_EXCLUDE='/node_modules/' list_re "$BAK_REGEX" "$@"
+}
+
+list_pac() {
+  list_re "$PAC_REGEX" "$@"
+}
+
+list() {
+  sudo updatedb
+
+  if ! arge bak && ! arge pac; then
+    list_bak "$@"
+    list_pac "$@"
+  else
+    arge bak && list_bak "$@"
+    arge pac && list_pac "$@"
+  fi
+}
+
+remove() {
+  list -0 | xargs -0 rm --
+}
+
+case "$(fnfarg)" in
+  list) list ;;
+  remove) remove ;;
+  '') ! istty && die 'no non-terminal output, use list'; list ;;
+esac
