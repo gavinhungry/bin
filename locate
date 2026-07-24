@@ -1,9 +1,18 @@
 #!/bin/bash
 
-source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
-
+ARGS=("$@")
 HIGHLIGHT_ARGS=()
-arge ignore-case && HIGHLIGHT_ARGS+=('-i')
 
-PATTERN=$(fnfarg)
-exec /usr/bin/locate "$@" | highlight "$PATTERN" "${HIGHLIGHT_ARGS[@]}"
+while (($#)); do
+  case $1 in
+    -i|--ignore-case) HIGHLIGHT_ARGS+=('-i'); shift ;;
+    -d|--database|-l|--limit) shift 2 ;;
+    --) shift; PATTERN="$1"; break ;;
+    -*) shift ;;
+    *) [ -z "$PATTERN" ] && PATTERN=$1; shift ;;
+  esac
+done
+
+exec /usr/bin/locate "${ARGS[@]}" \
+  | grep -v "${LOCATE_EXCLUDE:-'a^'}" \
+  | highlight "$PATTERN" "${HIGHLIGHT_ARGS[@]}"
