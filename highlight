@@ -1,3 +1,4 @@
 #!/bin/bash
 
-grep --color -E "$1|$" "${@:2}";
+[ -t 1 ] || exec cat -- "${@:2}"
+grep --color -E "$1|$" "${@:2}"
