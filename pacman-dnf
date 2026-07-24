@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 #
 # pacman-dnf - translate a pacman command into its dnf/rpm equivalent.
 #
