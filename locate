@@ -1,10 +1,13 @@
 #!/bin/bash
 
 ARGS=("$@")
+
+GREP_ARGS=()
 HIGHLIGHT_ARGS=()
 
 while (($#)); do
   case $1 in
+    -0|--null) GREP_ARGS+=('-z'); shift ;;
     -i|--ignore-case) HIGHLIGHT_ARGS+=('-i'); shift ;;
     -d|--database|-l|--limit) shift 2 ;;
     --) shift; PATTERN="$1"; break ;;
@@ -14,5 +17,5 @@ while (($#)); do
 done
 
 exec /usr/bin/locate "${ARGS[@]}" \
-  | grep -v "${LOCATE_EXCLUDE:-'a^'}" \
+  | grep -v "${LOCATE_EXCLUDE:-'a^'}" "${GREP_ARGS[@]}" \
   | highlight "$PATTERN" "${HIGHLIGHT_ARGS[@]}"
