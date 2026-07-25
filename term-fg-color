@@ -2,8 +2,10 @@
 
 source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
 
+[ "$TERM_FG_DIM" == 0 ] && EFFECT= || EFFECT=2
+
 format_color() {
-  ispty && echo "2;3$1" || echo "9$1"
+  ispty && echo "${EFFECT:+${EFFECT};}3$1" || echo "9$1"
 }
 
 if arge motd; then
