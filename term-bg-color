@@ -1,6 +1,14 @@
 #!/bin/bash
 
-[ -z "$SSH_TTY" -o -z "$TERM_BG_COLOR" ] && TERM_BG_COLOR=0A0A0A
-[ "$(id -u)" -eq 0 ] && TERM_BG_COLOR=160000
+# root
+if [ "$(id -u)" -eq 0 ]; then
+  exec printf '\033]11;#160000\033\\'
+fi
 
-exec printf "\033]11;#${TERM_BG_COLOR}\033\\"
+# SSH with per-host TERM_BG_COLOR
+if [ -n "$SSH_TTY" ] && [ -n "$TERM_BG_COLOR" ]; then
+  exec printf '\033]11;#%s\033\\' "$TERM_BG_COLOR"
+fi
+
+# reset
+exec printf '\033]111\033\\'
