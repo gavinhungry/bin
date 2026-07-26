@@ -2,7 +2,7 @@
 
 # root
 if [ "$(id -u)" -eq 0 ]; then
-  exec printf '\033]11;#140000\033\\'
+  exec printf '\033]11;#160000\033\\'
 fi
 
 # SSH with per-host TERM_BG_COLOR
