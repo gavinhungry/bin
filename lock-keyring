@@ -3,4 +3,4 @@
 exec dbus-send --print-reply \
   --dest=org.gnome.keyring \
   /org/freedesktop/secrets org.freedesktop.Secret.Service.LockService \
-  > /dev/null
+  &> /dev/null
