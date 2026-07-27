@@ -18,6 +18,7 @@ Scripts
 | `asound-id`            | Get ALSA sound card ID by name                                          |
 | `audio-title`          | Display currently playing audio title from various sources              |
 | `backlight`            | Adjust display backlight brightness                                     |
+| `bakfiles`             | Shortcut for `tmpfiles --bak`                                           |
 | `base64-img`           | Encode an image file as a base64 data URI                               |
 | `battery`              | Show battery status for UPower, Razer and headset devices               |
 | `bench`                | Benchmark a command by running it N times                               |
@@ -78,6 +79,7 @@ Scripts
 | `gtk-inspect`          | Launch an application with the GTK inspector enabled                    |
 | `headset-battery`      | Show wireless headset battery level                                     |
 | `hex`                  | Hex dump the first N bytes of a file                                    |
+| `highlight`            | Highlight a pattern in piped input                                      |
 | `hostname-pretty`      | Print the pretty hostname                                               |
 | `hwmon`                | Query hwmon sensors by device and sensor name                           |
 | `ibm-fan`              | Show ThinkPad fan speed                                                 |
@@ -93,6 +95,7 @@ Scripts
 | `ktinit`               | Initialize a Kerberos keytab for a user                                 |
 | `limit`                | Run a program with a network bandwidth limit                            |
 | `local-cert`           | Generate a local CA and signed TLS certificate                          |
+| `locate`               | Wrapper for locate(1) with exclusions and highlighting                  |
 | `lock-1password`       | Lock 1Password                                                          |
 | `lock-all`             | Lock all credential stores (1Password, GPG, keyring, SSH)               |
 | `lock-gpg`             | Kill and reload the GPG agent to clear cached passphrases               |
@@ -136,6 +139,7 @@ Scripts
 | `open`                 | Open files or URLs with xdg-open                                        |
 | `opencode`             | Wrap opencode with API key loading from pass and stdin drain            |
 | `os-name`              | Print the OS pretty name from /etc/os-release                           |
+| `pacfiles`             | Shortcut for `tmpfiles --pac`                                           |
 | `pacman-dev-upgrade`   | Upgrade VCS (git/hg/svn/bzr) packages                                   |
 | `pacman-dnf`           | Translate a pacman command to its dnf/rpm equivalent                    |
 | `pacman-lastsync`      | Show the last pacman mirror sync time                                   |
@@ -153,7 +157,6 @@ Scripts
 | `pkgw`                 | Show package info for a command or file                                 |
 | `plex-music-title`     | Print currently playing Plex music artist and title                     |
 | `pnpm`                 | pnpm wrapper with convenience subcommands                               |
-| `prompt-color`         | Output an ANSI color code for the shell prompt                          |
 | `pylon.py`             | X11 window management utility library                                   |
 | `qrdecode`             | Decode a QR code from an image file                                     |
 | `qrreencode`           | Decode and re-encode a QR code image                                    |
@@ -195,10 +198,12 @@ Scripts
 | `teams-busylight`      | Drive a busylight based on Microsoft Teams status                       |
 | `teams-status`         | Print the current Microsoft Teams status                                |
 | `teams-tray`           | Microsoft Teams system tray icon with notification support              |
-| `term-color`           | Set the terminal background color                                       |
+| `term-bg-color`        | Set the terminal background color                                       |
+| `term-fg-color`        | Set the terminal foreground color                                       |
 | `termwin`              | Open a new terminal window                                              |
 | `thunar`               | Launch Thunar with a clean config                                       |
 | `timer`                | Countdown timer with system tray icon and notification                  |
+| `tmpfiles`             | List or remove backup and pacman leftover files                         |
 | `toggle`               | Toggle a program on or off by PID                                       |
 | `try`                  | Retry a command until it succeeds                                       |
 | `ucode`                | Print the CPU microcode revision                                        |
@@ -223,8 +228,11 @@ Scripts
 | `wsl-exec`             | Execute a Windows binary from WSL with line ending cleanup              |
 | `wsl-interop`          | Restore WSL interop for Windows binary execution                        |
 | `wsl-is-rdp`           | Check if the WSL session is over RDP                                    |
+| `wsl-latest`           | Print the latest WSL release tag from GitHub                            |
 | `wsl-lock`             | Lock the Windows workstation from WSL                                   |
 | `wsl-mount-drvfs`      | Mount Windows DrvFs filesystems configured in fstab from WSL            |
+| `wsl-pwsh`             | Run Windows PowerShell from WSL                                         |
+| `wsl-pwsh-cmd`         | Run a PowerShell command via wsl-pwsh                                   |
 | `wsl-subl`             | Open files in Windows Sublime Text from WSL                             |
 | `wsl-ver`              | Print the WSL version                                                   |
 | `wsl-wt`               | Open a Windows Terminal profile from WSL with optional elevation        |
