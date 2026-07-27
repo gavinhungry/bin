@@ -26,7 +26,7 @@ PROFILE_NAME=$(arg profile)
 # ) -Verb RunAs
 #
 if (arge elevate || arge admin); then
-  exec powershell.exe \
+  exec wsl-pwsh \
     -File "${USERPROFILE_DIR}\Scripts\Open-Elevated-Wt.ps1" \
     "$PROFILE_NAME" "$WINPATH"
 fi
