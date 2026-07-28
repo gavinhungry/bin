@@ -1,0 +1,114 @@
+#!/bin/bash
+
+set -eo pipefail
+source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
+
+([ $# -eq 1 ]) || usage 'FILE.apkm'
+
+LANGS=(en en_us)
+
+declare -A DENSITY_MAP=(
+  [ldpi]=120
+  [mdpi]=160
+  [tvdpi]=213
+  [hdpi]=240
+  [xhdpi]=320
+  [xxhdpi]=480
+  [xxxhdpi]=640
+)
+
+DENSITIES=("${!DENSITY_MAP[@]}")
+UNIVERSAL_DENSITIES=(nodpi anydpi)
+
+APKM=$1
+[ -f "$APKM" ] || die 'File not found'
+
+TMPDIR=$(mktemp -d)
+trap 'rm -rf "$TMPDIR"' EXIT
+
+inform "Extracting $APKM"
+unzip -q "$APKM" -d "$TMPDIR"
+
+mapfile -t ALL_APKS < <(find "$TMPDIR" -maxdepth 1 -type f -name '*.apk' | sort)
+[ ${#ALL_APKS[@]} -gt 0 ] || die 'No APK files found in bundle'
+
+DEVICE_ABI=$(adb shell getprop ro.product.cpu.abi | tr -d '\r')
+DEVICE_ABI_U="${DEVICE_ABI//-/_}"
+msg "Device ABI: $DEVICE_ABI"
+
+DEVICE_DPI=$(adb shell wm density | awk '
+  /Override density:/ { dpi = $NF; override = 1 }
+  /Physical density:/ && !override { dpi = $NF }
+  END { sub(/\r$/, "", dpi); print dpi }
+')
+
+if [ -z "$DEVICE_DPI" ]; then
+  warn 'Could not detect device DPI'
+  DEVICE_DPI=0
+fi
+
+msg "Device DPI: ${DEVICE_DPI}dpi"
+
+nearest_density() {
+  local TARGET=$1 BEST='' BESTDIFF=999999
+  local NAME D DIFF
+
+  for NAME in "${!DENSITY_MAP[@]}"; do
+    D=${DENSITY_MAP[$NAME]}
+    DIFF=$(( D > TARGET ? D - TARGET : TARGET - D ))
+
+    if (( DIFF < BESTDIFF )); then
+      BESTDIFF=$DIFF
+      BEST=$NAME
+    fi
+  done
+
+  printf '%s\n' "$BEST"
+}
+
+DENSITY=""
+if [ "$DEVICE_DPI" != "0" ]; then
+  DENSITY=$(nearest_density "$DEVICE_DPI")
+  msg "Device density: $DENSITY"
+fi
+
+is_wanted_lang() {
+  local TOK=${1,,}
+  TOK="${TOK//-/_}"
+  includes LANGS "$TOK"
+}
+
+APKS=()
+for APK in "${ALL_APKS[@]}"; do
+  FNAME=$(basename "$APK")
+
+  if [[ "$FNAME" =~ \.(arm64_v8a|armeabi_v7a|x86_64|x86)\.apk$ ]]; then
+    [[ "$FNAME" == *"$DEVICE_ABI_U"* ]] && APKS+=("$APK")
+
+  elif [[ "$FNAME" =~ config\.([A-Za-z0-9_-]+)\.apk$ ]]; then
+    TOKEN="${BASH_REMATCH[1]}"
+    TOKEN_L="${TOKEN,,}"
+
+    if includes UNIVERSAL_DENSITIES "$TOKEN_L"; then
+      APKS+=("$APK")
+
+    elif includes DENSITIES "$TOKEN_L"; then
+      if [[ -n "$DENSITY" && "$TOKEN_L" == "$DENSITY" ]]; then
+        APKS+=("$APK")
+      fi
+
+    elif is_wanted_lang "$TOKEN"; then
+      APKS+=("$APK")
+
+    fi
+  else
+    APKS+=("$APK")
+  fi
+done
+
+[[ ${#APKS[@]} -gt 0 ]] || die 'No compatible APK files found in bundle'
+
+inform "Installing ${#APKS[@]} APK(s)"
+printf '  %s\n' "${APKS[@]##*/}"
+
+adb install-multiple -r "${APKS[@]}"
