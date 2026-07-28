@@ -5,6 +5,8 @@ source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
 NAME=$(arg name localhost)
 ORG=$(arg org $NAME)
 CERT_NAME=$(arg cert-name $NAME)
+CA_DAYS=$(arg ca-days:D 365)
+DAYS=$(arg days 365)
 
 if [ -e $CERT_NAME.key -a -e $CERT_NAME.cer ]; then
   warn "Key and certificate already exist ($CERT_NAME)"
@@ -31,7 +33,7 @@ else
   "
 
   openssl req -new -x509 \
-    -days 3650 \
+    -days $CA_DAYS \
     -newkey ec -nodes \
     -pkeyopt ec_paramgen_curve:secp384r1 \
     -keyout $NAME-ca.key \
@@ -85,7 +87,7 @@ openssl req \
   -config <( echo -e "$CERT_CONFIG_FILE" )
 
 openssl x509 -req \
-  -days 3650 \
+  -days $DAYS \
   -CA $NAME-ca.cer \
   -CAkey $NAME-ca.key \
   -CAcreateserial \
