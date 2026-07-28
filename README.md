@@ -13,6 +13,7 @@ Scripts
 
 | Script                 | Description                                                             |
 | ---------------------- | ----------------------------------------------------------------------- |
+| `adb-install-apkm`     | Install compatible APK splits from an APKM bundle via ADB               |
 | `ai`                   | Run an Ollama model interactively or with input from $EDITOR            |
 | `arp-ip`               | Resolve a MAC address to an IP address via ARP                          |
 | `asound-id`            | Get ALSA sound card ID by name                                          |
