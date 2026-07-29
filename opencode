@@ -140,6 +140,7 @@ trap ext_dir_cleanup EXIT
   --ro-bind /etc/alternatives /etc/alternatives \
   --ro-bind /etc/resolv.conf /etc/resolv.conf \
   --ro-bind /etc/ssl /etc/ssl \
+  --ro-bind /etc/ca-certificates /etc/ca-certificates \
   --ro-bind "$OPENCODE_INSTALL_DIR" /opt/opencode \
   --dir "$HOME" \
   --tmpfs /tmp \
