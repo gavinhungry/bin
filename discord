@@ -1,6 +1,14 @@
 #!/usr/bin/bash
 
-/usr/share/discord/updater_bootstrap --no-zenity \
-  $XDG_CONFIG_HOME/discord stable https://updates.discord.com
+DISCORD_DIR=$XDG_CONFIG_HOME/discord
+
+DISCORD_APP=$(/usr/share/discord/updater_bootstrap --no-zenity \
+  $DISCORD_DIR stable https://updates.discord.com)
+
+DISCORD_BIN=$DISCORD_DIR/"$DISCORD_APP"/Discord
+
+if [ -x "$DISCORD_BIN" ]; then
+  ln -sf "$DISCORD_BIN" $DISCORD_DIR/Discord
+fi
 
 exec discord-tray
