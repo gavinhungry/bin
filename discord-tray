@@ -7,7 +7,7 @@ import os
 
 import gi
 gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk
+from gi.repository import Gtk, GLib
 
 import psutil
 import subprocess
@@ -30,14 +30,24 @@ def is_running(exe):
 
 #
 def open_app():
-  return subprocess.Popen([APP_PATH, '--disable-smooth-scrolling'])
+  try:
+    proc = subprocess.Popen([APP_PATH, '--disable-smooth-scrolling'])
+  except OSError as e:
+    print(f"Failed to start process: {e}")
+    GLib.idle_add(Gtk.main_quit)
+    os._exit(1)
+
+  return proc
 
 #
 def start_app():
   global process
   process = open_app()
+  if process is None:
+    return
+
   process.wait()
-  quit()
+  GLib.idle_add(Gtk.main_quit)
 
 #
 def quit_app(menuitem):
