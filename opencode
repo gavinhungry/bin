@@ -94,6 +94,11 @@ if [ "$EDITOR" == emacs ]; then
   EDITOR_BIND_ARGS+=(--ro-bind "$HOME/.emacs.d" "$HOME/.emacs.d")
 fi
 
+SSL_DIR_ARGS=()
+for DIR in /etc/ssl /etc/ca-certificates /etc/pki; do
+  [ -d "$DIR" ] && SSL_DIR_ARGS+=(--ro-bind "$DIR" "$DIR")
+done
+
 #
 # external dir
 #
@@ -139,8 +144,7 @@ trap ext_dir_cleanup EXIT
   --ro-bind /usr/lib64 /usr/lib64 \
   --ro-bind /etc/alternatives /etc/alternatives \
   --ro-bind /etc/resolv.conf /etc/resolv.conf \
-  --ro-bind /etc/ssl /etc/ssl \
-  --ro-bind /etc/ca-certificates /etc/ca-certificates \
+  "${SSL_DIR_ARGS[@]}" \
   --ro-bind "$OPENCODE_INSTALL_DIR" /opt/opencode \
   --dir "$HOME" \
   --tmpfs /tmp \
