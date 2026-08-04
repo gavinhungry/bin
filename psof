@@ -1,0 +1,3 @@
+#!/bin/bash
+
+pidof $1 | xargs -r ps -o user,pid,cmd --no-headers -p
