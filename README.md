@@ -149,6 +149,7 @@ A collection of utility scripts.
 | `pkgw`                 | Show package info for a command or file                                 |
 | `plex-music-title`     | Print currently playing Plex music artist and title                     |
 | `pnpm`                 | pnpm wrapper with convenience subcommands                               |
+| `psof`                 | Show user, PID and command for running instances of a process           |
 | `pylon.py`             | X11 window management utility library                                   |
 | `qrdecode`             | Decode a QR code from an image file                                     |
 | `qrreencode`           | Decode and re-encode a QR code image                                    |
