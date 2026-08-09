@@ -4,16 +4,27 @@ const { parseArgs } = require('node:util');
 const cheerio = require('cheerio');
 const open = require('open');
 
+const OS_NAMES = ['linux', 'windows', 'mac'];
+
 const { values } = parseArgs({
   options: {
-    studio: { type: 'boolean', short: 's' },
-    beta:   { type: 'boolean', short: 'b' },
+    os:     { short: 'o', type: 'string',  default: OS_NAMES[0] },
+    arm:    { short: 'a', type: 'boolean', default: false },
+    studio: { short: 's', type: 'boolean', default: false },
+    beta:   { short: 'b', type: 'boolean', default: false },
   },
   strict: false,
 });
 
+const OS_NAME   = values.os;
+const IS_ARM    = values.arm;
 const IS_STUDIO = values.studio;
 const IS_BETA   = values.beta;
+
+if (!OS_NAMES.includes(OS_NAME)) {
+  console.log('Unknown OS');
+  process.exit(1);
+}
 
 fetch('https://www.blackmagicdesign.com/support/partial/downloads')
   .then(res => res.text())
@@ -25,7 +36,13 @@ fetch('https://www.blackmagicdesign.com/support/partial/downloads')
 
     const $el = $dom(selector).first();
     const version = $el.attr('name');
-    const href = $el.find('a.download.linux').attr('href');
+
+    selector = `a.download.${OS_NAME}`;
+    if (IS_ARM) {
+      selector += '[href$=" ARM"]';
+    }
+
+    const href = $el.find(selector).attr('href');
     return { version, href };
   })
   .then(({ version, href }) => {
@@ -34,7 +51,12 @@ fetch('https://www.blackmagicdesign.com/support/partial/downloads')
       process.exit(1);
     }
 
-    console.log(version);
+    let osString = href.split('/').at(-1);
+    if (!osString) {
+      osString = OS_NAME;
+    }
+
+    console.log(`${version} for ${osString}`);
     return `https://www.blackmagicdesign.com${href}`;
   })
   .then(open.default);
