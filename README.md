@@ -119,8 +119,8 @@ A collection of utility scripts.
 | `node`                 | Node.js wrapper with custom REPL and flags                              |
 | `node-debug`           | Run Node.js with the debugger attached                                  |
 | `notes`                | Open the notes file in the preferred editor                             |
-| `nocsd`                | Run a GTK application with client-side decorations disabled             |
-| `nocsd-theme`          | Run a GTK application with CSD disabled and the Adwaita dark theme      |
+| `gtk-nocsd`            | Run a GTK application with client-side decorations disabled             |
+| `gtk-nocsd-theme`      | Run a GTK application with CSD disabled and the Adwaita dark theme      |
 | `notify-sound`         | Play a notification sound                                               |
 | `npu`                  | Print NPU model from lspci                                              |
 | `nv-status`            | Show NVIDIA GPU utilization and temperature                             |
