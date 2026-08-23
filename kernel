@@ -3,21 +3,20 @@
 set -eo pipefail
 source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
 
-arge help && usage '[-s, --stable] [-l, --lts]'
+arge help && usage '[-l, --lts, --longterm] [-s, --stable] [-m, --mainline]'
 
 RELEASES=$(curl -s https://www.kernel.org/releases.json)
 
-VER=stable
+# default to stable, or default to longterm if an LTS kernel is running
+MONIKER=stable
 if uname -r | grep -qi '\b-lts\b'; then
-  VER=lts
+  MONIKER=longterm
 fi
 
-arge lts && VER=lts
-arge stable && VER=stable
-arge mainline && VER=mainline
+arge lts && MONIKER=longterm
+arge stable && MONIKER=stable
+arge mainline && MONIKER=mainline
 
-case $VER in
-  lts) echo $RELEASES | jq -r '[.releases[] | select(.moniker == "longterm")][0] | .version' ;;
-  stable) echo $RELEASES | jq -r .latest_stable.version ;;
-  mainline) echo $RELEASES | jq -r '[.releases[] | select(.moniker == "mainline")][0] | .version' ;;
-esac
+echo $RELEASES |
+  jq -r --arg moniker "$MONIKER" \
+  '[.releases[] | select(.moniker == $moniker)][0] | .version'
