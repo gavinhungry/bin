@@ -1,4 +1,4 @@
-__ai_comp() {
+__llm_comp() {
   local cur=${COMP_WORDS[$COMP_CWORD]}
   _init_completion -n : cur
 
@@ -19,4 +19,4 @@ __ai_comp() {
   __ltrim_colon_completions "$cur"
 }
 
-complete -F __ai_comp ai
+complete -F __llm_comp llm
