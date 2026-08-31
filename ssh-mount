@@ -11,7 +11,7 @@ if ! grep -q "^${SSH_ALIAS}$" <(ssh-aliases); then
   exit 1
 fi
 
-MNT_DIR=~/.cache/mount/$SSH_ALIAS
+MNT_DIR=$XDG_CACHE_HOME/mount/$SSH_ALIAS
 
 mkdir -pm 700 "$MNT_DIR"
 sshfs -o follow_symlinks -o workaround=rename ${SSH_ALIAS}:${SSH_PATH} "$MNT_DIR"
