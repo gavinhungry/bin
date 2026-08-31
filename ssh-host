@@ -1,3 +1,0 @@
-#!/bin/bash
-
-grep "^Host $1$" ~/.ssh/config.local -A1 | grep '^\s*HostName' | awk '{ print $NF }'
