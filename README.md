@@ -5,7 +5,6 @@ A collection of utility scripts.
 | Script                 | Description                                                             |
 | ---------------------- | ----------------------------------------------------------------------- |
 | `adb-install-apkm`     | Install compatible APK splits from an APKM bundle via ADB               |
-| `ai`                   | Run an Ollama model interactively or with input from $EDITOR            |
 | `arp-ip`               | Resolve a MAC address to an IP address via ARP                          |
 | `asound-id`            | Get ALSA sound card ID by name                                          |
 | `audio-title`          | Display currently playing audio title from various sources              |
@@ -86,6 +85,7 @@ A collection of utility scripts.
 | `krbcc`                | Print the Kerberos credential cache path for a user                     |
 | `ktinit`               | Initialize a Kerberos keytab for a user                                 |
 | `limit`                | Run a program with a network bandwidth limit                            |
+| `llm`                  | Run an Ollama model interactively or with input from $EDITOR            |
 | `local-cert`           | Generate a local CA and signed TLS certificate                          |
 | `locate`               | Wrapper for locate(1) with exclusions and highlighting                  |
 | `lock-1password`       | Lock 1Password                                                          |
@@ -176,7 +176,6 @@ A collection of utility scripts.
 | `ssh-aliases`          | List SSH host aliases from config                                       |
 | `ssh-config`           | Show resolved SSH config options for a host                             |
 | `ssh-forget-host`      | Remove a host from SSH known_hosts                                      |
-| `ssh-host`             | Resolve an SSH alias to its hostname                                    |
 | `ssh-host-fingerprint` | Show SSH host key fingerprints                                          |
 | `ssh-mount`            | Mount a remote filesystem over SSHFS                                    |
 | `ssh-umount`           | Unmount an SSHFS mount                                                  |
