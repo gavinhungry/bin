@@ -1,6 +1,8 @@
 #!/bin/bash
 
-MAX_LENGTH=${1:-80}
+source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
+
+MAX_LENGTH=$(arg width 80)
 DELIMITER=•
   
 TITLE=
@@ -16,12 +18,6 @@ done <<< $(
 )
 
 TITLE=${TITLE% $DELIMITER }
-
-if [ -z "$TITLE" ]; then
-  [ "$(ps -o comm= $PPID)" == 'wrapper-2.0' ] && echo ' ' # xfce4-panel
-  exit 1
-fi
-
 [ $MAX_LENGTH -gt 0 -a ${#TITLE} -gt $MAX_LENGTH ] && TITLE="${TITLE::$MAX_LENGTH} ..."
 
-echo -en "🎵 ${TITLE}\n"
+[ -n "$TITLE" ] && echo "$TITLE"
