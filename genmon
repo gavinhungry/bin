@@ -14,9 +14,9 @@ TOOL=$(${TOOLTIP} | entity)
 [ -n "$PREFIX" -a -n "$TXT" ] && TXT="$PREFIX $TXT"
 
 # some genmon instances are only visible some of the time, add in-string padding
-if [ -n "$TXT" ]; then
-  PADDING=$(printf "%$(arg padding 0)s" '')
-  TXT+="$PADDING"
+if arge padded && [ -n "$TXT" ]; then
+  PADDING=$(printf "%5s" '')
+  TXT=" ${TXT}${PADDING}"
 fi
 
 # xfce4-panel can render a thin gap artifact if stdout is empty (even with ZWSP)
