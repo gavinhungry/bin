@@ -6,8 +6,6 @@ source "$(dirname "${BASH_SOURCE[0]}")"/.abash/abash.sh
 sudo -v || exit 1
 sigint
 
-export PNPM_CONFIG_LOGLEVEL=error
-
 update_pacman_packages() {
   bannerline -f 'Updating pacman packages'
 
@@ -140,7 +138,7 @@ update_npm_packages() {
     echo "$(color bold)$pkg$(color end) $current => $latest"
   done
 
-  pnpm -g update --latest
+  pnpm -g update --latest --loglevel warn > /dev/null
   (cd $HOME && pnpm store prune)
 
   echo
