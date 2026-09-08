@@ -139,7 +139,7 @@ update_npm_packages() {
   done
 
   pnpm -g update --latest --loglevel warn > /dev/null
-  (cd $HOME && pnpm store prune)
+  (cd $HOME && pnpm store prune 2> /dev/null)
 
   echo
 }
