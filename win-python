@@ -1,0 +1,10 @@
+#!/bin/bash
+
+PYTHON_EXE=$(wslpath "$(wsl-env-var LOCALAPPDATA)\Python\bin\python.exe")
+
+if [ -n "$1" ]; then
+  PYTHON_SCRIPT=$(wslpath -w "$1")
+  exec "$PYTHON_EXE" "$PYTHON_SCRIPT"
+fi
+
+exec "$PYTHON_EXE"
