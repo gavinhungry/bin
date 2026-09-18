@@ -213,6 +213,7 @@ A collection of utility scripts.
 | `volume`               | Adjust PulseAudio playback volume                                       |
 | `vulns`                | Show CPU vulnerability mitigations                                      |
 | `whichr`               | Find the first command match outside the home directory                 |
+| `win-python`           | Run Windows Python from WSL                                             |
 | `win-ver`              | Print the Windows version (from WSL)                                    |
 | `wsl-clip`             | Copy stdin or a file to the Windows clipboard from WSL                  |
 | `wsl-cmd`              | Open a Windows cmd.exe shell from WSL                                   |
