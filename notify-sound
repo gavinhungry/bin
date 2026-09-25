@@ -1,5 +1,10 @@
 #!/bin/bash
 
-[ "$(pidof -x $0)" != "$$" ] && exit
+source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
+singleinst
 
-exec sound notify
+SOUND=notify
+arge low && SOUND=notify-low
+arge critical && SOUND=notify-critical
+
+sound $SOUND
