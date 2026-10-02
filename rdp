@@ -11,8 +11,10 @@ source "$PROFILE"
 
 RDP_WIN_TITLE="${RDP_TITLE:-$RDP_SERVER}  —  Remote Desktop"
 
+[ -z "$RDP_USER" ] && exit 1
+
 if [ -z "$RDP_PASSWORD" ]; then
-  RDP_PASSWORD=$(zenity --password --title="$RDP_WIN_TITLE")
+  RDP_PASSWORD=$(zenity --password --title="$RDP_WIN_TITLE ($RDP_USER)")
 fi
 
 [ -z "$RDP_PASSWORD" ] && exit 1
