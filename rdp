@@ -27,7 +27,7 @@ RDP_GEOMETRY=${RDP_GEOMETRY:-1920x1080}
 RDP_WIDTH=${RDP_GEOMETRY%x*}
 RDP_HEIGHT=${RDP_GEOMETRY#*x}
 
-exec xfreerdp \
+exec freerdp \
   /title:"$RDP_WIN_TITLE" \
   /gfx:AVC420 \
   /bpp:24 \
