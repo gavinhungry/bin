@@ -122,6 +122,8 @@ A collection of utility scripts.
 | `gtk-nocsd`            | Run a GTK application with client-side decorations disabled             |
 | `gtk-nocsd-theme`      | Run a GTK application with CSD disabled and the Adwaita dark theme      |
 | `notify-sound`         | Play a notification sound                                               |
+| `notify-sound-critical`| Shortcut for `notify-sound --critical`                                  |
+| `notify-sound-low`     | Shortcut for `notify-sound --low`                                       |
 | `npu`                  | Print NPU model from lspci                                              |
 | `nv-status`            | Show NVIDIA GPU utilization and temperature                             |
 | `nv-temp`              | Show NVIDIA GPU temperature                                             |
