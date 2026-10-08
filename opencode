@@ -28,12 +28,16 @@ else
   fi
 fi
 
+WORKSPACE_BASENAME=$(basename $WORKSPACE_DIR)
+
 #
 # opencode
 #
 # Find standlone opencode x86 binary installed globally with pnpm. This avoids
 # the postinstall script required by the platform-agnostic opencode-ai package.
 #
+
+OPENCODE_HOME_DIR="$XDG_LOCAL_HOME"/opt/opencode
 
 OPENCODE_INSTALL_DIR=$(
   pnpm -g list --long --json |
@@ -100,19 +104,33 @@ for DIR in /etc/ssl /etc/ca-certificates /etc/pki; do
 done
 
 #
+# title
+#
+# Use the PID of this script (in hex) as a human-readable ID, which is added to
+# the WM_NAME, later used to match against the active window in order to
+# determine if notifications should be displayed.
+#
+
+PID_HEX=$(printf '%X\n' $$)
+export OPENCODE_WM_NAME="${WORKSPACE_BASENAME}${__TITLE_SEP:-" - "}OpenCode ($PID_HEX)"
+wmname "$OPENCODE_WM_NAME"
+
+#
 # external dir
 #
 # https://opencode.ai/docs/troubleshooting/#copypaste-not-working-on-linux
 #
 # `xclip` wrapper can be as simple as:
-# cat > "$OPENCODE_SANDBOX_CLIPBOARD_FILE"
+# cat > "$OPENCODE_SANDBOX_EXT_DIR"/.clipboard
 #
 
-OPENCODE_SANDBOX_EXT_DIR=$(mktemp -d -p "$XDG_CACHE_HOME" opencode-ext-XXXX-$$)
+OPENCODE_SANDBOX_EXT_DIR=$(mktemp -d -p "$XDG_CACHE_HOME" opencode-ext-${PID_HEX}-XXXX)
 
-OPENCODE_SANDBOX_CLIPBOARD_FILE="$OPENCODE_SANDBOX_EXT_DIR"/clipboard
-touch "$OPENCODE_SANDBOX_CLIPBOARD_FILE"
-surveil --path "$OPENCODE_SANDBOX_CLIPBOARD_FILE" clip 2> /dev/null &
+touch "$OPENCODE_SANDBOX_EXT_DIR"/.clipboard
+surveil --path "$OPENCODE_SANDBOX_EXT_DIR"/.clipboard clip 2> /dev/null &
+
+touch "$OPENCODE_SANDBOX_EXT_DIR"/.notify
+surveil --path "$OPENCODE_SANDBOX_EXT_DIR"/.notify "$OPENCODE_HOME_DIR"/bin/notify-args 2> /dev/null &
 
 ext_dir_cleanup() {
   # removing the directory containing the clipboard file will also kill surveil
@@ -150,14 +168,15 @@ trap ext_dir_cleanup EXIT
   --tmpfs /tmp \
   --tmpfs "$XDG_CACHE_HOME" \
   --bind "$OPENCODE_SANDBOX_EXT_DIR" "$OPENCODE_SANDBOX_EXT_DIR" \
-  --bind "$XDG_LOCAL_HOME"/opt/opencode/cache "$XDG_CACHE_HOME"/opencode \
-  --bind "$XDG_LOCAL_HOME"/opt/opencode/config "$XDG_CONFIG_HOME"/opencode \
-  --bind "$XDG_LOCAL_HOME"/opt/opencode/data "$XDG_DATA_HOME"/opencode \
-  --bind "$XDG_LOCAL_HOME"/opt/opencode/state "$XDG_STATE_HOME"/opencode \
-  --ro-bind "$XDG_LOCAL_HOME"/opt/opencode/bin "$XDG_LOCAL_HOME"/bin \
+  --bind "$OPENCODE_HOME_DIR"/cache "$XDG_CACHE_HOME"/opencode \
+  --bind "$OPENCODE_HOME_DIR"/config "$XDG_CONFIG_HOME"/opencode \
+  --bind "$OPENCODE_HOME_DIR"/data "$XDG_DATA_HOME"/opencode \
+  --bind "$OPENCODE_HOME_DIR"/state "$XDG_STATE_HOME"/opencode \
+  --ro-bind "$OPENCODE_HOME_DIR"/bin "$XDG_LOCAL_HOME"/bin \
   --bind "$WORKSPACE_DIR" "$WORKSPACE_DIR" \
   --chdir "$WORKSPACE_DIR" \
   --clearenv \
+  --setenv WORKSPACE_BASENAME "$WORKSPACE_BASENAME" \
   --setenv HOME "$HOME" \
   --setenv PATH "$XDG_LOCAL_HOME"/bin:/usr/bin \
   --setenv PWD "$WORKSPACE_DIR" \
@@ -169,7 +188,6 @@ trap ext_dir_cleanup EXIT
   --setenv XDG_STATE_HOME "$XDG_STATE_HOME" \
   --setenv XDG_CACHE_HOME "$XDG_CACHE_HOME" \
   --setenv OPENCODE_SANDBOX_EXT_DIR "$OPENCODE_SANDBOX_EXT_DIR" \
-  --setenv OPENCODE_SANDBOX_CLIPBOARD_FILE "$OPENCODE_SANDBOX_CLIPBOARD_FILE" \
   --setenv OPENCODE_EXPERIMENTAL_DISABLE_COPY_ON_SELECT 'true' \
   "${API_KEY_ARGS[@]}" \
   "${EDITOR_BIND_ARGS[@]}" \
