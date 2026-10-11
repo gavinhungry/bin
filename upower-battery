@@ -1,7 +1,15 @@
 #!/bin/bash
 
 upower --dump |
-  grep '\s\(model:\|percentage:\)' |
-  awk '(NR % 2 == 0) || ($1 == "model:") { $1=""; print }' |
-  awk 'NR % 2 == 1 { $1=$1; printf $0 ":" } NR % 2 == 0 { print }' |
+  awk '
+    /^Device:/         { kind = vendor = model = "" }
+    /^  [a-z][a-z-]*$/ { kind = $1 }
+    $1 == "vendor:"    { $1 = ""; vendor = substr($0, 2) }
+    $1 == "model:"     { $1 = ""; model  = substr($0, 2) }
+    $1 == "percentage:" && model != "" {
+      $1 = ""
+      print (vendor != "" ? vendor " " : "") model \
+            (kind != "" ? " (" toupper(kind) ")" : "") ":" $0
+    }
+  ' |
   sort -u
