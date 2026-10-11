@@ -1,0 +1,40 @@
+#!/bin/bash
+
+set -uo pipefail
+shopt -s extglob
+
+BASE=https://archive.archlinux.org/packages
+
+download_package() {
+  local NAME=${1%%@*} SPEC=${1#*@}
+  [[ $1 == *@* && $NAME && $SPEC ]] || { echo "error: bad argument: $1" >&2; return 1; }
+
+  local DIR="$BASE/${NAME:0:1}/${NAME//+/%2B}/" LISTING
+  LISTING=$(curl -fsL "$DIR") || { echo "error: package not found: $NAME" >&2; return 1; }
+
+  # No epoch in spec: any epoch matches. No pkgrel in spec: any pkgrel matches.
+  local EPAT='?(+([0-9]):)' RPAT='-+([0-9.])'
+  [[ $SPEC == *:* ]] && EPAT=
+  [[ $SPEC == *-* ]] && RPAT=
+
+  local HREF FILE BEST
+  BEST=$(grep -oP 'href="\K[^"]*' <<<"$LISTING" | while IFS= read -r HREF; do
+    printf -v FILE '%b' "${HREF//%/\\x}"
+    [[ $FILE == "$NAME-"$EPAT"$SPEC"$RPAT-@(x86_64|any).pkg.tar.+([a-z]) ]] && printf '%s\t%s\n' "$FILE" "$HREF"
+  done | sort -V | tail -1)
+  [[ $BEST ]] || { echo "error: no match for $1 (see $DIR)" >&2; return 1; }
+
+  FILE=${BEST%%$'\t'*} HREF=${BEST#*$'\t'}
+  if [[ $LISTING == *"\"$HREF.sig\""* ]]; then
+    curl -fL# -o "$FILE" "$DIR$HREF" && curl -fL# -o "$FILE.sig" "$DIR$HREF.sig" || { rm -f "$FILE" "$FILE.sig"; return 1; }
+  else
+    echo "warning: no signature file for $FILE" >&2
+    curl -fL# -o "$FILE" "$DIR$HREF" || { rm -f "$FILE"; return 1; }
+  fi
+}
+
+(( $# )) || { echo "usage: ${0##*/} pkg@[epoch:]ver[-rel] ..." >&2; exit 2; }
+
+RC=0
+for ARG; do download_package "$ARG" || RC=1; done
+exit $RC
