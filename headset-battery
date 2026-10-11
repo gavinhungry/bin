@@ -1,9 +1,0 @@
-#!/bin/bash
-
-OUTPUT=$(headsetcontrol --battery 2> /dev/null)
-DEVICE=$(echo "$OUTPUT" | grep ^Found | cut -d' ' -f2- | cut -d'(' -f1 | head -n1)
-DEVICE=${DEVICE% }
-DEVICE=${DEVICE%!}
-BATTERY=$(echo "$OUTPUT" | grep '^\s*Level:' | cut -d' ' -f2 | head -n1)
-
-[ -n "$DEVICE" ] && echo "$DEVICE: $BATTERY"

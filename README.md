@@ -12,7 +12,7 @@ A collection of utility scripts.
 | `backlight`            | Adjust display backlight brightness                                     |
 | `bakfiles`             | Shortcut for `tmpfiles --bak`                                           |
 | `base64-img`           | Encode an image file as a base64 data URI                               |
-| `battery`              | Show battery status for UPower, Razer and headset devices               |
+| `battery`              | Show battery status for UPower and Razer devices                        |
 | `bench`                | Benchmark a command by running it N times                               |
 | `bios`                 | Print BIOS version from DMI                                             |
 | `btrfs-du`             | Show disk usage for a btrfs snapshot                                    |
@@ -69,7 +69,6 @@ A collection of utility scripts.
 | `gpu`                  | Print GPU model from lspci                                              |
 | `gpu-glx`              | Print the OpenGL renderer string                                        |
 | `gtk-inspect`          | Launch an application with the GTK inspector enabled                    |
-| `headset-battery`      | Show wireless headset battery level                                     |
 | `hex`                  | Hex dump the first N bytes of a file                                    |
 | `highlight`            | Highlight a pattern in piped input                                      |
 | `hostname-pretty`      | Print the pretty hostname                                               |
