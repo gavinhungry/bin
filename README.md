@@ -5,6 +5,7 @@ A collection of utility scripts.
 | Script                 | Description                                                             |
 | ---------------------- | ----------------------------------------------------------------------- |
 | `adb-install-apkm`     | Install compatible APK splits from an APKM bundle via ADB               |
+| `arch-archive-dl`      | Download a package and its signature from the Arch Linux Archive        |
 | `arp-ip`               | Resolve a MAC address to an IP address via ARP                          |
 | `asound-id`            | Get ALSA sound card ID by name                                          |
 | `audio-title`          | Display currently playing audio title from various sources              |
