@@ -31,7 +31,7 @@ fi
 WORKSPACE_BASENAME=$(basename $WORKSPACE_DIR)
 
 #
-# opencode
+# opencode2
 #
 # Find standlone opencode x86 binary installed globally with pnpm. This avoids
 # the postinstall script required by the platform-agnostic opencode-ai package.
@@ -41,7 +41,7 @@ OPENCODE_HOME_DIR="$XDG_LOCAL_HOME"/opt/opencode
 
 OPENCODE_INSTALL_DIR=$(
   pnpm -g list --long --json |
-  jq -r '.[0].dependencies["opencode-linux-x64"].path'
+  jq -r '.[0].dependencies["@opencode/cli-linux-x64"].path'
 )
 
 [ -d "$OPENCODE_INSTALL_DIR" ] || die 'opencode not installed'
@@ -192,6 +192,6 @@ trap ext_dir_cleanup EXIT
   "${API_KEY_ARGS[@]}" \
   "${EDITOR_BIND_ARGS[@]}" \
 /bin/bash -ic '
-  /opt/opencode/bin/opencode "$@"
+  /opt/opencode/bin/opencode --standalone "$@"
   drain-stdin
 ' /bin/bash "$@"
