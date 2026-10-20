@@ -47,41 +47,6 @@ OPENCODE_INSTALL_DIR=$(
 [ -d "$OPENCODE_INSTALL_DIR" ] || die 'opencode not installed'
 
 #
-# API keys
-#
-# Load API keys from pass, apply to environment variables and add `--setenv`
-# args to pass to bwrap.
-#
-
-load_api_key() {
-  local VAR_NAME=$1
-  local API_KEY
-
-  if API_KEY=$(pass "opencode/${VAR_NAME}" 2> /dev/null); then
-    export "$VAR_NAME"="$API_KEY"
-  fi
-}
-
-API_KEY_VAR_NAMES=(
-  ANTHROPIC_API_KEY
-  GOOGLE_GENERATIVE_AI_API_KEY
-  OPENAI_API_KEY
-)
-
-if unlock-pass; then
-  for VAR_NAME in "${API_KEY_VAR_NAMES[@]}"; do
-    load_api_key "$VAR_NAME"
-  done
-fi
-
-API_KEY_ARGS=()
-for VAR_NAME in "${API_KEY_VAR_NAMES[@]}"; do
-  if [ -n "${!VAR_NAME}" ]; then
-    API_KEY_ARGS+=(--setenv "$VAR_NAME" "${!VAR_NAME}")
-  fi
-done
-
-#
 # editor
 #
 # Construct bwrap bind args for editor-specific user configurations
@@ -189,7 +154,6 @@ trap ext_dir_cleanup EXIT
   --setenv XDG_CACHE_HOME "$XDG_CACHE_HOME" \
   --setenv OPENCODE_SANDBOX_EXT_DIR "$OPENCODE_SANDBOX_EXT_DIR" \
   --setenv OPENCODE_EXPERIMENTAL_DISABLE_COPY_ON_SELECT 'true' \
-  "${API_KEY_ARGS[@]}" \
   "${EDITOR_BIND_ARGS[@]}" \
 /bin/bash -ic '
   /opt/opencode/bin/opencode --standalone "$@"
