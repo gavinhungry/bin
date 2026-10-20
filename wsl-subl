@@ -6,4 +6,5 @@ for ARG in "$@"; do
   [[ -e "$ARG" ]] && ARGS+=("$(wslpath -w "$ARG")") || ARGS+=("$ARG")
 done
 
-exec '/mnt/c/Program Files/Sublime Text/sublime_text.exe' "${ARGS[@]}" &
+SUBL_EXE=$(wslpath "$(wsl-env-var PROGRAMFILES)"'\Sublime Text\sublime_text.exe')
+nohup "$SUBL_EXE" "${ARGS[@]}" > /dev/null 2>&1 &

@@ -1,0 +1,10 @@
+#!/bin/bash
+
+ARGS=()
+
+for ARG in "$@"; do
+  [[ -e "$ARG" ]] && ARGS+=("$(wslpath -w "$ARG")") || ARGS+=("$ARG")
+done
+
+CODE_EXE=$(wslpath "$(wsl-env-var LOCALAPPDATA)"'\Programs\Microsoft VS Code\Code.exe')
+nohup "$CODE_EXE" "${ARGS[@]}" > /dev/null 2>&1 &
