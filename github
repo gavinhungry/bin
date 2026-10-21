@@ -1,7 +1,7 @@
 #!/bin/bash
 
 BASE_URL=$(git remote get-url origin | sed 's/^github:/https:\/\/github.com\//')
-[ -n "$BASE_URL" ] || exit 1
+[[ "$BASE_URL" = https://github.com/* ]] || exit 1
 
 get_branch_suffix() {
   BRANCH=$(git rev-parse --abbrev-ref HEAD 2> /dev/null)
