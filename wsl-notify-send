@@ -1,0 +1,40 @@
+#!/bin/bash
+
+set -euo pipefail
+
+USERPROFILE_DIR=$(wsl-env-var USERPROFILE)
+
+PS_ARGS=()
+POSITIONAL=()
+
+need_value() {
+  (( $# >= 2 )) || { echo "notify-send: option '$1' requires a value" >&2; exit 2; }
+}
+
+while (( $# )); do
+  case "$1" in
+    -u|--urgency)      need_value "$@"; PS_ARGS+=(-Urgency "$2"); shift 2 ;;
+    --urgency=*)       PS_ARGS+=(-Urgency "${1#*=}"); shift ;;
+    -t|--expire-time)  need_value "$@"; PS_ARGS+=(-ExpireTime "$2"); shift 2 ;;
+    --expire-time=*)   PS_ARGS+=(-ExpireTime "${1#*=}"); shift ;;
+    -a|--app-name)     need_value "$@"; PS_ARGS+=(-AppName "$2"); shift 2 ;;
+    --app-name=*)      PS_ARGS+=(-AppName "${1#*=}"); shift ;;
+    --)                shift; POSITIONAL+=("$@"); break ;;
+    -*)                echo "notify-send: unknown option '$1'" >&2; exit 2 ;;
+    *)                 POSITIONAL+=("$1"); shift ;;
+  esac
+done
+
+if (( ${#POSITIONAL[@]} == 0 )); then
+  echo "notify-send: no summary specified" >&2
+  exit 2
+fi
+
+PS_ARGS+=(-Title "${POSITIONAL[0]}")
+if (( ${#POSITIONAL[@]} > 1 )); then
+  PS_ARGS+=(-Body "${POSITIONAL[1]}")
+fi
+
+exec wsl-pwsh \
+  -File "${USERPROFILE_DIR}\Scripts\WSL-Notify-Send.ps1" \
+  "${PS_ARGS[@]}"
