@@ -32,21 +32,26 @@ _command() {
   if [ "$PATH_MODE" -eq 1 ]; then
     for FILE in "$@"; do
       [ ! -f "$FILE" ] && continue
-      eval "$COMMAND" "$(printf '%q' "$FILE")"
+      eval "$COMMAND" "$(printf '%q' "$FILE")" 3<& -
     done
   else
     [ ! -f "${FILES[0]}" ] && return
-    eval "$COMMAND"
+    eval "$COMMAND" 3<& -
   fi
 }
 
 _command "${FILES[@]}"
 
-while read -r CHANGED; do
+# inotifywait -m outlives deleted watches, so kill it explicitly on exit
+exec 3< <(inotifywait -me modify,attrib --format '%w' "${FILES[@]}" 2> /dev/null)
+INOTIFY_PID=$!
+trap 'kill "$INOTIFY_PID" 2> /dev/null' EXIT
+
+while read -r CHANGED <& 3; do
   [ -z "$CHANGED" ] && continue
   BATCH=("$CHANGED")
 
-  while read -r -t 0.01 NEXT; do
+  while read -r -t 0.01 NEXT <& 3; do
     [ -z "$NEXT" ] && continue
     SEEN=0
 
@@ -58,4 +63,4 @@ while read -r CHANGED; do
   done
 
   _command "${BATCH[@]}"
-done < <(inotifywait -me modify,attrib --format '%w' "${FILES[@]}" 2> /dev/null)
+done
