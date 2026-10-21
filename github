@@ -12,6 +12,15 @@ get_branch_suffix() {
   fi
 }
 
+get_ref() {
+  BRANCH=$(git rev-parse --abbrev-ref HEAD 2> /dev/null)
+  if [[ -n "$BRANCH" && "$BRANCH" != "HEAD" ]]; then
+    echo "$BRANCH"
+  else
+    git rev-parse HEAD
+  fi
+}
+
 open_url() {
   if [ -n "$SSH_TTY" ]; then
     echo "$1"
@@ -36,5 +45,12 @@ case $1 in
   p|pull|pulls|pr|prs) open_page pulls pull $2 ;;
   a|actions|ci)        open_page actions ;;
   s|settings)          open_page settings ;;
-  *)                   open_page $(get_branch_suffix tree 0) ;;
+  *)
+    PREFIX=$(git rev-parse --show-prefix)
+    if [ -n "$PREFIX" ]; then
+      open_page "tree/$(get_ref)/$PREFIX"
+    else
+      open_page $(get_branch_suffix tree 0)
+    fi
+    ;;
 esac

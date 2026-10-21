@@ -54,5 +54,12 @@ case $1 in
   p|pull|pulls|pr|prs) open_page pulls pulls $2 ;;
   a|actions|ci)        open_page actions ;;
   s|settings)          open_page settings ;;
-  *)                   open_page $(get_branch_suffix src 0) ;;
+  *)
+    PREFIX=$(git rev-parse --show-prefix)
+    if [ -n "$PREFIX" ]; then
+      open_page "src/$(get_ref_path)/$PREFIX"
+    else
+      open_page $(get_branch_suffix src 0)
+    fi
+    ;;
 esac
