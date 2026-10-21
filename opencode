@@ -88,10 +88,10 @@ OPENCODE_SANDBOX_EXT_DIR=$(mktemp -d -p "$XDG_CACHE_HOME" opencode-ext-${PID_HEX
 
 touch "$OPENCODE_SANDBOX_EXT_DIR"/.notify
 surveil --path "$OPENCODE_SANDBOX_EXT_DIR"/.notify "$OPENCODE_HOME_DIR"/bin/notify-args 2> /dev/null &
+SURVEIL_PID=$!
 
 ext_dir_cleanup() {
-  [ -n "$XVFB_PID" ] && kill "$XVFB_PID" 2> /dev/null
-  # removing the directory containing the notify file will also kill surveil
+  kill $SURVEIL_PID $XVFB_PID 2> /dev/null
   rm -fr "$OPENCODE_SANDBOX_EXT_DIR"
 }
 
