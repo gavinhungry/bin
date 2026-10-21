@@ -83,26 +83,70 @@ wmname "$OPENCODE_WM_NAME"
 #
 # external dir
 #
-# https://opencode.ai/docs/troubleshooting/#copypaste-not-working-on-linux
-#
-# `xclip` wrapper can be as simple as:
-# cat > "$OPENCODE_SANDBOX_EXT_DIR"/.clipboard
-#
 
 OPENCODE_SANDBOX_EXT_DIR=$(mktemp -d -p "$XDG_CACHE_HOME" opencode-ext-${PID_HEX}-XXXX)
-
-touch "$OPENCODE_SANDBOX_EXT_DIR"/.clipboard
-surveil --path "$OPENCODE_SANDBOX_EXT_DIR"/.clipboard clip 2> /dev/null &
 
 touch "$OPENCODE_SANDBOX_EXT_DIR"/.notify
 surveil --path "$OPENCODE_SANDBOX_EXT_DIR"/.notify "$OPENCODE_HOME_DIR"/bin/notify-args 2> /dev/null &
 
 ext_dir_cleanup() {
-  # removing the directory containing the clipboard file will also kill surveil
+  [ -n "$XVFB_PID" ] && kill "$XVFB_PID" 2> /dev/null
+  # removing the directory containing the notify file will also kill surveil
   rm -fr "$OPENCODE_SANDBOX_EXT_DIR"
 }
 
 trap ext_dir_cleanup EXIT
+
+#
+# clipboard
+#
+# OpenCode writes the clipboard natively via Wayland/X11 (plus OSC 52 to the
+# terminal). Outside of WSL, give the sandbox a private Xvfb display and mirror
+# its clipboard to the host clipboard. The host clipboard is never exposed to
+# the sandbox. Under WSL, Windows Terminal handles OSC 52 directly.
+#
+# Each display requires its own cookie, so other users and other sandboxed
+# instances (reachable via abstract sockets) cannot connect to it.
+#
+
+XVFB_BIND_ARGS=()
+if [ ! -d /run/WSL ]; then
+  XVFB_AUTH="$OPENCODE_SANDBOX_EXT_DIR"/.Xauthority
+  XVFB_COOKIE=$(mcookie)
+
+  # Xvfb loads every cookie in its auth file regardless of display name;
+  # clients look up the entry for their display, added once it is known.
+  touch "$XVFB_AUTH"
+  xauth -q -f "$XVFB_AUTH" add :0 . "$XVFB_COOKIE"
+
+  mkfifo "$OPENCODE_SANDBOX_EXT_DIR"/.xvfb
+  Xvfb -displayfd 3 -auth "$XVFB_AUTH" -nolisten tcp \
+    3> "$OPENCODE_SANDBOX_EXT_DIR"/.xvfb \
+    2> "$OPENCODE_SANDBOX_EXT_DIR"/.xvfb.log &
+  XVFB_PID=$!
+  read -r XVFB_DISPLAY < "$OPENCODE_SANDBOX_EXT_DIR"/.xvfb
+  if [ -z "$XVFB_DISPLAY" ]; then
+    cat "$OPENCODE_SANDBOX_EXT_DIR"/.xvfb.log >&2
+    die 'Xvfb failed to start'
+  fi
+
+  xauth -q -f "$XVFB_AUTH" add ":$XVFB_DISPLAY" . "$XVFB_COOKIE"
+
+  # scoped per command, so `clip` still uses the host display and credentials
+  XVFB_ENV=(DISPLAY=":$XVFB_DISPLAY" XAUTHORITY="$XVFB_AUTH")
+  (
+    while env "${XVFB_ENV[@]}" clipnotify -s clipboard; do
+      env "${XVFB_ENV[@]}" xclip -selection clipboard -o | clip
+    done
+  ) 2> /dev/null &
+
+  XVFB_BIND_ARGS=(
+    --ro-bind /tmp/.X11-unix/X"$XVFB_DISPLAY" /tmp/.X11-unix/X"$XVFB_DISPLAY"
+    --ro-bind "$XVFB_AUTH" "$XVFB_AUTH"
+    --setenv DISPLAY ":$XVFB_DISPLAY"
+    --setenv XAUTHORITY "$XVFB_AUTH"
+  )
+fi
 
 #
 # bwrap
@@ -154,8 +198,8 @@ trap ext_dir_cleanup EXIT
   --setenv XDG_CACHE_HOME "$XDG_CACHE_HOME" \
   --setenv OPENCODE_WM_NAME "$OPENCODE_WM_NAME" \
   --setenv OPENCODE_SANDBOX_EXT_DIR "$OPENCODE_SANDBOX_EXT_DIR" \
-  --setenv OPENCODE_EXPERIMENTAL_DISABLE_COPY_ON_SELECT 'true' \
   "${EDITOR_BIND_ARGS[@]}" \
+  "${XVFB_BIND_ARGS[@]}" \
 /bin/bash -ic '
   /opt/opencode/bin/opencode --standalone "$@"
   drain-stdin
