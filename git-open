@@ -1,0 +1,157 @@
+#!/bin/bash
+
+usage() {
+  echo "Usage: git open [-r|--remote <remote>] [commits [sha]|head|issues [n]|pulls [n]|actions|settings]"
+}
+
+REMOTE=origin
+ARGS=()
+while [ $# -gt 0 ]; do
+  case $1 in
+    -r|--remote)
+      if [ -z "$2" ]; then
+        usage >&2
+        exit 1
+      fi
+      REMOTE=$2
+      shift 2
+      ;;
+    --remote=*) REMOTE=${1#--remote=}; shift ;;
+    -h|--help)  usage; exit ;;
+    *)          ARGS+=("$1"); shift ;;
+  esac
+done
+set -- "${ARGS[@]}"
+
+REMOTE_URL=$(git remote get-url "$REMOTE") || exit 1
+
+if [[ "$REMOTE_URL" = gitea:* && -z "$GITEA_DOMAIN" ]]; then
+  echo "GITEA_DOMAIN is not set" >&2
+  exit 1
+fi
+
+BASE_URL=$(echo "$REMOTE_URL" | sed -E "
+  s|^github:|https://github.com/|
+  s|^gitea:|https://${GITEA_DOMAIN}/|
+  s|^ssh://([^@/]+@)?([^:/]+)(:[0-9]+)?/|https://\2/|
+  s|^[^@/]+@([^:/]+):|https://\1/|
+  s|^http://|https://|
+  s|^(https://)[^@/]+@|\1|
+  s|\.git$||
+  s|/+$||
+")
+
+HOST=""
+[[ "$BASE_URL" = https://* ]] && HOST=$(echo "${BASE_URL#https://}" | cut -d/ -f1)
+
+if [ "$HOST" = "github.com" ]; then
+  FORGE=github
+elif [[ -n "$GITEA_DOMAIN" && "$HOST" = "$GITEA_DOMAIN" ]]; then
+  FORGE=gitea
+else
+  echo "Unsupported remote: $REMOTE_URL" >&2
+  exit 1
+fi
+
+current_branch() {
+  BRANCH=$(git rev-parse --abbrev-ref HEAD 2> /dev/null)
+  [[ -n "$BRANCH" && "$BRANCH" != "HEAD" ]] && echo "$BRANCH"
+}
+
+# Path to the current branch, or empty on a default branch or detached HEAD
+get_branch_path() {
+  BRANCH=$(current_branch)
+  [[ -z "$BRANCH" || "$BRANCH" = "main" || "$BRANCH" = "master" ]] && return
+
+  if [ $FORGE = gitea ]; then
+    echo "branch/${BRANCH}"
+  else
+    echo "$BRANCH"
+  fi
+}
+
+# Path to the current branch, or the current commit on a detached HEAD
+get_ref_path() {
+  BRANCH=$(current_branch)
+
+  if [ $FORGE = gitea ]; then
+    if [ -n "$BRANCH" ]; then
+      echo "branch/${BRANCH}"
+    else
+      echo "commit/$(git rev-parse HEAD)"
+    fi
+  else
+    if [ -n "$BRANCH" ]; then
+      echo "$BRANCH"
+    else
+      git rev-parse HEAD
+    fi
+  fi
+}
+
+open_url() {
+  if [ -n "$SSH_TTY" ]; then
+    echo "$1"
+  else
+    ($BROWSER "$1" &> /dev/null &)
+  fi
+}
+
+open_page() {
+  PAGE_NAME=$1
+  [ -n "$3" ] && PAGE_NAME=$2
+
+  URL=$(echo "${BASE_URL}/$PAGE_NAME/$3" | sed 's/\/*$//')
+  open_url "$URL"
+  exit
+}
+
+get_commits_path() {
+  if [ $FORGE = gitea ]; then
+    echo "commits/$(get_ref_path)"
+  else
+    echo "commits/$(get_branch_path)"
+  fi
+}
+
+get_head_path() {
+  if [ $FORGE = gitea ]; then
+    echo "commit/$(git rev-parse '@{u}' 2> /dev/null || git rev-parse HEAD)"
+  else
+    echo commit
+  fi
+}
+
+if [ $FORGE = gitea ]; then
+  TREE=src
+  PULL=pulls
+else
+  TREE=tree
+  PULL=pull
+fi
+
+case $1 in
+  c|commit|commits)    open_page "$(get_commits_path)" commit "$2" ;;
+  h|head)              open_page "$(get_head_path)" ;;
+  i|issue|issues)      open_page issues issues "$2" ;;
+  p|pull|pulls|pr|prs) open_page pulls $PULL "$2" ;;
+  a|actions|ci)        open_page actions ;;
+  s|settings)          open_page settings ;;
+  "")
+    PREFIX=$(git rev-parse --show-prefix)
+    if [ -n "$PREFIX" ]; then
+      open_page "$TREE/$(get_ref_path)/$PREFIX"
+    fi
+
+    BRANCH_PATH=$(get_branch_path)
+    if [ -n "$BRANCH_PATH" ]; then
+      open_page "$TREE/$BRANCH_PATH"
+    else
+      open_page ""
+    fi
+    ;;
+  *)
+    usage >&2
+    exit 1
+    ;;
+esac

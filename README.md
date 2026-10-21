@@ -63,9 +63,8 @@ A collection of utility scripts.
 | `gecos`                | Print GECOS field for a user from /etc/passwd                           |
 | `genmon`               | Wrap a command's output as Xfce genmon XML with tooltip                 |
 | `gif`                  | Convert a video file to an animated GIF                                 |
+| `git-open`             | Open GitHub/Gitea pages for the current repository in a browser         |
 | `git-sign-all`         | GPG re-sign all commits in a Git repository                             |
-| `gitea`                | Open Gitea pages for the current repository in a browser                |
-| `github`               | Open GitHub pages for the current repository in a browser               |
 | `gpg`                  | GPG wrapper that sets GNUPGHOME for the configured key                  |
 | `gpu`                  | Print GPU model from lspci                                              |
 | `gpu-glx`              | Print the OpenGL renderer string                                        |
