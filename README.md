@@ -64,6 +64,7 @@ A collection of utility scripts.
 | `genmon`               | Wrap a command's output as Xfce genmon XML with tooltip                 |
 | `gif`                  | Convert a video file to an animated GIF                                 |
 | `git-sign-all`         | GPG re-sign all commits in a Git repository                             |
+| `gitea`                | Open Gitea pages for the current repository in a browser                |
 | `github`               | Open GitHub pages for the current repository in a browser               |
 | `gpg`                  | GPG wrapper that sets GNUPGHOME for the configured key                  |
 | `gpu`                  | Print GPU model from lspci                                              |
@@ -121,7 +122,6 @@ A collection of utility scripts.
 | `notes`                | Open the notes file in the preferred editor                             |
 | `gtk-nocsd`            | Run a GTK application with client-side decorations disabled             |
 | `gtk-nocsd-theme`      | Run a GTK application with CSD disabled and the Adwaita dark theme      |
-| `notify-args`          | Send a desktop notification using arguments read from a file            |
 | `notify-sound`         | Play a notification sound                                               |
 | `notify-sound-critical`| Shortcut for `notify-sound --critical`                                  |
 | `notify-sound-low`     | Shortcut for `notify-sound --low`                                       |
@@ -220,6 +220,7 @@ A collection of utility scripts.
 | `win-ver`              | Print the Windows version (from WSL)                                    |
 | `wsl-clip`             | Copy stdin or a file to the Windows clipboard from WSL                  |
 | `wsl-cmd`              | Open a Windows cmd.exe shell from WSL                                   |
+| `wsl-code`             | Open files in Windows VS Code from WSL                                  |
 | `wsl-env-var`          | Read a Windows environment variable from WSL                            |
 | `wsl-exec`             | Execute a Windows binary from WSL with line ending cleanup              |
 | `wsl-interop`          | Restore WSL interop for Windows binary execution                        |
