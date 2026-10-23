@@ -3,6 +3,25 @@
 source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
 
 #
+# args
+#
+# Consume wrapper-only args, passing everything else (and everything after
+# `--`) through to opencode.
+#
+
+WSL_INTEROP_ENABLED=0
+OPENCODE_ARGS=()
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --wsl-interop) WSL_INTEROP_ENABLED=1 ;;
+    --) OPENCODE_ARGS+=("$@"); break ;;
+    *) OPENCODE_ARGS+=("$1") ;;
+  esac
+  shift
+done
+set -- "${OPENCODE_ARGS[@]}"
+
+#
 # workspace directory
 #
 # This is primarily a footgun-prevention mechanism, and not security
@@ -149,6 +168,40 @@ if [ ! -d /run/WSL ]; then
 fi
 
 #
+# wsl interop
+#
+# Allow launching Windows executables via WSL interop. Windows processes run on
+# the host, entirely outside of the sandbox, so this effectively removes it as a
+# security boundary. The Windows drive is read-only, though a workspace within
+# it remains writable.
+#
+
+WSL_BIND_ARGS=()
+SANDBOX_PATH="$XDG_LOCAL_HOME"/bin:/usr/bin
+if [ $WSL_INTEROP_ENABLED -eq 1 ]; then
+  [ -d /run/WSL ] || die 'WSL interop requires WSL'
+  [ -n "$WSL_INTEROP" ] || die 'WSL_INTEROP not set'
+  warn 'WSL interop enabled; Windows processes run outside the sandbox'
+
+  WSL_SYSTEMDRIVE=$(wslpath -u "$(wsl-env-var SYSTEMDRIVE)\\")
+  WSL_SYSTEMDRIVE=${WSL_SYSTEMDRIVE%/}
+
+  WSL_SYSTEMROOT=$(wslpath -u $(wsl-env-var SYSTEMROOT))
+
+  WSL_BIND_ARGS=(
+    --ro-bind /init /init
+    --ro-bind /run/WSL /run/WSL
+    --ro-bind "$WSL_SYSTEMDRIVE" "$WSL_SYSTEMDRIVE"
+    --setenv WSL_INTEROP "$WSL_INTEROP"
+    --setenv WSL_DISTRO_NAME "$WSL_DISTRO_NAME"
+    --setenv WSLENV "$WSLENV"
+  )
+
+  SANDBOX_PATH+=:"$WSL_SYSTEMROOT"/System32
+  SANDBOX_PATH+=:"$WSL_SYSTEMROOT"/System32/WindowsPowerShell/v1.0
+fi
+
+#
 # bwrap
 #
 # Execute bwrap and launch opencode.
@@ -182,12 +235,13 @@ fi
   --bind "$OPENCODE_HOME_DIR"/data "$XDG_DATA_HOME"/opencode \
   --bind "$OPENCODE_HOME_DIR"/state "$XDG_STATE_HOME"/opencode \
   --ro-bind "$OPENCODE_HOME_DIR"/bin "$XDG_LOCAL_HOME"/bin \
+  "${WSL_BIND_ARGS[@]}" \
   --bind "$WORKSPACE_DIR" "$WORKSPACE_DIR" \
   --chdir "$WORKSPACE_DIR" \
   --clearenv \
   --setenv WORKSPACE_BASENAME "$WORKSPACE_BASENAME" \
   --setenv HOME "$HOME" \
-  --setenv PATH "$XDG_LOCAL_HOME"/bin:/usr/bin \
+  --setenv PATH "$SANDBOX_PATH" \
   --setenv PWD "$WORKSPACE_DIR" \
   --setenv TERM "$TERM" \
   --setenv EDITOR "drain-stdin $EDITOR" \
@@ -198,6 +252,7 @@ fi
   --setenv XDG_CACHE_HOME "$XDG_CACHE_HOME" \
   --setenv OPENCODE_WM_NAME "$OPENCODE_WM_NAME" \
   --setenv OPENCODE_SANDBOX_EXT_DIR "$OPENCODE_SANDBOX_EXT_DIR" \
+  --setenv OPENCODE_DISABLE_FREE_MODELS 1 \
   --setenv OPENCODE_DISABLE_PROJECT_CONFIG 1 \
   "${EDITOR_BIND_ARGS[@]}" \
   "${XVFB_BIND_ARGS[@]}" \
