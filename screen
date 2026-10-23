@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
+
 ARGS=' -t screen'
 
 if [[ "$1" = :* ]]; then
@@ -11,4 +13,4 @@ if [[ "$1" = :* ]]; then
   shift
 fi
 
-exec /usr/bin/screen $ARGS "$@"
+exec $(nwhich screen) $ARGS "$@"
