@@ -3,16 +3,19 @@
 source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
 
 #
-# args
+# Arguments
 #
 # Consume wrapper-only args, passing everything else (and everything after
 # `--`) through to opencode.
 #
 
+NO_SANDBOX=0
 WSL_INTEROP_ENABLED=0
+XVFB_PID=
 OPENCODE_ARGS=()
 while [ $# -gt 0 ]; do
   case "$1" in
+    --no-sandbox) NO_SANDBOX=1 ;;
     --wsl-interop) WSL_INTEROP_ENABLED=1 ;;
     --) OPENCODE_ARGS+=("$@"); break ;;
     *) OPENCODE_ARGS+=("$1") ;;
@@ -21,36 +24,52 @@ while [ $# -gt 0 ]; do
 done
 set -- "${OPENCODE_ARGS[@]}"
 
+if [ $NO_SANDBOX -eq 1 ]; then
+  warn 'Sandbox disabled; OpenCode runs with full access as your user'
+  if [ $WSL_INTEROP_ENABLED -eq 1 ]; then
+    warn '--wsl-interop has no effect with --no-sandbox'
+    WSL_INTEROP_ENABLED=0
+  fi
+fi
+
 #
-# workspace directory
+# Workspace directory
 #
-# This is primarily a footgun-prevention mechanism, and not security
-# enforcement. Allow workspaces either within `WORKSPACE_BASE_DIR`, even if it
-# is just an explicitly-created symlink to an external directory.
+# Without the sandbox, the current directory is always used. With it, this is
+# primarily a footgun-prevention mechanism, and not security enforcement. Allow
+# workspaces either within `OPENCODE_SANDBOX_WORKSPACE_BASE_DIR`, even if it is
+# just an explicitly-created symlink to an external directory.
 #
 
-WORKSPACE_BASE_DIR=${WORKSPACE_BASE_DIR:-$XDG_DEVEL_HOME}
-
-[ -n "$WORKSPACE_BASE_DIR" ] || die 'WORKSPACE_BASE_DIR not set'
-[ -d "$WORKSPACE_BASE_DIR" ] || die 'WORKSPACE_BASE_DIR does not exist'
-
-WORKSPACE_DIR="$WORKSPACE_BASE_DIR"
-
-if [[
-  "$PWD" == "$WORKSPACE_BASE_DIR" ||
-  "$PWD" == "$WORKSPACE_BASE_DIR"/*
-]]; then
+if [ $NO_SANDBOX -eq 1 ]; then
   WORKSPACE_DIR="$PWD"
 else
-  if ! arge help && ! arge version; then
-    warn "Workspace should be within $WORKSPACE_BASE_DIR"
+  OPENCODE_SANDBOX_WORKSPACE_BASE_DIR=${OPENCODE_SANDBOX_WORKSPACE_BASE_DIR:-$XDG_DEVEL_HOME}
+
+  [ -n "$OPENCODE_SANDBOX_WORKSPACE_BASE_DIR" ] ||
+    die 'OPENCODE_SANDBOX_WORKSPACE_BASE_DIR not set'
+
+  [ -d "$OPENCODE_SANDBOX_WORKSPACE_BASE_DIR" ] ||
+    die 'OPENCODE_SANDBOX_WORKSPACE_BASE_DIR does not exist'
+
+  WORKSPACE_DIR="$OPENCODE_SANDBOX_WORKSPACE_BASE_DIR"
+
+  if [[
+    "$PWD" == "$OPENCODE_SANDBOX_WORKSPACE_BASE_DIR" ||
+    "$PWD" == "$OPENCODE_SANDBOX_WORKSPACE_BASE_DIR"/*
+  ]]; then
+    WORKSPACE_DIR="$PWD"
+  else
+    if ! arge help && ! arge version; then
+      warn "Workspace should be within $OPENCODE_SANDBOX_WORKSPACE_BASE_DIR"
+    fi
   fi
 fi
 
 WORKSPACE_BASENAME=$(basename $WORKSPACE_DIR)
 
 #
-# opencode2
+# OpenCode 2
 #
 # Find standlone opencode x86 binary installed globally with pnpm. This avoids
 # the postinstall script required by the platform-agnostic opencode-ai package.
@@ -66,7 +85,7 @@ OPENCODE_INSTALL_DIR=$(
 [ -d "$OPENCODE_INSTALL_DIR" ] || die 'opencode not installed'
 
 #
-# editor
+# Editor
 #
 # Construct bwrap bind args for editor-specific user configurations
 #
@@ -88,19 +107,33 @@ for DIR in /etc/ssl /etc/ca-certificates /etc/pki; do
 done
 
 #
-# title
+# Title
 #
 # Use the PID of this script (in hex) as a human-readable ID, which is added to
 # the WM_NAME, later used to match against the active window in order to
 # determine if notifications should be displayed.
 #
 
+TITLE_PREFIX=
+if [ $NO_SANDBOX -eq 1 ]; then
+  TITLE_PREFIX="⚠"
+  [ -n "$STY" ] && TITLE_PREFIX='!!'
+elif [ $WSL_INTEROP_ENABLED -eq 1 ]; then
+  TITLE_PREFIX='⇄'
+  [ -n "$STY" ] && TITLE_PREFIX='<>'
+fi
+
+[ -n "$TITLE_PREFIX" ] && TITLE_PREFIX+='  '
+
+TITLE_HOST=
+[ -n "$SSH_CONNECTION" ] && TITLE_HOST="@${HOSTNAME%%.*}"
+
 PID_HEX=$(printf '%X\n' $$)
-export OPENCODE_WM_NAME="${WORKSPACE_BASENAME}${__TITLE_SEP:-" - "}OpenCode ($PID_HEX)"
+export OPENCODE_WM_NAME="${TITLE_PREFIX}${WORKSPACE_BASENAME}${TITLE_HOST}${__TITLE_SEP:-" - "}OpenCode ($PID_HEX)"
 wmname "$OPENCODE_WM_NAME"
 
 #
-# external dir
+# External directory
 #
 
 OPENCODE_SANDBOX_EXT_DIR=$(mktemp -d -p "$XDG_CACHE_HOME" opencode-ext-${PID_HEX}-XXXX)
@@ -117,7 +150,9 @@ ext_dir_cleanup() {
 trap ext_dir_cleanup EXIT
 
 #
-# clipboard
+# Clipboard
+#
+# Sandbox only; without it, the host clipboard is used directly.
 #
 # OpenCode writes the clipboard natively via Wayland/X11 (plus OSC 52 to the
 # terminal). Outside of WSL, give the sandbox a private Xvfb display and mirror
@@ -129,7 +164,7 @@ trap ext_dir_cleanup EXIT
 #
 
 XVFB_BIND_ARGS=()
-if [ ! -d /run/WSL ]; then
+if [ $NO_SANDBOX -eq 0 ] && [ ! -d /run/WSL ]; then
   XVFB_AUTH="$OPENCODE_SANDBOX_EXT_DIR"/.Xauthority
   XVFB_COOKIE=$(mcookie)
 
@@ -168,7 +203,7 @@ if [ ! -d /run/WSL ]; then
 fi
 
 #
-# wsl interop
+# WSL interop
 #
 # Allow launching Windows executables via WSL interop. Windows processes run on
 # the host, entirely outside of the sandbox, so this effectively removes it as a
@@ -181,6 +216,7 @@ SANDBOX_PATH="$XDG_LOCAL_HOME"/bin:/usr/bin
 if [ $WSL_INTEROP_ENABLED -eq 1 ]; then
   [ -d /run/WSL ] || die 'WSL interop requires WSL'
   [ -n "$WSL_INTEROP" ] || die 'WSL_INTEROP not set'
+
   warn 'WSL interop enabled; Windows processes run outside the sandbox'
 
   WSL_SYSTEMDRIVE=$(wslpath -u "$(wsl-env-var SYSTEMDRIVE)\\")
@@ -202,14 +238,78 @@ if [ $WSL_INTEROP_ENABLED -eq 1 ]; then
 fi
 
 #
-# bwrap
+# Launch
 #
-# Execute bwrap and launch opencode.
+# Launch opencode, either within bwrap or directly as the current user. Both
+# share the same environment and inner script.
 #
 # The opencode binary itself is executed within an interactive bash shell, with
 # arguments to this script passed directly. This is a workaround for:
 # https://github.com/anomalyco/opencode/issues/9860
 #
+# `--norc` keeps the user's bashrc from altering PATH when not sandboxed.
+#
+
+COMMON_ENV=(
+  WORKSPACE_BASENAME="$WORKSPACE_BASENAME"
+  EDITOR="drain-stdin $EDITOR"
+  OPENCODE_WM_NAME="$OPENCODE_WM_NAME"
+  OPENCODE_SANDBOX_EXT_DIR="$OPENCODE_SANDBOX_EXT_DIR"
+  OPENCODE_DISABLE_FREE_MODELS=1
+  OPENCODE_DISABLE_PROJECT_CONFIG=1
+)
+
+INNER_SCRIPT='
+  "$OPENCODE_BIN" --standalone "$@"
+  drain-stdin
+'
+
+#
+# No sandbox
+#
+# Persist OpenCode data in the same place as the sandbox by symlinking its XDG
+# directories. The links are idempotent and never removed, so concurrent
+# instances are safe.
+#
+
+if [ $NO_SANDBOX -eq 1 ]; then
+  link_opencode_dir() {
+    local TARGET="$OPENCODE_HOME_DIR/$1" LINK="$2/opencode"
+
+    mkdir -p "$TARGET" "$2"
+
+    if [ -L "$LINK" ]; then
+      [ "$(readlink "$LINK")" == "$TARGET" ] ||
+        die "$LINK is a symlink to something other than $TARGET"
+    elif [ -e "$LINK" ]; then
+      die "$LINK exists and is not a symlink to $TARGET"
+    else
+      ln -s "$TARGET" "$LINK"
+    fi
+  }
+
+  link_opencode_dir cache "$XDG_CACHE_HOME"
+  link_opencode_dir config "$XDG_CONFIG_HOME"
+  link_opencode_dir data "$XDG_DATA_HOME"
+  link_opencode_dir state "$XDG_STATE_HOME"
+
+  env \
+    "${COMMON_ENV[@]}" \
+    OPENCODE_BIN="$OPENCODE_INSTALL_DIR"/bin/opencode \
+    PATH="$OPENCODE_HOME_DIR"/bin:"$PATH" \
+  /bin/bash --norc -ic "$INNER_SCRIPT" /bin/bash "$@"
+
+  exit $?
+fi
+
+#
+# Bubblewrap
+#
+
+COMMON_SETENV_ARGS=()
+for KV in "${COMMON_ENV[@]}"; do
+  COMMON_SETENV_ARGS+=(--setenv "${KV%%=*}" "${KV#*=}")
+done
 
 /usr/bin/bwrap \
   --unshare-pid \
@@ -239,24 +339,17 @@ fi
   --bind "$WORKSPACE_DIR" "$WORKSPACE_DIR" \
   --chdir "$WORKSPACE_DIR" \
   --clearenv \
-  --setenv WORKSPACE_BASENAME "$WORKSPACE_BASENAME" \
+  "${COMMON_SETENV_ARGS[@]}" \
+  --setenv OPENCODE_BIN /opt/opencode/bin/opencode \
   --setenv HOME "$HOME" \
   --setenv PATH "$SANDBOX_PATH" \
   --setenv PWD "$WORKSPACE_DIR" \
   --setenv TERM "$TERM" \
-  --setenv EDITOR "drain-stdin $EDITOR" \
   --setenv XDG_CONFIG_HOME "$XDG_CONFIG_HOME" \
   --setenv XDG_LOCAL_HOME "$XDG_LOCAL_HOME" \
   --setenv XDG_DATA_HOME "$XDG_DATA_HOME" \
   --setenv XDG_STATE_HOME "$XDG_STATE_HOME" \
   --setenv XDG_CACHE_HOME "$XDG_CACHE_HOME" \
-  --setenv OPENCODE_WM_NAME "$OPENCODE_WM_NAME" \
-  --setenv OPENCODE_SANDBOX_EXT_DIR "$OPENCODE_SANDBOX_EXT_DIR" \
-  --setenv OPENCODE_DISABLE_FREE_MODELS 1 \
-  --setenv OPENCODE_DISABLE_PROJECT_CONFIG 1 \
   "${EDITOR_BIND_ARGS[@]}" \
   "${XVFB_BIND_ARGS[@]}" \
-/bin/bash -ic '
-  /opt/opencode/bin/opencode --standalone "$@"
-  drain-stdin
-' /bin/bash "$@"
+/bin/bash --norc -ic "$INNER_SCRIPT" /bin/bash "$@"
