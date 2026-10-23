@@ -52,7 +52,11 @@ output_fetch blue WIN $(win-ver)
 output_fetch blue WSL $(wsl-ver)
 output_fetch purple CPU $(cpu --threads)
 output_fetch yellow RAM $(mem --type)
-output_fetch green GPU $(gpu --model)
+
+echo "$(gpu --model)" | while IFS= read -r GPU; do
+  output_fetch green GPU "$GPU"
+done
+
 output_fetch green NPU $(npu)
 
 echo "$(disk)" | while IFS= read -r DISK; do
