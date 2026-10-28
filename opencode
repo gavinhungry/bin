@@ -91,14 +91,22 @@ OPENCODE_INSTALL_DIR=$(
 #
 
 EDITOR_BIND_ARGS=()
+EDITOR_CMD="$EDITOR"
 if [ "$EDITOR" == emacs ]; then
-  if [ -d '/usr/libexec/emacs' ]; then
-    EDITOR_BIND_ARGS+=(--ro-bind /usr/libexec/emacs /usr/libexec/emacs)
-  fi
+  EDITOR_CMD='emacs -nw'
 
-  EDITOR_BIND_ARGS+=(--ro-bind /usr/share/emacs /usr/share/emacs)
-  EDITOR_BIND_ARGS+=(--ro-bind "$HOME/.emacs" "$HOME/.emacs")
-  EDITOR_BIND_ARGS+=(--ro-bind "$HOME/.emacs.d" "$HOME/.emacs.d")
+  for DIR in \
+    /usr/libexec/emacs \
+    /usr/share/emacs \
+    /usr/share/emacsen-common \
+    /usr/share/dictionaries-common \
+    /etc/emacs \
+    /var/lib/emacsen-common \
+    "$HOME/.emacs" \
+    "$HOME/.emacs.d"
+  do
+    [ -e "$DIR" ] && EDITOR_BIND_ARGS+=(--ro-bind "$DIR" "$DIR")
+  done
 fi
 
 SSL_DIR_ARGS=()
@@ -252,7 +260,7 @@ fi
 
 COMMON_ENV=(
   WORKSPACE_BASENAME="$WORKSPACE_BASENAME"
-  EDITOR="drain-stdin $EDITOR"
+  EDITOR="drain-stdin $EDITOR_CMD"
   OPENCODE_WM_NAME="$OPENCODE_WM_NAME"
   OPENCODE_SANDBOX_EXT_DIR="$OPENCODE_SANDBOX_EXT_DIR"
   OPENCODE_DISABLE_FREE_MODELS=1
