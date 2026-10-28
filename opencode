@@ -301,7 +301,7 @@ if [ $NO_SANDBOX -eq 1 ]; then
   link_opencode_dir data "$XDG_DATA_HOME"
   link_opencode_dir state "$XDG_STATE_HOME"
 
-  env \
+  env -u SSH_CONNECTION -u SSH_CLIENT -u SSH_TTY \
     "${COMMON_ENV[@]}" \
     OPENCODE_BIN="$OPENCODE_INSTALL_DIR"/bin/opencode \
     PATH="$OPENCODE_HOME_DIR"/bin:"$PATH" \
