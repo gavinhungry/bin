@@ -125,10 +125,10 @@ done
 TITLE_PREFIX=
 if [ $NO_SANDBOX -eq 1 ]; then
   TITLE_PREFIX="⚠"
-  [ -n "$STY" ] && TITLE_PREFIX='!!'
+  [ -n "$STY" ] && TITLE_PREFIX='[!!]'
 elif [ $WSL_INTEROP_ENABLED -eq 1 ]; then
   TITLE_PREFIX='⇄'
-  [ -n "$STY" ] && TITLE_PREFIX='<>'
+  [ -n "$STY" ] && TITLE_PREFIX='[<>]'
 fi
 
 [ -n "$TITLE_PREFIX" ] && TITLE_PREFIX+=' '
