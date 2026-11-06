@@ -9,12 +9,13 @@ if [ -z "$SCREEN" ]; then
   exit 127
 fi
 
-SCREEN_USAGE="[--names [--attached] | :new [args...] | name]"
+SCREEN_USAGE="[--list | --names [--attached] | :new [args...] | name]"
 
 names_only=0
 only_att=0
 case "$1" in
   '') ;;
+  --list) ;;
   --names)
     names_only=1
     shift
