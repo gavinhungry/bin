@@ -1,0 +1,9 @@
+#!/usr/bin/env python
+
+import math
+import time
+
+tai = time.clock_gettime(time.CLOCK_TAI)
+tai_floor = math.floor(tai)
+
+print(tai_floor)
