@@ -1,7 +1,15 @@
 #!/bin/bash
 
+source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
+
 DT=/sys/firmware/devicetree/base
 DMI=/sys/devices/virtual/dmi/id
+
+IGNORED_MODEL_NAMES=(
+  'Default string'
+  'To be filled by O.E.M.'
+  'System Product Name'
+)
 
 if [ -d "$DT" ]; then
   tr -d '\0' < "$DT"/model
@@ -17,7 +25,7 @@ elif [ -d "$DMI" ]; then
 
   MODEL=
   for NAME in "${NAMES[@]}"; do
-    if [ "$NAME" != 'Default string' -a "${#NAME}" -gt "${#MODEL}" ]; then
+    if [ "${#NAME}" -gt "${#MODEL}" ] && ! includes IGNORED_MODEL_NAMES "$NAME"; then
       MODEL="$NAME"
     fi
   done
