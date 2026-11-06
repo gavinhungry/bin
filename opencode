@@ -114,6 +114,11 @@ for DIR in /etc/ssl /etc/ca-certificates /etc/pki; do
   [ -d "$DIR" ] && SSL_DIR_ARGS+=(--ro-bind "$DIR" "$DIR")
 done
 
+GITCONFIG_BIND_ARGS=()
+if [ -f "$HOME/.gitconfig.user" ]; then
+  GITCONFIG_BIND_ARGS+=(--ro-bind "$HOME/.gitconfig.user" "$HOME/.gitconfig")
+fi
+
 #
 # Title
 #
@@ -335,6 +340,7 @@ done
   "${SSL_DIR_ARGS[@]}" \
   --ro-bind "$OPENCODE_INSTALL_DIR" /opt/opencode \
   --dir "$HOME" \
+  "${GITCONFIG_BIND_ARGS[@]}" \
   --tmpfs /tmp \
   --tmpfs "$XDG_CACHE_HOME" \
   --bind "$OPENCODE_SANDBOX_EXT_DIR" "$OPENCODE_SANDBOX_EXT_DIR" \
