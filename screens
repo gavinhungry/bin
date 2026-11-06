@@ -1,0 +1,178 @@
+#!/bin/bash
+
+dir=$(dirname "${BASH_SOURCE[0]}")
+source "$dir/.abash/abash.sh"
+
+SCREEN=$(command -v screen)
+if [ -z "$SCREEN" ]; then
+  echo "screens: screen is not installed" >&2
+  exit 127
+fi
+
+SCREEN_USAGE="[--names [--attached] | :new [args...] | name]"
+
+names_only=0
+only_att=0
+case "$1" in
+  '') ;;
+  --names)
+    names_only=1
+    shift
+    if [ "$1" = --attached ]; then
+      only_att=1
+      shift
+    fi
+    [ $# -eq 0 ] || usage "$SCREEN_USAGE"
+    ;;
+  :*)
+    title=${1#:}
+    shift
+    if [ -z "$title" ]; then
+      exec "$SCREEN" -t screen "$@"
+    fi
+    if "$0" --names | sed 's/^[0-9]*\.//' | grep -qxF -- "$title"; then
+      echo "screens: session '$title' already exists (use: screens $title)" >&2
+      exit 1
+    fi
+    exec "$SCREEN" -t "$title" -S "$title" "$@"
+    ;;
+  -*) usage "$SCREEN_USAGE" ;;
+  *)
+    [ $# -eq 1 ] || usage "$SCREEN_USAGE"
+    if "$0" --names --attached | grep -qxF -- "$1"; then
+      exec "$SCREEN" -x "$1"
+    fi
+    exec "$SCREEN" -r "$1"
+    ;;
+esac
+
+color=0
+if [ -n "$NO_COLOR" ]; then
+  color=0
+elif { [ -n "$FORCE_COLOR" ] && [ "$FORCE_COLOR" != 0 ]; } || [ -t 1 ]; then
+  color=1
+fi
+
+# `screen -ls` exits non-zero when there are no sessions, so don't use `set -e`.
+"$SCREEN" -ls 2> /dev/null | awk -v color="$color" -v names_only="$names_only" -v only_att="$only_att" '
+  function colorize(s, text,    c) {
+    if (!color) return text
+    if      (s ~ /dead|remote|unreachable/) c = "31"  # red
+    else if (s ~ /detached/)                c = "33"  # yellow
+    else if (s ~ /attached/)                c = "1;32"  # bold green
+    else                                    c = "35"  # magenta (anything else)
+    return "\033[" c "m" text "\033[0m"
+  }
+
+  function dur(s,    d, h, m) {
+    if (s !~ /^[0-9]+$/) return "?"
+    d = int(s / 86400); h = int(s % 86400 / 3600); m = int(s % 3600 / 60)
+    if (d) return sprintf("%dd %dh", d, h)
+    if (h) return sprintf("%dh %dm", h, m)
+    return sprintf("%dm", m)
+  }
+
+  function isatt(s) {
+    return (s ~ /attached/ && s !~ /detached/) ? 0 : 1
+  }
+
+  function run(cmd,    out) {
+    out = ""
+    cmd | getline out
+    close(cmd)
+    return out
+  }
+
+  { sub(/\r$/, "") }
+
+  /Sockets? in \// {
+    sockdir = $0; sub(/^.*Sockets? in /, "", sockdir); sub(/\.[ \t]*$/, "", sockdir)
+  }
+
+  /^[ \t]+[0-9]+\./ {
+    pid = $1;  sub(/\..*/, "", pid)
+    name = $1; sub(/^[0-9]+\./, "", name)
+    status = ""
+    if (match($0, /\([^()]*\)[ \t]*$/)) {
+      status = substr($0, RSTART, RLENGTH)
+      gsub(/^\(|\)[ \t]*$/, "", status)
+    }
+    n++
+    names[n] = name; pids[n] = pid; stats[n] = tolower(status)
+    if (length(name) > nw) nw = length(name)
+    if (length(pid)  > pw) pw = length(pid)
+  }
+
+  # true if entry a sorts before entry b: newest first (unknown age last),
+  # then name (case-insensitive), then pid descending as tiebreakers
+  function before(a, b,    la, lb) {
+    if (asec[a] != asec[b]) {
+      if (asec[a] < 0) return 0
+      if (asec[b] < 0) return 1
+      return asec[a] < asec[b]
+    }
+    la = tolower(names[a]); lb = tolower(names[b])
+    if (la != lb) return la < lb
+    return pids[a] + 0 > pids[b] + 0
+  }
+
+  END {
+    for (i = 1; i <= n; i++) {
+      asec[i] = run("ps -o etimes= -p " pids[i] " 2> /dev/null")
+      gsub(/[ \t]/, "", asec[i])
+      asec[i] = (asec[i] ~ /^[0-9]+$/) ? asec[i] + 0 : -1
+      ord[i] = i
+    }
+
+    # insertion sort of the index list
+    for (i = 2; i <= n; i++) {
+      k = ord[i]
+      for (j = i - 1; j > 0 && before(k, ord[j]); j--) ord[j+1] = ord[j]
+      ord[j+1] = k
+    }
+
+    if (names_only) {
+      for (i = 1; i <= n; i++) cnt[names[i]]++
+      for (r = 1; r <= n; r++) {
+        i = ord[r]
+        if (stats[i] ~ /dead|remote|unreachable/) continue
+        if (only_att && isatt(stats[i])) continue
+        print (cnt[names[i]] > 1) ? pids[i] "." names[i] : names[i]
+      }
+      exit
+    }
+
+    # header
+    if (n == 1) printf "There is (%d) active screen session:\n\n", n
+    else        printf "There are (%d) active screen sessions:\n\n", n
+
+    now = run("date +%s")
+    big = 999999999999
+    for (i = 1; i <= n; i++) {
+      att[i] = isatt(stats[i])
+      tsec[i] = big
+      if (!att[i] && sockdir != "") {
+        c = run("stat -c %Z \"" sockdir "/" pids[i] "." names[i] "\" 2> /dev/null")
+        if (c != "") tsec[i] = now - c
+      }
+      ages[i] = asec[i] < 0 ? "?" : dur(asec[i])
+      atts[i] = tsec[i] == big ? "-" : dur(tsec[i])
+      marks[i] = att[i] ? " " : (color ? "\033[1m*\033[0m" : "*")
+      if (length(ages[i]) > aw) aw = length(ages[i])
+      if (length(atts[i]) > tw) tw = length(atts[i])
+    }
+
+    if (nw < 4) nw = 4
+    if (pw < 3) pw = 3
+    if (aw < 3) aw = 3
+    if (tw < 8) tw = 8
+    if (color) printf "\033[1m"
+    printf "  %-*s    %-*s    %-*s    %s", nw, "NAME", pw, "PID", aw, "AGE", "ATTACHED"
+    if (color) printf "\033[0m"
+    printf "\n"
+    for (r = 1; r <= n; r++) {
+      i = ord[r]
+      printf "%s %s    %-*s    %-*s    %s\n", marks[i], colorize(stats[i], sprintf("%-*s", nw, names[i])), pw, pids[i], aw, ages[i], atts[i]
+    }
+    printf "\n"
+  }'
