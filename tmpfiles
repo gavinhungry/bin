@@ -7,6 +7,7 @@ unset LOCATE_EXCLUDE
 # '[^/]*' is not needed with --basename, but passed to highlight
 BAK_REGEX="[^/]*(~$|#.*#$)"
 PAC_REGEX='[^/]*\.pac(new|save|orig)$'
+RPM_REGEX='[^/]*\.rpm(new|save|orig|temp)$'
 
 list_re() {
   locate --basename --regex "$1" "${@:2}"
@@ -20,15 +21,21 @@ list_pac() {
   list_re "$PAC_REGEX" "$@"
 }
 
+list_rpm() {
+  list_re "$RPM_REGEX" "$@"
+}
+
 list() {
   sudo updatedb
 
-  if ! arge bak && ! arge pac; then
+  if ! arge bak && ! arge pac && ! arge rpm; then
     list_bak "$@"
     list_pac "$@"
+    list_rpm "$@"
   else
     arge bak && list_bak "$@"
     arge pac && list_pac "$@"
+    arge rpm && list_rpm "$@"
   fi
 }
 

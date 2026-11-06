@@ -165,6 +165,7 @@ A collection of utility scripts.
 | `rhythmbox-seek`        | Seek forward or backward in Rhythmbox                                  |
 | `rhythmbox-title`       | Print currently playing Rhythmbox artist and title                     |
 | `rofi-run`              | Launch rofi application launcher                                       |
+| `rpmfiles`              | Shortcut for `tmpfiles --rpm`                                          |
 | `runas`                 | Run a command as another user via machinectl                           |
 | `samefile`              | Find all hard links to a file                                          |
 | `scan`                  | Scan a document from a flatbed scanner                                 |
@@ -197,7 +198,7 @@ A collection of utility scripts.
 | `termwin`               | Open a new terminal window                                             |
 | `thunar`                | Launch Thunar with a clean config                                      |
 | `timer`                 | Countdown timer with system tray icon and notification                 |
-| `tmpfiles`              | List or remove backup and pacman leftover files                        |
+| `tmpfiles`              | List or remove backup, pacman and rpm leftover files                   |
 | `toggle`                | Toggle a program on or off by PID                                      |
 | `try`                   | Retry a command until it succeeds                                      |
 | `ucode`                 | Print the CPU microcode revision                                       |
