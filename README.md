@@ -169,7 +169,7 @@ A collection of utility scripts.
 | `runas`                 | Run a command as another user via machinectl                           |
 | `samefile`              | Find all hard links to a file                                          |
 | `scan`                  | Scan a document from a flatbed scanner                                 |
-| `screen`                | GNU Screen wrapper with named session support                          |
+| `screens`               | GNU Screen wrapper with named sessions and a colorized session list    |
 | `scup`                  | Restart active services with pending markers in /run/scup              |
 | `shot`                  | Take a screenshot and copy it to the clipboard                         |
 | `signal`                | Launch Signal Desktop with tray icon                                   |
@@ -188,6 +188,7 @@ A collection of utility scripts.
 | `surveil`               | Watch files and re-run a command on changes                            |
 | `sys-update`            | Run system update functions defined in ~/.sys-update                   |
 | `systemctl`             | systemctl wrapper that auto-elevates with sudo                         |
+| `tai`                   | Print the current TAI (International Atomic Time) epoch                |
 | `tap`                   | Watch a script file and re-run it on changes                           |
 | `tarball`               | Create or extract a zstd-compressed tarball                            |
 | `teams-busylight`       | Drive a busylight based on Microsoft Teams status                      |
