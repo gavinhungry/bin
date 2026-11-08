@@ -105,18 +105,8 @@ if [ "$EDITOR" == emacs ]; then
     "$HOME/.emacs" \
     "$HOME/.emacs.d"
   do
-    [ -e "$DIR" ] && EDITOR_BIND_ARGS+=(--ro-bind "$DIR" "$DIR")
+    EDITOR_BIND_ARGS+=(--ro-bind-try "$DIR" "$DIR")
   done
-fi
-
-SSL_DIR_ARGS=()
-for DIR in /etc/ssl /etc/ca-certificates /etc/pki; do
-  [ -d "$DIR" ] && SSL_DIR_ARGS+=(--ro-bind "$DIR" "$DIR")
-done
-
-GITCONFIG_BIND_ARGS=()
-if [ -f "$HOME/.gitconfig.user" ]; then
-  GITCONFIG_BIND_ARGS+=(--ro-bind "$HOME/.gitconfig.user" "$HOME/.gitconfig")
 fi
 
 #
@@ -337,10 +327,12 @@ done
   --ro-bind /usr/lib64 /usr/lib64 \
   --ro-bind /etc/alternatives /etc/alternatives \
   --ro-bind /etc/resolv.conf /etc/resolv.conf \
-  "${SSL_DIR_ARGS[@]}" \
+  --ro-bind-try /etc/ssl /etc/ssl \
+  --ro-bind-try /etc/ca-certificates /etc/ca-certificates \
+  --ro-bind-try /etc/pki /etc/pki \
   --ro-bind "$OPENCODE_INSTALL_DIR" /opt/opencode \
   --dir "$HOME" \
-  "${GITCONFIG_BIND_ARGS[@]}" \
+  --ro-bind-try "$HOME/.gitconfig.user" "$HOME/.gitconfig" \
   --tmpfs /tmp \
   --tmpfs "$XDG_CACHE_HOME" \
   --bind "$OPENCODE_SANDBOX_EXT_DIR" "$OPENCODE_SANDBOX_EXT_DIR" \
