@@ -66,7 +66,7 @@ else
   fi
 fi
 
-WORKSPACE_BASENAME=$(basename $WORKSPACE_DIR)
+WORKSPACE_BASENAME=$(basename "$WORKSPACE_DIR")
 
 #
 # OpenCode 2
@@ -112,18 +112,12 @@ fi
 #
 # Title
 #
-# Use the PID of this script (in hex) as a human-readable ID, which is added to
-# the WM_NAME, later used to match against the active window in order to
-# determine if notifications should be displayed.
-#
 
 TITLE_PREFIX=
 if [ $NO_SANDBOX -eq 1 ]; then
-  TITLE_PREFIX="⚠"
-  [ -n "$STY" ] && TITLE_PREFIX='[!!]'
+  TITLE_PREFIX='[!!]'
 elif [ $WSL_INTEROP_ENABLED -eq 1 ]; then
-  TITLE_PREFIX='⇄'
-  [ -n "$STY" ] && TITLE_PREFIX='[<>]'
+  TITLE_PREFIX='[<>]'
 fi
 
 [ -n "$TITLE_PREFIX" ] && TITLE_PREFIX+=' '
@@ -131,26 +125,96 @@ fi
 TITLE_HOST=
 [ -n "$SSH_CONNECTION" ] && TITLE_HOST="@${HOSTNAME%%.*}"
 
-PID_HEX=$(printf '%X\n' $$)
-export OPENCODE_WM_NAME="${TITLE_PREFIX}${WORKSPACE_BASENAME}${TITLE_HOST}${__TITLE_SEP:-" - "}OpenCode ($PID_HEX)"
-wmname "$OPENCODE_WM_NAME"
+wmname "${TITLE_PREFIX}${WORKSPACE_BASENAME}${TITLE_HOST}${__TITLE_SEP:-" - "}OpenCode"
+
+#
+# Instance directory
+#
+# Per-instance state, named after the workspace and removed on exit.
+# instance.json identifies the instance (e.g. to match it to a window, or find
+# leftovers from an instance that did not exit cleanly). Not visible within the
+# sandbox.
+#
+
+INSTANCES_DIR="$XDG_CACHE_HOME"/opencode-run
+mkdir -pm 700 "$INSTANCES_DIR"
+
+# safe for use as a (visible) filename, and never parsed as a mktemp option
+INSTANCE_NAME=$WORKSPACE_BASENAME
+[ "$INSTANCE_NAME" == / ] && INSTANCE_NAME=root
+INSTANCE_NAME=${INSTANCE_NAME//[^A-Za-z0-9._-]/_}
+[[ "$INSTANCE_NAME" == [-.]* ]] && INSTANCE_NAME=_${INSTANCE_NAME:1}
+INSTANCE_NAME=${INSTANCE_NAME:0:64}
+
+INSTANCE_DIR=$(mktemp -d -p "$INSTANCES_DIR" "$INSTANCE_NAME"-XXXXXX) ||
+  die 'Failed to create instance dir'
+
+jq -n \
+  --argjson pid $$ \
+  --arg started "$(date -Iseconds)" \
+  --arg workspace "$WORKSPACE_DIR" \
+  --arg tty "$(tty -s && tty)" \
+  --arg sty "$STY" \
+  --arg window "$WINDOW" \
+  --argjson sandbox $([ $NO_SANDBOX -eq 0 ] && echo true || echo false) \
+  --argjson wsl_interop $([ $WSL_INTEROP_ENABLED -eq 1 ] && echo true || echo false) \
+  '{
+    $pid, $started, $workspace,
+    tty: (if $tty == "" then null else $tty end),
+    screen: (if $sty == "" then null else { session: $sty, window: $window } end),
+    $sandbox, $wsl_interop
+  }' > "$INSTANCE_DIR"/instance.json
+
+cleanup() {
+  kill $SURVEIL_PID $XVFB_PID 2> /dev/null
+
+  local SRC="$CONFIG_OVERLAY_DIR"/config/cli.json
+  local DEST="$OPENCODE_HOME_DIR"/config/cli.json
+
+  if [ -f "$SRC" ] && ! cmp -s "$SRC" "$DEST"; then
+    cp "$SRC" "$DEST".tmp.$$ && mv -f "$DEST".tmp.$$ "$DEST"
+  fi
+
+  # overlayfs leaves an inaccessible dir within the work dir
+  chmod -R u+rwx "$INSTANCE_DIR" 2> /dev/null
+  rm -fr "$INSTANCE_DIR"
+}
+
+trap cleanup EXIT
 
 #
 # External directory
 #
+# The ext dir is shared with the sandbox. Notifications are written to .notify,
+# and are suppressed by notify-args while .focus (written by the focus-state
+# TUI plugin from terminal focus events) contains `focused`.
+#
 
-OPENCODE_SANDBOX_EXT_DIR=$(mktemp -d -p "$XDG_CACHE_HOME" opencode-ext-${PID_HEX}-XXXX)
+OPENCODE_SANDBOX_EXT_DIR="$INSTANCE_DIR"/ext
+mkdir -m 700 "$OPENCODE_SANDBOX_EXT_DIR"
 
 touch "$OPENCODE_SANDBOX_EXT_DIR"/.notify
 surveil --path "$OPENCODE_SANDBOX_EXT_DIR"/.notify "$OPENCODE_HOME_DIR"/bin/notify-args 2> /dev/null &
 SURVEIL_PID=$!
 
-ext_dir_cleanup() {
-  kill $SURVEIL_PID $XVFB_PID 2> /dev/null
-  rm -fr "$OPENCODE_SANDBOX_EXT_DIR"
-}
+#
+# Config overlay
+#
+# Sandbox only. OpenCode saves cli.json by writing a temp file and renaming it,
+# so it needs a writable config dir. Overlay the config dir instead, so writes
+# land in a per-instance upper dir, kept outside of the sandbox. On exit, only
+# cli.json is copied back; everything else written to the config dir (e.g. the
+# plugin version pinned in package.json) is discarded.
+#
 
-trap ext_dir_cleanup EXIT
+CONFIG_OVERLAY_DIR="$INSTANCE_DIR"/overlay
+
+if [ $NO_SANDBOX -eq 0 ]; then
+  /usr/bin/bwrap --help | grep -q -- --overlay-src ||
+    die 'bwrap does not support --overlay (requires 0.8+)'
+
+  mkdir -m 700 "$CONFIG_OVERLAY_DIR" "$CONFIG_OVERLAY_DIR"/config "$CONFIG_OVERLAY_DIR"/work
+fi
 
 #
 # Clipboard
@@ -256,7 +320,6 @@ fi
 COMMON_ENV=(
   WORKSPACE_BASENAME="$WORKSPACE_BASENAME"
   EDITOR="drain-stdin $EDITOR_CMD"
-  OPENCODE_WM_NAME="$OPENCODE_WM_NAME"
   OPENCODE_SANDBOX_EXT_DIR="$OPENCODE_SANDBOX_EXT_DIR"
   OPENCODE_DISABLE_FREE_MODELS=1
   OPENCODE_DISABLE_PROJECT_CONFIG=1
@@ -337,7 +400,11 @@ done
   --tmpfs "$XDG_CACHE_HOME" \
   --bind "$OPENCODE_SANDBOX_EXT_DIR" "$OPENCODE_SANDBOX_EXT_DIR" \
   --bind "$OPENCODE_HOME_DIR"/cache "$XDG_CACHE_HOME"/opencode \
-  --bind "$OPENCODE_HOME_DIR"/config "$XDG_CONFIG_HOME"/opencode \
+  --overlay-src "$OPENCODE_HOME_DIR"/config \
+  --overlay "$CONFIG_OVERLAY_DIR"/config "$CONFIG_OVERLAY_DIR"/work "$XDG_CONFIG_HOME"/opencode \
+  --ro-bind-try "$OPENCODE_HOME_DIR"/config/opencode.jsonc "$XDG_CONFIG_HOME"/opencode/opencode.jsonc \
+  --ro-bind-try "$OPENCODE_HOME_DIR"/config/AGENTS.md "$XDG_CONFIG_HOME"/opencode/AGENTS.md \
+  --ro-bind-try "$OPENCODE_HOME_DIR"/config/plugins "$XDG_CONFIG_HOME"/opencode/plugins \
   --bind "$OPENCODE_HOME_DIR"/data "$XDG_DATA_HOME"/opencode \
   --bind "$OPENCODE_HOME_DIR"/state "$XDG_STATE_HOME"/opencode \
   --ro-bind "$OPENCODE_HOME_DIR"/bin "$XDG_LOCAL_HOME"/bin \
