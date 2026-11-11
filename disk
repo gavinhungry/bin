@@ -34,7 +34,7 @@ if [[ "$PKNAME" == mmcblk* ]]; then
   with_size "$PKNAME" "$VENDOR" "$MODEL"
 fi
 
-for DISK in $(lsblk -rndA --sort name | awk '{ print $1 }'); do
+for DISK in $(lsblk -rndA --sort MODEL | awk '{ print $1 }'); do
   REMOVABLE=$(cat /sys/class/block/$DISK/removable)
   [ "$REMOVABLE" == 1 ] && continue
 
