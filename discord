@@ -2,7 +2,7 @@
 
 DISCORD_DIR=$XDG_CONFIG_HOME/discord
 
-DISCORD_APP=$(/usr/share/discord/updater_bootstrap --no-zenity \
+DISCORD_APP=$(/usr/share/discord/updater_bootstrap --no-gui \
   $DISCORD_DIR stable https://updates.discord.com)
 
 DISCORD_BIN=$DISCORD_DIR/"$DISCORD_APP"/Discord
