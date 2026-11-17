@@ -61,8 +61,15 @@ __update_node() {
   local NODE_LATEST
   if [ "$1" = '--lts' ]; then
     NODE_LATEST=$(echo "$INDEX" | jq -r '[.[] | select(.lts != false)] | .[0].version')
+  elif [ "$1" = '--major' ]; then
+    NODE_LATEST=$(echo "$INDEX" | jq -r --arg v "v$2." '[.[] | select(.version | startswith($v))] | .[0].version')
   else
     NODE_LATEST=$(echo "$INDEX" | jq -r '.[0].version')
+  fi
+
+  if [ -z "$NODE_LATEST" ] || [ "$NODE_LATEST" = 'null' ]; then
+    echo 'Unable to determine the latest Node version'
+    return 1
   fi
 
   local NODE_CURRENT=$(node --version 2> /dev/null)
@@ -91,6 +98,12 @@ update_node_lts() {
   bannerline 'Updating Node (LTS)'
 
   __update_node --lts
+}
+
+update_node_v24() {
+  bannerline 'Updating Node (v24)'
+
+  __update_node --major 24
 }
 
 update_bun() {
