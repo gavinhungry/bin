@@ -125,7 +125,8 @@ fi
 TITLE_HOST=
 [ -n "$SSH_CONNECTION" ] && TITLE_HOST="@${HOSTNAME%%.*}"
 
-wmname "${TITLE_PREFIX}${WORKSPACE_BASENAME}${TITLE_HOST}${__TITLE_SEP:-" - "}OpenCode"
+OPENCODE_WM_NAME="${TITLE_PREFIX}${WORKSPACE_BASENAME}${TITLE_HOST} ${__TITLE_SEP_CHAR:-"-"} OpenCode"
+wmname "$OPENCODE_WM_NAME"
 
 #
 # Instance directory
@@ -414,6 +415,7 @@ done
   --clearenv \
   "${COMMON_SETENV_ARGS[@]}" \
   --setenv OPENCODE_BIN /opt/opencode/bin/opencode \
+  --setenv OPENCODE_WM_NAME "$OPENCODE_WM_NAME" \
   --setenv HOME "$HOME" \
   --setenv PATH "$SANDBOX_PATH" \
   --setenv PWD "$WORKSPACE_DIR" \
