@@ -32,12 +32,22 @@ clean_pacman_cache_all() {
   checksu paccache -rk0 | awk NF
 }
 
+__update_apt_packages() {
+  checksu apt update
+  checksu apt full-upgrade --assume-yes "$@"
+  checksu apt autoremove --assume-yes
+}
+
 update_apt_packages() {
   bannerline -f 'Updating apt packages'
 
-  checksu apt update
-  checksu apt full-upgrade --assume-yes
-  checksu apt autoremove --assume-yes
+  __update_apt_packages
+}
+
+update_apt_packages_phased() {
+  bannerline -f 'Updating apt packages (include phased updates)'
+
+  __update_apt_packages -o APT::Get::Always-Include-Phased-Updates=true
 }
 
 update_dnf_packages() {
