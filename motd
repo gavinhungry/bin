@@ -7,6 +7,10 @@ MOTD_BANNER_FILE=/etc/motd-banner
 MOTD_TAGLINE_FILE=/etc/motd-tagline
 MOTD_WARNING_FILE=/etc/motd-warning
 
+motd_nocolor() {
+  nocolor || [ "$MOTD_NO_COLOR" = 1 ]
+}
+
 indent() {
   echo "$1" | sed 's/^/ /g'
 }
@@ -25,10 +29,10 @@ print_motd_file() {
 }
 
 print_motd_banner() {
-  nocolor || echo -en "\e[1;$(term-fg-color --motd)m"
+  motd_nocolor || echo -en "\e[1;$(term-fg-color --motd)m"
   print_motd_file $MOTD_BANNER_FILE "$(hostname-pretty)"
   print_motd_file $MOTD_TAGLINE_FILE
-  nocolor || echo -en '\e[0m'
+  motd_nocolor || echo -en '\e[0m'
 }
 
 print_motd_body() {
