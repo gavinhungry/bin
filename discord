@@ -11,4 +11,4 @@ if [ -x "$DISCORD_BIN" ]; then
   ln -sf "$DISCORD_BIN" $DISCORD_DIR/Discord
 fi
 
-exec discord-tray
+exec $DISCORD_DIR/Discord --disable-smooth-scrolling "$@"
