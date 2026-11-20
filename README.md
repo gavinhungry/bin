@@ -36,8 +36,7 @@ A collection of utility scripts.
 | `cpu-util`              | Show CPU utilization percentage                                        |
 | `csr`                   | Generate an OpenSSL certificate signing request                        |
 | `deleted`               | List running processes whose binaries have been deleted                |
-| `discord`               | Launch Discord via tray wrapper                                        |
-| `discord-tray`          | Run Discord with a GTK system tray icon                                |
+| `discord`               | Update and launch Discord                                              |
 | `disk`                  | List non-removable disk models                                         |
 | `display-mode`          | Set display color temperature and brightness for day/night             |
 | `dnf`                   | dnf wrapper that elevates for privileged operations                    |
