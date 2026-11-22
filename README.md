@@ -239,6 +239,7 @@ A collection of utility scripts.
 | `xbindkeys`             | Launch xbindkeys with optional local config                            |
 | `xdg-dirs`              | List all XDG directory environment variables                           |
 | `xdg-open`              | xdg-open wrapper with custom URI scheme handling                       |
+| `xterm`                 | Launch xterm with a black background and white foreground              |
 | `youtube-get-title`     | Get and cache a YouTube video title                                    |
 | `yt-music-title`        | Print currently playing YouTube Music artist and title                 |
 | `yubico-tray`           | Yubico Authenticator system tray icon                                  |
