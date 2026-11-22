@@ -10,12 +10,14 @@ source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
 #
 
 NO_SANDBOX=0
+HERE=0
 WSL_INTEROP_ENABLED=0
 XVFB_PID=
 OPENCODE_ARGS=()
 while [ $# -gt 0 ]; do
   case "$1" in
     --no-sandbox) NO_SANDBOX=1 ;;
+    --here) HERE=1 ;;
     --wsl-interop) WSL_INTEROP_ENABLED=1 ;;
     --) OPENCODE_ARGS+=("$@"); break ;;
     *) OPENCODE_ARGS+=("$1") ;;
@@ -26,6 +28,10 @@ set -- "${OPENCODE_ARGS[@]}"
 
 if [ $NO_SANDBOX -eq 1 ]; then
   warn 'Sandbox disabled; OpenCode runs with full access as your user'
+  if [ $HERE -eq 1 ]; then
+    warn '--here has no effect with --no-sandbox'
+    HERE=0
+  fi
   if [ $WSL_INTEROP_ENABLED -eq 1 ]; then
     warn '--wsl-interop has no effect with --no-sandbox'
     WSL_INTEROP_ENABLED=0
@@ -36,9 +42,17 @@ fi
 # Workspace directory
 #
 # Without the sandbox, the current directory is always used. With it, this is
-# primarily a footgun-prevention mechanism, and not security enforcement. Allow
-# workspaces either within `OPENCODE_SANDBOX_WORKSPACE_BASE_DIR`, even if it is
-# just an explicitly-created symlink to an external directory.
+# primarily a footgun-prevention mechanism, and not security enforcement. The
+# workspace must be within `OPENCODE_SANDBOX_WORKSPACE_BASE_DIR`, either
+# directly or via an explicitly-created symlink to an external directory.
+#
+# When started from outside the base dir, look for a symlink within it that
+# points to the current directory, or to one of its parents, and use the
+# equivalent path through that symlink. This keeps the workspace path the
+# same however it is reached. Otherwise, refuse to start, except for --help
+# and --version, which fall back to the base dir.
+#
+# --here bypasses the check, after confirmation, using the current directory.
 #
 
 if [ $NO_SANDBOX -eq 1 ]; then
@@ -52,7 +66,7 @@ else
   [ -d "$OPENCODE_SANDBOX_WORKSPACE_BASE_DIR" ] ||
     die 'OPENCODE_SANDBOX_WORKSPACE_BASE_DIR does not exist'
 
-  WORKSPACE_DIR="$OPENCODE_SANDBOX_WORKSPACE_BASE_DIR"
+  WORKSPACE_DIR=
 
   if [[
     "$PWD" == "$OPENCODE_SANDBOX_WORKSPACE_BASE_DIR" ||
@@ -60,8 +74,34 @@ else
   ]]; then
     WORKSPACE_DIR="$PWD"
   else
-    if ! arge help && ! arge version; then
-      warn "Workspace should be within $OPENCODE_SANDBOX_WORKSPACE_BASE_DIR"
+    REAL_PWD=$(pwd -P)
+
+    while read -r -d '' LINK; do
+      TARGET=$(readlink -f "$LINK")
+
+      if [[ "$REAL_PWD" == "$TARGET" || "$REAL_PWD" == "$TARGET"/* ]]; then
+        WORKSPACE_DIR="$LINK${REAL_PWD#"$TARGET"}"
+        arge help || arge version || msg "Using workspace $WORKSPACE_DIR" >&2
+        break
+      fi
+    done < <(
+      find "$OPENCODE_SANDBOX_WORKSPACE_BASE_DIR" -maxdepth 4 \
+        -name node_modules -prune -o \
+        -type l -xtype d -print0
+    )
+  fi
+
+  if [ -z "$WORKSPACE_DIR" ] && [ $HERE -eq 1 ] && ! arge help && ! arge version; then
+    warn "Bypassing workspace check; OpenCode has full access to $PWD"
+    confirm -n 'Continue?' < /dev/tty || exit 1
+    WORKSPACE_DIR="$PWD"
+  fi
+
+  if [ -z "$WORKSPACE_DIR" ]; then
+    if arge help || arge version; then
+      WORKSPACE_DIR="$OPENCODE_SANDBOX_WORKSPACE_BASE_DIR"
+    else
+      die "Workspace must be within $OPENCODE_SANDBOX_WORKSPACE_BASE_DIR (or symlinked into it)"
     fi
   fi
 fi
