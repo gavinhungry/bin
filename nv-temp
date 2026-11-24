@@ -1,4 +1,4 @@
 #!/bin/bash
 
-TEMP=$(nvidia-smi --query-gpu=temperature.gpu --format=csv,noheader)
-[ $? -eq 0 ] && echo "${TEMP}°C"
+TEMP=$(nvidia-smi -i 0 --query-gpu=temperature.gpu --format=csv,noheader,nounits) || exit
+[[ $TEMP =~ ^[0-9]+(\.[0-9]+)?$ ]] && printf '%.0f°C\n' "$TEMP"
