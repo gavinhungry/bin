@@ -1,0 +1,16 @@
+#!/bin/bash
+
+source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
+arge help && usage '[--vendor VEND] [--type TYPE] [--mode MODE]'
+
+KEY_VEND=$(arg vendor  | tr -dc '[:alnum:]')
+KEY_TYPE=$(arg type sk | tr -dc '[:alnum:]')
+KEY_MODE=$(arg mode    | tr -dc '[:alnum:]')
+
+KEY_PREFIX=''
+for KEY_PART in $KEY_VEND $KEY_TYPE $KEY_MODE; do
+  [ -n "$KEY_PART" ] && KEY_PREFIX+="${KEY_PART}_"
+done
+
+KEY_SECRET=$(head -c 32 /dev/random | basenc --base58 -w0)
+echo "${KEY_PREFIX}${KEY_SECRET}"
