@@ -1,16 +1,20 @@
 #!/bin/bash
 
 source $(dirname "${BASH_SOURCE[0]}")/.abash/abash.sh
-arge help && usage '[--vendor VEND] [--type TYPE] [--mode MODE]'
+arge help && usage '[--vendor VEND] [--type TYPE] [--env ENV]'
 
-KEY_VEND=$(arg vendor  | tr -dc '[:alnum:]')
-KEY_TYPE=$(arg type sk | tr -dc '[:alnum:]')
-KEY_MODE=$(arg mode    | tr -dc '[:alnum:]')
+base62() {
+  LC_ALL=C tr -dc 'A-Za-z0-9'
+}
+
+KEY_VEND=$(arg vendor | base62)
+KEY_TYPE=$(arg type sk | base62)
+KEY_ENV=$(arg env | base62)
 
 KEY_PREFIX=''
-for KEY_PART in $KEY_VEND $KEY_TYPE $KEY_MODE; do
-  [ -n "$KEY_PART" ] && KEY_PREFIX+="${KEY_PART}_"
+for KEY_PART in $KEY_VEND $KEY_TYPE $KEY_ENV; do
+  [ -n "$KEY_PART" ] && KEY_PREFIX+="${KEY_PART}-"
 done
 
-KEY_SECRET=$(head -c 32 /dev/random | basenc --base58 -w0)
-echo "${KEY_PREFIX}${KEY_SECRET}"
+KEY_SECRET=$(base62 < /dev/urandom | head -c 43) # 256 bits / log_2(62)
+echo "${KEY_PREFIX,,}${KEY_SECRET}"
