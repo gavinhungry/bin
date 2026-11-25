@@ -27,14 +27,27 @@ done
 set -- "${OPENCODE_ARGS[@]}"
 
 if [ $NO_SANDBOX -eq 1 ]; then
-  warn 'Sandbox disabled; OpenCode runs with full access as your user'
   if [ $HERE -eq 1 ]; then
-    warn '--here has no effect with --no-sandbox'
+    msg 'Ignoring --here (no sandbox)' >&2
     HERE=0
   fi
   if [ $WSL_INTEROP_ENABLED -eq 1 ]; then
-    warn '--wsl-interop has no effect with --no-sandbox'
+    msg 'Ignoring --wsl-interop (no sandbox)' >&2
     WSL_INTEROP_ENABLED=0
+  fi
+  warn 'Disabling sandbox (allows full user access)'
+  if ! arge help && ! arge version; then
+    confirm -n 'Continue?' < /dev/tty
+  fi
+fi
+
+if [ $WSL_INTEROP_ENABLED -eq 1 ]; then
+  [ -d /run/WSL ] || die '--wsl-interop requires WSL'
+  [ -n "$WSL_INTEROP" ] || die '--wsl-interop: WSL_INTEROP not set'
+
+  warn 'Enabling WSL interop (Windows programs bypass sandbox)'
+  if ! arge help && ! arge version; then
+    confirm -n 'Continue?' < /dev/tty
   fi
 fi
 
@@ -46,14 +59,25 @@ fi
 # workspace must be within `OPENCODE_SANDBOX_WORKSPACE_BASE_DIR`, either
 # directly or via an explicitly-created symlink to an external directory.
 #
-# When started from outside the base dir, look for a symlink within it that
-# points to the current directory, or to one of its parents, and use the
-# equivalent path through that symlink. This keeps the workspace path the
-# same however it is reached. Otherwise, refuse to start, except for --help
-# and --version, which fall back to the base dir.
+# The workspace is resolved from the directory argument, if any (in which case
+# it is removed, as the sandbox starts in the workspace anyway), or else from
+# the current directory.
 #
-# --here bypasses the check, after confirmation, using the current directory.
+# Workspace symlinks are found anywhere within the base dir, without
+# descending into projects (directories containing .git), so symlinks within
+# a project never count. Their targets are mounted when within the workspace,
+# so that sessions through them work from the base dir too.
 #
+# When started from outside the base dir, look for a workspace symlink that
+# points to the start directory, or to one of its parents, and use the
+# equivalent path through that symlink. This keeps the workspace path the same
+# however it is reached. Otherwise, fall back to the base dir, e.g. to pick an
+# existing session from there, unless the directory was given explicitly.
+#
+# --here bypasses the check, after confirmation, using the start directory.
+#
+
+LINK_BIND_ARGS=()
 
 if [ $NO_SANDBOX -eq 1 ]; then
   WORKSPACE_DIR="$PWD"
@@ -61,48 +85,91 @@ else
   OPENCODE_SANDBOX_WORKSPACE_BASE_DIR=${OPENCODE_SANDBOX_WORKSPACE_BASE_DIR:-$XDG_DEVEL_HOME}
 
   [ -n "$OPENCODE_SANDBOX_WORKSPACE_BASE_DIR" ] ||
-    die 'OPENCODE_SANDBOX_WORKSPACE_BASE_DIR not set'
+    die 'No workspace base: set OPENCODE_SANDBOX_WORKSPACE_BASE_DIR or XDG_DEVEL_HOME'
 
   [ -d "$OPENCODE_SANDBOX_WORKSPACE_BASE_DIR" ] ||
-    die 'OPENCODE_SANDBOX_WORKSPACE_BASE_DIR does not exist'
+    die "Workspace base $(bpath "$OPENCODE_SANDBOX_WORKSPACE_BASE_DIR") does not exist"
+
+  BASE_DIR=$OPENCODE_SANDBOX_WORKSPACE_BASE_DIR
+
+  in_dir() {
+    [[ "$1" == "$2" || "$1" == "$2"/* ]]
+  }
+
+  # Find the directory argument: the first positional, unless a subcommand
+  DIR_ARG_INDEX=
+  ARGS=("$@")
+  for (( I=0; I<${#ARGS[@]}; I++ )); do
+    case "${ARGS[$I]}" in
+      --) (( I + 1 < ${#ARGS[@]} )) && DIR_ARG_INDEX=$((I + 1)); break ;;
+      --server|--session|-s|--prompt|--completions|--log-level) (( I++ )) ;;
+      -*) ;;
+      upgrade|update|uninstall|acp|api|debug|auth|mcp|plugin|models|stats|\
+      mini|run|session|service|reload|pair|serve) break ;;
+      *) DIR_ARG_INDEX=$I; break ;;
+    esac
+  done
+
+  START_DIR=$PWD
+  if [ -n "$DIR_ARG_INDEX" ]; then
+    DIR_ARG=${ARGS[$DIR_ARG_INDEX]}
+    [ -d "$DIR_ARG" ] || die "$(bpath "$DIR_ARG") is not a directory"
+    START_DIR=$(cd "$DIR_ARG" && pwd) || die "Unable to access $(bpath "$DIR_ARG")"
+    unset 'ARGS[DIR_ARG_INDEX]'
+    set -- "${ARGS[@]}"
+  fi
 
   WORKSPACE_DIR=
 
-  if [[
-    "$PWD" == "$OPENCODE_SANDBOX_WORKSPACE_BASE_DIR" ||
-    "$PWD" == "$OPENCODE_SANDBOX_WORKSPACE_BASE_DIR"/*
-  ]]; then
-    WORKSPACE_DIR="$PWD"
+  if arge help || arge version; then
+    in_dir "$START_DIR" "$BASE_DIR" && WORKSPACE_DIR=$START_DIR || WORKSPACE_DIR=$BASE_DIR
   else
-    REAL_PWD=$(pwd -P)
-
+    LINKS=()
+    LINK_TARGETS=()
     while read -r -d '' LINK; do
-      TARGET=$(readlink -f "$LINK")
-
-      if [[ "$REAL_PWD" == "$TARGET" || "$REAL_PWD" == "$TARGET"/* ]]; then
-        WORKSPACE_DIR="$LINK${REAL_PWD#"$TARGET"}"
-        arge help || arge version || msg "Using workspace $WORKSPACE_DIR" >&2
-        break
-      fi
+      LINKS+=("$LINK")
+      LINK_TARGETS+=("$(readlink -f "$LINK")")
     done < <(
-      find "$OPENCODE_SANDBOX_WORKSPACE_BASE_DIR" -maxdepth 4 \
+      find "$BASE_DIR" \
+        -type d -exec test -e {}/.git \; -prune -o \
         -name node_modules -prune -o \
         -type l -xtype d -print0
     )
-  fi
 
-  if [ -z "$WORKSPACE_DIR" ] && [ $HERE -eq 1 ] && ! arge help && ! arge version; then
-    warn "Bypassing workspace check; OpenCode has full access to $PWD"
-    confirm -n 'Continue?' < /dev/tty || exit 1
-    WORKSPACE_DIR="$PWD"
-  fi
-
-  if [ -z "$WORKSPACE_DIR" ]; then
-    if arge help || arge version; then
-      WORKSPACE_DIR="$OPENCODE_SANDBOX_WORKSPACE_BASE_DIR"
+    if in_dir "$START_DIR" "$BASE_DIR"; then
+      WORKSPACE_DIR=$START_DIR
     else
-      die "Workspace must be within $OPENCODE_SANDBOX_WORKSPACE_BASE_DIR (or symlinked into it)"
+      REAL_START_DIR=$(cd "$START_DIR" && pwd -P)
+
+      for I in "${!LINKS[@]}"; do
+        if in_dir "$REAL_START_DIR" "${LINK_TARGETS[$I]}"; then
+          WORKSPACE_DIR="${LINKS[$I]}${REAL_START_DIR#"${LINK_TARGETS[$I]}"}"
+          msg "Using workspace $(bpath "$WORKSPACE_DIR") (via symlink)" >&2
+          break
+        fi
+      done
     fi
+
+    if [ -z "$WORKSPACE_DIR" ] && [ $HERE -eq 1 ]; then
+      warn "Allowing full access to $(bpath "$START_DIR")"
+      confirm -n 'Continue?' < /dev/tty
+      WORKSPACE_DIR=$START_DIR
+    fi
+
+    if [ -z "$WORKSPACE_DIR" ]; then
+      [ -z "$DIR_ARG_INDEX" ] ||
+        die "$(bpath "$START_DIR") is outside workspace $(bpath "$BASE_DIR")"
+
+      WORKSPACE_DIR=$BASE_DIR
+      msg "Using workspace $(bpath "$WORKSPACE_DIR")" >&2
+    fi
+
+    for I in "${!LINKS[@]}"; do
+      if in_dir "${LINKS[$I]}" "$WORKSPACE_DIR" &&
+        ! in_dir "${LINK_TARGETS[$I]}" "$BASE_DIR"; then
+        LINK_BIND_ARGS+=(--bind "${LINK_TARGETS[$I]}" "${LINK_TARGETS[$I]}")
+      fi
+    done
   fi
 fi
 
@@ -122,7 +189,7 @@ OPENCODE_INSTALL_DIR=$(
   jq -r '.[0].dependencies["@opencode/cli-linux-x64"].path'
 )
 
-[ -d "$OPENCODE_INSTALL_DIR" ] || die 'opencode not installed'
+[ -d "$OPENCODE_INSTALL_DIR" ] || die 'OpenCode not installed'
 
 #
 # Editor
@@ -162,11 +229,14 @@ fi
 
 [ -n "$TITLE_PREFIX" ] && TITLE_PREFIX+=' '
 
-TITLE_HOST=
-[ -n "$SSH_CONNECTION" ] && TITLE_HOST="@${HOSTNAME%%.*}"
+TITLE_SUFFIX=OpenCode
+[ -n "$SSH_CONNECTION" ] && TITLE_SUFFIX+=" (${HOSTNAME%%.*})"
 
-OPENCODE_WM_NAME="${TITLE_PREFIX}${WORKSPACE_BASENAME}${TITLE_HOST} ${__TITLE_SEP_CHAR:-"-"} OpenCode"
-wmname "$OPENCODE_WM_NAME"
+TITLE_SEP="${__TITLE_SEP_CHAR:-"-"}"
+
+# The term-title plugin inserts the current session's project between the
+# prefix and suffix, e.g. "[!!] bin - OpenCode (host)".
+wmname "${TITLE_PREFIX}${TITLE_SUFFIX}"
 
 #
 # Instance directory
@@ -227,8 +297,7 @@ trap cleanup EXIT
 # External directory
 #
 # The ext dir is shared with the sandbox. Notifications are written to .notify,
-# and are suppressed by notify-args while .focus (written by the focus-state
-# TUI plugin from terminal focus events) contains `focused`.
+# and sent on the host by notify-args.
 #
 
 OPENCODE_SANDBOX_EXT_DIR="$INSTANCE_DIR"/ext
@@ -322,11 +391,6 @@ fi
 WSL_BIND_ARGS=()
 SANDBOX_PATH="$XDG_LOCAL_HOME"/bin:/usr/bin
 if [ $WSL_INTEROP_ENABLED -eq 1 ]; then
-  [ -d /run/WSL ] || die 'WSL interop requires WSL'
-  [ -n "$WSL_INTEROP" ] || die 'WSL_INTEROP not set'
-
-  warn 'WSL interop enabled; Windows processes run outside the sandbox'
-
   WSL_SYSTEMDRIVE=$(wslpath -u "$(wsl-env-var SYSTEMDRIVE)\\")
   WSL_SYSTEMDRIVE=${WSL_SYSTEMDRIVE%/}
 
@@ -359,9 +423,12 @@ fi
 #
 
 COMMON_ENV=(
-  WORKSPACE_BASENAME="$WORKSPACE_BASENAME"
+  DESKTOP_NOTIFY_IGNORE_FOCUS=$([ -n "$STY" ] || [ -n "$TMUX" ] && echo 1)
   EDITOR="drain-stdin $EDITOR_CMD"
   OPENCODE_SANDBOX_EXT_DIR="$OPENCODE_SANDBOX_EXT_DIR"
+  TERM_TITLE_PREFIX="$TITLE_PREFIX"
+  TERM_TITLE_SEP="$TITLE_SEP"
+  TERM_TITLE_SUFFIX="$TITLE_SUFFIX"
   OPENCODE_DISABLE_FREE_MODELS=1
   OPENCODE_DISABLE_PROJECT_CONFIG=1
 )
@@ -387,9 +454,9 @@ if [ $NO_SANDBOX -eq 1 ]; then
 
     if [ -L "$LINK" ]; then
       [ "$(readlink "$LINK")" == "$TARGET" ] ||
-        die "$LINK is a symlink to something other than $TARGET"
+        die "$(bpath "$LINK") is a symlink to something other than $(bpath "$TARGET")"
     elif [ -e "$LINK" ]; then
-      die "$LINK exists and is not a symlink to $TARGET"
+      die "$(bpath "$LINK") exists and is not a symlink to $(bpath "$TARGET")"
     else
       ln -s "$TARGET" "$LINK"
     fi
@@ -436,6 +503,7 @@ done
   --ro-bind-try /etc/pki /etc/pki \
   --ro-bind "$OPENCODE_INSTALL_DIR" /opt/opencode \
   --dir "$HOME" \
+  "${LINK_BIND_ARGS[@]}" \
   --ro-bind-try "$HOME/.gitconfig.user" "$HOME/.gitconfig" \
   --tmpfs /tmp \
   --tmpfs "$XDG_CACHE_HOME" \
@@ -455,7 +523,6 @@ done
   --clearenv \
   "${COMMON_SETENV_ARGS[@]}" \
   --setenv OPENCODE_BIN /opt/opencode/bin/opencode \
-  --setenv OPENCODE_WM_NAME "$OPENCODE_WM_NAME" \
   --setenv HOME "$HOME" \
   --setenv PATH "$SANDBOX_PATH" \
   --setenv PWD "$WORKSPACE_DIR" \
